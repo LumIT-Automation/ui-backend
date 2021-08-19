@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ "$1" == "purge" ]; then
+    if podman volume ls | awk '{print $2}' | grep ^ui-backend$; then
+        printf "\n* Clean up uib volume...\n"
+        podman volume rm ui-backend
+    fi
+fi
+
+# Force debconf cleanup.
+echo PURGE | debconf-communicate automation-interface-ui-backend-container
+
+exit 0

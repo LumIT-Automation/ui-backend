@@ -1,0 +1,13 @@
+#!/bin/bash
+
+printf "\n* Container prerm...\n"
+printf "\n* Cleanup...\n"
+if podman ps | awk '{print $2}' | grep -q ^localhost/ui-backend$; then
+    podman stop ui-backend
+fi
+
+if podman images | awk '{print $1}' | grep -q ^localhost/ui-backend$; then
+    podman rmi -f ui-backend
+fi
+
+exit 0
