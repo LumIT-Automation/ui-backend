@@ -201,8 +201,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '60/minute',
-        'user': '60/minute'
+        'anon': '600/minute',
+        'user': '600/minute'
     },
 
     # Disable browser-view for APIs.
