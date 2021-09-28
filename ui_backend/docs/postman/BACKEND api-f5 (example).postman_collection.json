@@ -19,7 +19,7 @@
 							{
 								"key": "Authorization",
 								"type": "text",
-								"value": "Bearer {{jtwtoken}}"
+								"value": "Bearer {{jwttoken}}"
 							},
 							{
 								"key": "If-None-Match",
@@ -60,7 +60,7 @@
 							{
 								"key": "Authorization",
 								"type": "text",
-								"value": "Bearer {{jtwtoken}}"
+								"value": "Bearer {{jwttoken}}"
 							},
 							{
 								"key": "If-None-Match",
