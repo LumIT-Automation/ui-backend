@@ -61,7 +61,7 @@ class Controller(CustomController):
                 Log.actionLog("POST "+str(request.get_full_path())+" with headers "+str(request.headers)+" with data: "+str(request.data), user)
 
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
-                data["data"] = api.post(request.data)
+                data = api.post(request.data)
 
                 httpStatus = status.HTTP_201_CREATED
             else:
