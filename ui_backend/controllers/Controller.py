@@ -13,7 +13,6 @@ from ui_backend.helpers.DataFilter import DataFilter
 class Controller(CustomController):
     def get(self, request: Request) -> Response:
         user = CustomController.loggedUser(request)
-
         headers = dict()
         data = dict()
 
@@ -125,7 +124,7 @@ class Controller(CustomController):
                 Log.actionLog("PUT "+str(request.get_full_path())+" with headers "+str(request.headers)+" with data: "+str(request.data), user)
 
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
-                api.put(request.data)
+                data = api.put(request.data)
 
                 httpStatus = status.HTTP_200_OK
             else:
