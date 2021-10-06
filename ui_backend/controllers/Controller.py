@@ -81,6 +81,7 @@ class Controller(CustomController):
     def patch(self, request: Request) -> Response:
         user = CustomController.loggedUser(request)
         headers = dict()
+        data = dict()
 
         if "Authorization" in request.headers:
             headers["Authorization"] = request.headers["Authorization"]
@@ -92,7 +93,7 @@ class Controller(CustomController):
                 Log.actionLog("PATCH "+str(request.get_full_path())+" with headers "+str(request.headers)+" with data: "+str(request.data), user)
 
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
-                api.patch(request.data)
+                data = api.patch(request.data)
 
                 httpStatus = status.HTTP_200_OK
             else:
@@ -103,7 +104,7 @@ class Controller(CustomController):
             data, httpStatus, headers = CustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
 
-        return Response(None, status=httpStatus, headers={
+        return Response(data, status=httpStatus, headers={
             "Cache-Control": "no-cache"
         })
 
@@ -112,6 +113,7 @@ class Controller(CustomController):
     def put(self, request: Request) -> Response:
         user = CustomController.loggedUser(request)
         headers = dict()
+        data = dict()
 
         if "Authorization" in request.headers:
             headers["Authorization"] = request.headers["Authorization"]
@@ -134,7 +136,7 @@ class Controller(CustomController):
             data, httpStatus, headers = CustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
 
-        return Response(None, status=httpStatus, headers={
+        return Response(data, status=httpStatus, headers={
             "Cache-Control": "no-cache"
         })
 
