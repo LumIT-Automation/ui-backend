@@ -75,14 +75,16 @@ class CustomController(APIView):
 
         if any(exc in e.__class__.__name__ for exc in ("ConnectionError", "Timeout", "TooManyRedirects", "SSLError", "HTTPError")):
             httpStatus = status.HTTP_503_SERVICE_UNAVAILABLE
-            data["error"] = e.__str__()
+            data["reason"] = e.__str__()
         elif e.__class__.__name__ == "CustomException":
             data = None
             httpStatus = e.status
             if "API" in e.payload:
-                if e.payload["API"]:
-                    data = dict()
-                    data["error"] = e.payload
+                data = dict()
+
+                reason = e.payload["API"]
+                for k, v in reason.items():
+                    data["reason"] = str(v)
         else:
             httpStatus = status.HTTP_500_INTERNAL_SERVER_ERROR # generic.
 

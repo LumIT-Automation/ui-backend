@@ -48,7 +48,6 @@ class Controller(CustomController):
     def post(self, request: Request) -> Response:
         user = CustomController.loggedUser(request)
         headers = dict()
-        data = dict()
 
         if "Authorization" in request.headers:
             headers["Authorization"] = request.headers["Authorization"]
@@ -80,7 +79,6 @@ class Controller(CustomController):
     def patch(self, request: Request) -> Response:
         user = CustomController.loggedUser(request)
         headers = dict()
-        data = dict()
 
         if "Authorization" in request.headers:
             headers["Authorization"] = request.headers["Authorization"]
@@ -112,7 +110,6 @@ class Controller(CustomController):
     def put(self, request: Request) -> Response:
         user = CustomController.loggedUser(request)
         headers = dict()
-        data = dict()
 
         if "Authorization" in request.headers:
             headers["Authorization"] = request.headers["Authorization"]
