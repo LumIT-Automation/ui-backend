@@ -84,7 +84,7 @@ class CustomController(APIView):
 
                 reason = e.payload["API"]
                 for k, v in reason.items():
-                    data["reason"] = str(v)
+                    data["reason"] = v
         else:
             httpStatus = status.HTTP_500_INTERNAL_SERVER_ERROR # generic.
 
