@@ -57,7 +57,7 @@ class ApiSupplicant:
             headers = {**standardHeaders, **self.additionalHeaders}  # merge dicts.
 
             # Fetch the remote resource from the API backend.
-            Log.actionLog("Fetching remote: GET " + str(self.endpoint)+" with query params: "+str(self.params)+" with headers: "+str(headers))
+            Log.actionLog("Fetching remote: GET "+str(self.endpoint)+" with query params: "+str(self.params)+" with headers: "+str(headers))
 
             r = requests.get(self.endpoint,
                 params=self.params,
@@ -66,7 +66,7 @@ class ApiSupplicant:
             )
 
             self.responseStatus = r.status_code
-            Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
+            Log.actionLog("Api Supplicant: remote response status: "+str(self.responseStatus))
 
             if self.responseStatus == 200: # ok.
                 try:
@@ -136,7 +136,7 @@ class ApiSupplicant:
             )
 
             self.responseStatus = response.status_code
-            Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
+            Log.actionLog("Api Supplicant: remote response status: "+str(self.responseStatus))
 
             try:
                 self.responseObject = response.json()
@@ -183,7 +183,7 @@ class ApiSupplicant:
             )
 
             self.responseStatus = response.status_code
-            Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
+            Log.actionLog("Api Supplicant: remote response status: "+str(self.responseStatus))
 
             try:
                 self.responseObject = response.json()
@@ -230,7 +230,7 @@ class ApiSupplicant:
             )
 
             self.responseStatus = response.status_code
-            Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
+            Log.actionLog("Api Supplicant: remote response status: "+str(self.responseStatus))
 
             try:
                 self.responseObject = response.json()
@@ -266,7 +266,7 @@ class ApiSupplicant:
             )
 
             self.responseStatus = response.status_code
-            Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
+            Log.actionLog("Api Supplicant: remote response status: "+str(self.responseStatus))
 
             try:
                 self.responseObject = response.json()
@@ -276,7 +276,7 @@ class ApiSupplicant:
             if self.responseStatus == 200: # ok.
                 pass
             else:
-                raise CustomException(status=self.responseStatus, payload=self.responseObject)
+                raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
 
         except Exception as e:
             raise e
