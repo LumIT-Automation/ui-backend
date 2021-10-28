@@ -11,8 +11,9 @@ fi
 if [ "$1" -eq "0" ]; then
     printf "\n* Cleanup...\n" 
 
-    if podman ps | awk '{print $2}' | grep -E '\blocalhost/ui-backend(:|\b)'; then
-        podman stop ui-backend
+    if podman ps | awk '{print $2}' | grep -Eq '\blocalhost/ui-backend(:|\b)'; then
+        podman stop -t 5 ui-backend &
+        wait $! # Wait for the shutdown process of the container.
     fi
     
     if podman images | awk '{print $1}' | grep -q ^localhost/ui-backend$; then

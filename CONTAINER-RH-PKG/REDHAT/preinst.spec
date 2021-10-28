@@ -9,8 +9,10 @@ fi
 printf "\n* Container preinst...\n"
 printf "\n* Cleanup...\n"
 
-if podman ps | awk '{print $2}' | grep -q ^localhost/ui-backend$; then
-    podman stop ui-backend
+# If this is an upgrade, stop the container in 5 seconds.
+if podman ps | awk '{print $2}' | grep -Eq '\blocalhost/ui-backend(:|\b)'; then
+    podman stop -t 5 ui-backend &
+    wait $! # Wait for the shutdown process of the container.
 fi
 
 if podman images | awk '{print $1}' | grep -q ^localhost/ui-backend$; then
@@ -18,8 +20,8 @@ if podman images | awk '{print $1}' | grep -q ^localhost/ui-backend$; then
 fi
 
 # Be sure there is not rubbish around.
-if podman ps --all | awk '{print $2}' | grep -q ^localhost/ui-backend$; then
-    cIds=$( podman ps --all | awk '$2 == "localhost/ui-backend" { print $1 }' )
+if podman ps --all | awk '{print $2}' | grep -E '\blocalhost/ui-backend(:|\b)'; then
+    cIds=$( podman ps --all | awk '$2 ~ /^localhost\/ui-backend/ { print $1 }' )
     for id in $cIds; do
         podman rm -f $id
     done
