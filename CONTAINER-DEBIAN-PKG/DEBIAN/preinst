@@ -5,7 +5,7 @@ set -e
 printf "\n* Container preinst...\n"
 printf "\n* Cleanup...\n"
 
-# If this is an upgrade, stop the container in 5 seconds.
+# If there is a ui-backend container already, stop it in 5 seconds.
 if podman ps | awk '{print $2}' | grep -Eq '\blocalhost/ui-backend(:|\b)'; then
     podman stop -t 5 ui-backend &
     wait $! # Wait for the shutdown process of the container.
