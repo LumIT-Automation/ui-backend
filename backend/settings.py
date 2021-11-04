@@ -213,7 +213,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=480),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
 
@@ -234,7 +234,7 @@ SIMPLE_JWT = {
 
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(minutes=480),
 }
 
 # Variables.
@@ -254,7 +254,7 @@ if ss and o:
                 apiAddress = str(consulResolver.query(service+".service.consul")[0])
                 apiPort = str(str(consulResolver.query(service+".service.consul", "SRV")[0]).split(" ")[2])
 
-                API_BACKEND_BASE_URL[technology] = API_BACKEND_PROTOCOL + apiAddress + ":" + apiPort + "/api/v1/" # from Consul agent's local resolver.
+                API_BACKEND_BASE_URL[technology] = API_BACKEND_PROTOCOL+apiAddress+":"+apiPort+"/api/v1/" # from Consul agent's local resolver.
             except Exception:
                 pass
 
