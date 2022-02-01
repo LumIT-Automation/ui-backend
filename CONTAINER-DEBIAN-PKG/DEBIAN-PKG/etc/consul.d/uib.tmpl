@@ -9,3 +9,15 @@
 {{ range service "api-f5" }}
   api-f5: {{ .Address }}:{{ .Port }};
 {{ end }}
+
+{{ range service "api-fortinetdb" }}
+  api-fortinetdb: {{ .Address }}:{{ .Port }};
+{{ end }}
+
+{{ range service "api-vmware" }}
+  api-vmware: {{ .Address }}:{{ .Port }};
+{{ end }}
+
+{{ range service "api-cisco-switch" }}
+  api-cisco-switch: {{ .Address }}:{{ .Port }};
+{{ end }}
