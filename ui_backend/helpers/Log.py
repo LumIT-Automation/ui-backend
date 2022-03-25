@@ -10,8 +10,15 @@ class Log:
         # Sends input logs to the "ui_backend" logger (settings).
         log = logging.getLogger("django")
         if title:
+            if title == "_":
+                for j in range(80):
+                    title = title + "_"
             log.debug(title)
+
         log.debug(o)
+
+        if title:
+            log.debug(title)
 
 
 

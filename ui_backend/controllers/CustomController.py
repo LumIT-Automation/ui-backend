@@ -41,7 +41,7 @@ class CustomController(APIView):
         # -> params: ?related=privileges
 
         endpoint = ""
-        queryParams = request.query_params.copy()
+        queryParams = dict(request.query_params.copy())
 
         # Remove filtering parameters (related to this backend).
         if "filter_by" in queryParams:

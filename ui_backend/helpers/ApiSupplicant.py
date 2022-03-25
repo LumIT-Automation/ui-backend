@@ -10,8 +10,11 @@ from ui_backend.helpers.Exception import CustomException
 
 
 class ApiSupplicant:
-    def __init__(self, endpoint: str, params: dict = {}, additionalHeaders: dict = {}, *args, **kwargs):
+    def __init__(self, endpoint: str, params: dict = None, additionalHeaders: dict = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        params = {} if params is None else params
+        additionalHeaders = {} if additionalHeaders is None else additionalHeaders
 
         self.endpoint = endpoint
         self.params = params
