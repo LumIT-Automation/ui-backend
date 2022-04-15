@@ -16,6 +16,9 @@ function containerSetup()
     wallBanner="RPM automation-interface-ui-backend-container post-install configuration message:\n"
     cd /usr/lib/ui-backend
 
+    # Grab the host timezone.
+    timeZone=$(timedatectl show| awk -F'=' '/Timezone/ {print $2}')
+
     # First container run: associate name, bind ports, bind fs volume, define init process, ...
     # backend folder will be bound to /var/lib/containers/storage/volumes/.
     podman run --name ui-backend -v ui-backend:/var/www/ui-backend/backend -dt localhost/ui-backend /sbin/init
@@ -35,6 +38,8 @@ function containerSetup()
     # Setup the JWT token public key (taken from SSO): using host-bound folders.
     cp -f /var/lib/containers/storage/volumes/sso/_data/settings_jwt.py /var/lib/containers/storage/volumes/ui-backend/_data/settings_jwt.py
     sed -i -e ':a;N;$!ba;s|\s*"privateKey.*}|\n}|g' /var/lib/containers/storage/volumes/ui-backend/_data/settings_jwt.py
+    printf "$wallBanner Set the timezone of the container to be the same as the host timezone..." | wall -n
+    podman exec ui-backend bash -c "timedatectl set-timezone $timeZone"
 
     # Activate MariaDB audit plugin if MariaDB is installed.
     podman exec ui-backend bash -c "if dpkg -l | grep -q mariadb-server; then \
