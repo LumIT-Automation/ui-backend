@@ -86,6 +86,9 @@ class CustomController(APIView):
                     reason = e.payload["API"]["error"]
                     for k, v in reason.items():
                         data["reason"] = v
+        elif e.__class__.__name__ == "ParseError":
+            data = None
+            httpStatus = status.HTTP_400_BAD_REQUEST # json parse.
         else:
             httpStatus = status.HTTP_500_INTERNAL_SERVER_ERROR # generic.
 

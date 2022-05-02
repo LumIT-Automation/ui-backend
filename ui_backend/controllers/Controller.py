@@ -70,6 +70,8 @@ class Controller(CustomController):
             data, httpStatus, headers = CustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
 
+        if not data:
+            data = None
         return Response(data, status=httpStatus, headers={
             "Cache-Control": "no-cache"
         })
@@ -101,6 +103,8 @@ class Controller(CustomController):
             data, httpStatus, headers = CustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
 
+        if not data:
+            data = None
         return Response(data, status=httpStatus, headers={
             "Cache-Control": "no-cache"
         })
@@ -132,6 +136,8 @@ class Controller(CustomController):
             data, httpStatus, headers = CustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
 
+        if not data:
+            data = None
         return Response(data, status=httpStatus, headers={
             "Cache-Control": "no-cache"
         })
