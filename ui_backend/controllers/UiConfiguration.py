@@ -34,6 +34,8 @@ class UiConfigurationController(BaseCustomController):
                 httpStatus = status.HTTP_304_NOT_MODIFIED
             else:
                 httpStatus = status.HTTP_200_OK
+        except FileNotFoundError as e:
+            return Response({}, status=200)
         except Exception as e:
             data, httpStatus, headers = BaseCustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
