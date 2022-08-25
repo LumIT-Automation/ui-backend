@@ -243,20 +243,23 @@ SIMPLE_JWT = {
 API_BACKEND_BASE_URL = dict()
 API_BACKEND_PROTOCOL = "http://"
 
-ss, st, o = Process.execute("consul catalog services")
-if ss and o:
-    for service in o.split("\n"):
-        if service and "api-" in service:
-            # service like: api-f5.
-            technology = service.replace("api-", "")
+try:
+    ss, st, o = Process.execute("consul catalog services")
+    if ss and o:
+        for service in o.split("\n"):
+            if service and "api-" in service:
+                # service like: api-f5.
+                technology = service.replace("api-", "")
 
-            try:
-                apiAddress = str(consulResolver.query(service+".service.consul")[0])
-                apiPort = str(str(consulResolver.query(service+".service.consul", "SRV")[0]).split(" ")[2])
+                try:
+                    apiAddress = str(consulResolver.query(service+".service.consul")[0])
+                    apiPort = str(str(consulResolver.query(service+".service.consul", "SRV")[0]).split(" ")[2])
 
-                API_BACKEND_BASE_URL[technology] = API_BACKEND_PROTOCOL+apiAddress+":"+apiPort+"/api/v1/" # from Consul agent's local resolver.
-            except Exception:
-                pass
+                    API_BACKEND_BASE_URL[technology] = API_BACKEND_PROTOCOL+apiAddress+":"+apiPort+"/api/v1/" # from Consul agent's local resolver.
+                except Exception:
+                    pass
+except Exception:
+    pass
 
 API_SUPPLICANT_NETWORK_TIMEOUT = 120 # seconds.
 API_SUPPLICANT_CACHE_VALIDITY = 60*60*24 # seconds.
