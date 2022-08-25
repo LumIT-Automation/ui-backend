@@ -4,7 +4,8 @@ from rest_framework.response import Response
 
 
 class RootController(APIView):
-    def get(self, request: Request) -> Response:
+    @staticmethod
+    def get(request: Request) -> Response:
         return Response({
             "Hello": "Nothing to see here"
         })

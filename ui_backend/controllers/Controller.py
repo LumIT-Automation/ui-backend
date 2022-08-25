@@ -10,8 +10,10 @@ from ui_backend.helpers.Log import Log
 from ui_backend.helpers.DataFilter import DataFilter
 
 
+
 class Controller(CustomController):
-    def get(self, request: Request) -> Response:
+    @staticmethod
+    def get(request: Request) -> Response:
         user = CustomController.loggedUser(request)
         headers = dict()
         data = dict()
@@ -45,7 +47,8 @@ class Controller(CustomController):
 
 
 
-    def post(self, request: Request) -> Response:
+    @staticmethod
+    def post(request: Request) -> Response:
         user = CustomController.loggedUser(request)
         headers = dict()
 
@@ -78,7 +81,8 @@ class Controller(CustomController):
 
 
 
-    def patch(self, request: Request) -> Response:
+    @staticmethod
+    def patch(request: Request) -> Response:
         user = CustomController.loggedUser(request)
         headers = dict()
 
@@ -111,7 +115,8 @@ class Controller(CustomController):
 
 
 
-    def put(self, request: Request) -> Response:
+    @staticmethod
+    def put(request: Request) -> Response:
         user = CustomController.loggedUser(request)
         headers = dict()
 
@@ -144,7 +149,8 @@ class Controller(CustomController):
 
 
 
-    def delete(self, request: Request) -> Response:
+    @staticmethod
+    def delete(request: Request) -> Response:
         user = CustomController.loggedUser(request)
         headers = dict()
 

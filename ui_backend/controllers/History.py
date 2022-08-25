@@ -9,8 +9,10 @@ from ui_backend.helpers.ApiSupplicant import ApiSupplicant
 from ui_backend.helpers.Log import Log
 
 
+
 class HistoryController(CustomController):
-    def get(self, request: Request) -> Response:
+    @staticmethod
+    def get(request: Request) -> Response:
         user = CustomController.loggedUser(request)
 
         headers = dict()

@@ -12,10 +12,41 @@ from ui_backend.authenticators.GranularIsAuthenticated import GranularIsAuthenti
 from ui_backend.helpers.Log import Log
 
 
-class CustomController(APIView):
+
+class BaseCustomController(APIView):
+    @staticmethod
+    def exceptionHandler(e: Exception) -> tuple:
+        Log.logException(e)
+
+        data = dict()
+        headers = { "Cache-Control": "no-cache" }
+
+        if e.__class__.__name__ in ("ConnectionError", "Timeout", "TooManyRedirects", "SSLError", "HTTPError"):
+            httpStatus = status.HTTP_503_SERVICE_UNAVAILABLE
+            data["reason"] = e.__str__()
+        elif e.__class__.__name__ == "CustomException":
+            data = None
+            httpStatus = e.status
+            if "API" in e.payload:
+                if "error" in e.payload["API"]:
+                    data = dict()
+
+                    reason = e.payload["API"]["error"]
+                    for k, v in reason.items():
+                        data["reason"] = v
+        elif e.__class__.__name__ == "ParseError":
+            data = None
+            httpStatus = status.HTTP_400_BAD_REQUEST # json parse.
+        else:
+            httpStatus = status.HTTP_500_INTERNAL_SERVER_ERROR # generic.
+
+        return data, httpStatus, headers
+
+
+
+class CustomController(BaseCustomController):
     permission_classes = [GranularIsAuthenticated]
     authentication_classes = [JWTTokenUserAuthentication]
-
 
 
     @staticmethod
@@ -63,33 +94,3 @@ class CustomController(APIView):
             "endpoint": endpoint,
             "params": queryParams
         }
-
-
-
-    @staticmethod
-    def exceptionHandler(e: Exception) -> tuple:
-        Log.logException(e)
-
-        data = dict()
-        headers = { "Cache-Control": "no-cache" }
-
-        if any(exc in e.__class__.__name__ for exc in ("ConnectionError", "Timeout", "TooManyRedirects", "SSLError", "HTTPError")):
-            httpStatus = status.HTTP_503_SERVICE_UNAVAILABLE
-            data["reason"] = e.__str__()
-        elif e.__class__.__name__ == "CustomException":
-            data = None
-            httpStatus = e.status
-            if "API" in e.payload:
-                if "error" in e.payload["API"]:
-                    data = dict()
-
-                    reason = e.payload["API"]["error"]
-                    for k, v in reason.items():
-                        data["reason"] = v
-        elif e.__class__.__name__ == "ParseError":
-            data = None
-            httpStatus = status.HTTP_400_BAD_REQUEST # json parse.
-        else:
-            httpStatus = status.HTTP_500_INTERNAL_SERVER_ERROR # generic.
-
-        return data, httpStatus, headers
