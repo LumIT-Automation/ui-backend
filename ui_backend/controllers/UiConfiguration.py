@@ -1,4 +1,5 @@
 import json
+import os.path
 
 from django.conf import settings
 
@@ -18,7 +19,16 @@ class UiConfigurationController(BaseCustomController):
     def get(request: Request) -> Response:
 
         try:
-            with open(settings.BASE_DIR+"/backend/uiconfig.json") as f:
+            fPath = settings.BASE_DIR+"/backend"
+
+            if os.path.exists(fPath+"/uiconfig.override.json"):
+                configFile = fPath+"/uiconfig.override.json"
+            elif os.path.exists(fPath+"/uiconfig.json"):
+                configFile = fPath+"/uiconfig.json"
+            else:
+                return Response({}, status=200)
+
+            with open(configFile) as f:
                 contents = f.read()
 
             data = {
@@ -36,8 +46,6 @@ class UiConfigurationController(BaseCustomController):
                 httpStatus = status.HTTP_304_NOT_MODIFIED
             else:
                 httpStatus = status.HTTP_200_OK
-        except FileNotFoundError:
-            return Response({}, status=200)
         except Exception as e:
             data, httpStatus, headers = BaseCustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
