@@ -22,7 +22,9 @@ class UiConfigurationController(BaseCustomController):
                 contents = f.read()
 
             data = {
-                "data": {"configuration": json.loads(contents) },
+                "data": {
+                    "configuration": json.loads(contents)
+                },
                 "href": request.get_full_path()
             }
 
@@ -34,7 +36,7 @@ class UiConfigurationController(BaseCustomController):
                 httpStatus = status.HTTP_304_NOT_MODIFIED
             else:
                 httpStatus = status.HTTP_200_OK
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             return Response({}, status=200)
         except Exception as e:
             data, httpStatus, headers = BaseCustomController.exceptionHandler(e)
