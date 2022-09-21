@@ -21,7 +21,7 @@ function containerSetup()
 
     # First container run: associate name, bind ports, bind fs volume, define init process, ...
     # backend folder will be bound to /var/lib/containers/storage/volumes/.
-    podman run --name ui-backend -v ui-backend:/var/www/ui-backend/backend -dt localhost/ui-backend /sbin/init
+    podman run --name ui-backend -v ui-backend:/var/www/ui-backend/backend -dt localhost/ui-backend /lib/systemd/systemd
     podman exec ui-backend chown www-data:www-data /var/www/ui-backend/backend # uid 33 on host (www-data on Debian).
 
     printf "$wallBanner Starting Container Service on HOST..." | wall -n
