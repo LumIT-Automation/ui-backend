@@ -1,5 +1,5 @@
 asgiref==3.5.2
-certifi==2022.6.15
+certifi==2022.9.24
 cffi==1.15.1
 chardet==4.0.0
 cryptography==3.4.8
@@ -15,6 +15,5 @@ PyJWT==2.0.1
 pytz==2022.2.1
 redis==3.5.3
 requests==2.25.1
-sqlparse==0.4.2
-typing_extensions==4.3.0
+sqlparse==0.4.3
 urllib3==1.26.12
