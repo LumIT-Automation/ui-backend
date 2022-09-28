@@ -17,7 +17,6 @@ from ui_backend.helpers.Log import Log
 class UiConfigurationController(BaseCustomController):
     @staticmethod
     def get(request: Request) -> Response:
-
         try:
             fPath = settings.BASE_DIR+"/backend"
 
