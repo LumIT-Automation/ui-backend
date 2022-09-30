@@ -25,7 +25,7 @@ class Controller(CustomController):
             uri = CustomController.resolveUrl(request)
 
             if uri["endpoint"]:
-                Log.actionLog("GET "+str(request.get_full_path())+" with headers "+str(request.headers), user)
+                Log.actionLog("GET " + str(request.get_full_path())+" with headers " + str(request.headers), user)
 
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
 
@@ -59,7 +59,7 @@ class Controller(CustomController):
             uri = CustomController.resolveUrl(request)
 
             if uri["endpoint"]:
-                Log.actionLog("POST "+str(request.get_full_path())+" with headers "+str(request.headers)+" with data: "+str(request.data), user)
+                Log.actionLog("POST " + str(request.get_full_path())+" with headers " + str(request.headers)+" with data: " + str(request.data), user)
 
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
                 data = api.post(request.data)
@@ -93,7 +93,7 @@ class Controller(CustomController):
             uri = CustomController.resolveUrl(request)
 
             if uri["endpoint"]:
-                Log.actionLog("PATCH "+str(request.get_full_path())+" with headers "+str(request.headers)+" with data: "+str(request.data), user)
+                Log.actionLog("PATCH " + str(request.get_full_path())+" with headers " + str(request.headers)+" with data: " + str(request.data), user)
 
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
                 data = api.patch(request.data)
@@ -127,7 +127,7 @@ class Controller(CustomController):
             uri = CustomController.resolveUrl(request)
 
             if uri["endpoint"]:
-                Log.actionLog("PUT "+str(request.get_full_path())+" with headers "+str(request.headers)+" with data: "+str(request.data), user)
+                Log.actionLog("PUT " + str(request.get_full_path())+" with headers " + str(request.headers)+" with data: " + str(request.data), user)
 
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
                 data = api.put(request.data)
@@ -161,7 +161,7 @@ class Controller(CustomController):
             uri = CustomController.resolveUrl(request)
 
             if uri["endpoint"]:
-                Log.actionLog("DELETE "+str(request.get_full_path())+" with headers "+str(request.headers), user)
+                Log.actionLog("DELETE " + str(request.get_full_path())+" with headers " + str(request.headers), user)
 
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
                 api.delete()

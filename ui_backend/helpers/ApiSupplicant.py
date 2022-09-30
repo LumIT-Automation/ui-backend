@@ -54,16 +54,16 @@ class ApiSupplicant:
             headers.update(self.additionalHeaders)
 
             # Fetch the remote resource from the API backend.
-            Log.actionLog("Fetching remote: GET "+str(self.endpoint)+" with query params: "+str(self.params)+" with headers: "+str(headers))
+            Log.actionLog("Fetching remote: GET " + str(self.endpoint)+" with query params: " + str(self.params)+" with headers: " + str(headers))
 
             r = requests.get(self.endpoint,
                 params=self.params,
                 headers=headers,
                 timeout=settings.API_SUPPLICANT_NETWORK_TIMEOUT
             )
-            Log(r, "RRRRRRRRRRRRRRRRRRRR")
+
             self.responseStatus = r.status_code
-            Log.actionLog("Api Supplicant: remote response status: "+str(self.responseStatus))
+            Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
 
             if self.responseStatus == 200: # ok.
                 try:
@@ -117,7 +117,7 @@ class ApiSupplicant:
         headers.update(self.additionalHeaders)
 
         try:
-            Log.actionLog("To remote: POST "+str(self.endpoint)+" with query params: "+str(self.params))
+            Log.actionLog("To remote: POST " + str(self.endpoint)+" with query params: " + str(self.params))
 
             response = requests.post(self.endpoint,
                 params=self.params,
@@ -127,7 +127,7 @@ class ApiSupplicant:
             )
 
             self.responseStatus = response.status_code
-            Log.actionLog("Api Supplicant: remote response status: "+str(self.responseStatus))
+            Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
 
             try:
                 self.responseObject = response.json()
@@ -158,7 +158,7 @@ class ApiSupplicant:
         headers.update(self.additionalHeaders)
 
         try:
-            Log.actionLog("To remote: PATCH "+str(self.endpoint)+" with query params: "+str(self.params))
+            Log.actionLog("To remote: PATCH " + str(self.endpoint)+" with query params: " + str(self.params))
 
             response = requests.patch(self.endpoint,
                 params=self.params,
@@ -168,7 +168,7 @@ class ApiSupplicant:
             )
 
             self.responseStatus = response.status_code
-            Log.actionLog("Api Supplicant: remote response status: "+str(self.responseStatus))
+            Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
 
             try:
                 self.responseObject = response.json()
@@ -199,7 +199,7 @@ class ApiSupplicant:
         headers.update(self.additionalHeaders)
 
         try:
-            Log.actionLog("To remote: PUT "+str(self.endpoint)+" with query params: "+str(self.params))
+            Log.actionLog("To remote: PUT " + str(self.endpoint)+" with query params: " + str(self.params))
 
             response = requests.put(self.endpoint,
                 params=self.params,
@@ -209,7 +209,7 @@ class ApiSupplicant:
             )
 
             self.responseStatus = response.status_code
-            Log.actionLog("Api Supplicant: remote response status: "+str(self.responseStatus))
+            Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
 
             try:
                 self.responseObject = response.json()
@@ -236,7 +236,7 @@ class ApiSupplicant:
         # On KO status codes, a CustomException is raised, with response status and body.
 
         try:
-            Log.actionLog("To remote: DELETE "+str(self.endpoint)+" with query params: "+str(self.params))
+            Log.actionLog("To remote: DELETE " + str(self.endpoint)+" with query params: " + str(self.params))
 
             response = requests.delete(self.endpoint,
                 params=self.params,
@@ -245,7 +245,7 @@ class ApiSupplicant:
             )
 
             self.responseStatus = response.status_code
-            Log.actionLog("Api Supplicant: remote response status: "+str(self.responseStatus))
+            Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
 
             try:
                 self.responseObject = response.json()
@@ -282,7 +282,7 @@ class ApiSupplicant:
                 if entry['id']:
                     cache.set(entry['id'], entry, timeout=settings.API_SUPPLICANT_CACHE_VALIDITY)
 
-                Log.log("Cache "+str(entry['id'])+" updated.")
+                Log.log("Cache " + str(entry['id'])+" updated.")
 
             except Exception:
                 pass

@@ -25,11 +25,11 @@ class HistoryController(CustomController):
 
         for technology in settings.API_BACKEND_BASE_URL:
             Log.actionLog("History list for technology "+technology, user)
-            endpoint = settings.API_BACKEND_BASE_URL[technology]+technology+"/history/"
+            endpoint = settings.API_BACKEND_BASE_URL[technology]+"history/"
 
             try:
                 if endpoint:
-                    Log.actionLog("GET "+str(request.get_full_path())+" with headers "+str(request.headers), user)
+                    Log.actionLog("GET " + str(request.get_full_path())+" with headers " + str(request.headers), user)
 
                     api = ApiSupplicant(endpoint, {}, headers)
                     data["data"][technology] = api.get()

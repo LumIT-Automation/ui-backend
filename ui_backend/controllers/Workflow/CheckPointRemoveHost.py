@@ -1,5 +1,3 @@
-from django.conf import settings
-
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
@@ -7,7 +5,6 @@ from rest_framework import status
 from ui_backend.controllers.CustomController import CustomController
 from ui_backend.usecases.CheckPointRemoveHost import CheckPointRemoveHost
 from ui_backend.helpers.Log import Log
-from ui_backend.helpers.DataFilter import DataFilter
 
 
 
@@ -15,17 +12,14 @@ class CheckPointRemoveHostController(CustomController):
     @staticmethod
     def put(request: Request) -> Response:
         user = CustomController.loggedUser(request)
-        headers = dict()
         response = dict()
         username = user.get("username", "")
 
         try:
-            # Todo: permissions.
             #if Permission.hasUserPermission(groups=user["groups"], action="groups_post", assetId=assetId, domain=domain) or user["authDisabled"]:
             #    Log.actionLog("Node addition", user)
-            #    Log.actionLog("User data: "+str(request.data), user)
+            #    Log.actionLog("User data: " + str(request.data), user)
             if True:
-
                 #serializer = Serializer(data=request.data["data"], partial=True)
                 #if serializer.is_valid():
                 #    data = serializer.validated_data
@@ -36,10 +30,6 @@ class CheckPointRemoveHostController(CustomController):
                     #if lock.isUnlocked():
                     if True:
                         #lock.lock()
-
-                        #if uri["endpoint"]:
-                        #    api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
-                        #    data = api.put(request.data)
 
                         response["data"] = CheckPointRemoveHost(data=data, username=username)()
                         httpStatus = status.HTTP_200_OK
@@ -69,4 +59,3 @@ class CheckPointRemoveHostController(CustomController):
         return Response(response, status=httpStatus, headers={
             "Cache-Control": "no-cache"
         })
-

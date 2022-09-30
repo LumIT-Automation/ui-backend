@@ -11,4 +11,4 @@ class CustomException(Exception):
 
 
     def __str__(self):
-        return str(self.status)+", "+str(self.payload)
+        return str(self.status) + ", " + str(self.payload)

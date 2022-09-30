@@ -256,18 +256,19 @@ try:
                     technology = service.replace("api-", "")
 
                     try:
-                        apiAddress = str(consulResolver.query(service+".service.consul")[0])
-                        apiPort = str(str(consulResolver.query(service+".service.consul", "SRV")[0]).split(" ")[2])
+                        apiAddress = str(consulResolver.query(service + ".service.consul")[0])
+                        apiPort = str(str(consulResolver.query(service + ".service.consul", "SRV")[0]).split(" ")[2])
 
-                        API_BACKEND_BASE_URL[technology] = API_BACKEND_PROTOCOL+apiAddress+":"+apiPort+"/api/v1/" # from Consul agent's local resolver.
+                        API_BACKEND_BASE_URL[technology] = API_BACKEND_PROTOCOL + apiAddress + ":" + apiPort + "/api/v1/" # from Consul agent's local resolver.
                     except Exception:
                         pass
+
                 elif service == "sso":
                     try:
-                        ssoAddress = str(consulResolver.query(service+".service.consul")[0])
-                        ssoPort = str(str(consulResolver.query(service+".service.consul", "SRV")[0]).split(" ")[2])
+                        ssoAddress = str(consulResolver.query(service + ".service.consul")[0])
+                        ssoPort = str(str(consulResolver.query(service + ".service.consul", "SRV")[0]).split(" ")[2])
 
-                        API_SSO_BASE_URL = API_BACKEND_PROTOCOL+ssoAddress+":"+ssoPort+"/api/v1/" # from Consul agent's local resolver.
+                        API_SSO_BASE_URL = API_BACKEND_PROTOCOL+ssoAddress + ":" + ssoPort+"/api/v1/" # from Consul agent's local resolver.
                     except Exception:
                         pass
 except Exception:

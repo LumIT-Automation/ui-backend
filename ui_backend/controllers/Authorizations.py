@@ -25,12 +25,12 @@ class AuthorizationsController(CustomController):
             headers["Authorization"] = request.headers["Authorization"]
 
         for technology in settings.API_BACKEND_BASE_URL:
-            Log.actionLog("Permissions' list for technology "+technology, user)
-            endpoint = settings.API_BACKEND_BASE_URL[technology]+technology+"/authorizations/"
+            Log.actionLog("Permissions' list for technology " + technology, user)
+            endpoint = settings.API_BACKEND_BASE_URL[technology] + technology + "/authorizations/"
 
             try:
                 if endpoint:
-                    Log.actionLog("GET "+str(request.get_full_path())+" with headers "+str(request.headers), user)
+                    Log.actionLog("GET " + str(request.get_full_path())+" with headers " + str(request.headers), user)
 
                     api = ApiSupplicant(endpoint, {}, headers)
                     data["data"][technology] = api.get()

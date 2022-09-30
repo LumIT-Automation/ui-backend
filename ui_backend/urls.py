@@ -14,5 +14,4 @@ urlpatterns = [
     path('backend/workflow/checkpoint-remove-host/', CheckPointRemoveHost.CheckPointRemoveHostController.as_view()),
 
     re_path(r'^backend/.*/.*', Controller.Controller.as_view()),
-
 ]
