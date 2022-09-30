@@ -46,18 +46,12 @@ class ApiSupplicant:
             # Retrieve the resource from the cache, if cached.
             cachedResource = ApiSupplicant.__loadCachedResource(self)
 
-            standardHeaders = {
+            headers = {
                 "If-None-Match": cachedResource['etag'],
                 "If-Modified-Since": cachedResource['modified'],
                 "Prefer": "respond-sync",
             }
-
-            # Merge headers.
-            for k, v in standardHeaders.items():
-                if standardHeaders[k] in self.additionalHeaders:
-                    standardHeaders[k] = self.additionalHeaders[k]  # additionalHeaders wins on common headers.
-
-            headers = {**standardHeaders, **self.additionalHeaders}  # merge dicts.
+            headers.update(self.additionalHeaders)
 
             # Fetch the remote resource from the API backend.
             Log.actionLog("Fetching remote: GET "+str(self.endpoint)+" with query params: "+str(self.params)+" with headers: "+str(headers))
@@ -67,7 +61,7 @@ class ApiSupplicant:
                 headers=headers,
                 timeout=settings.API_SUPPLICANT_NETWORK_TIMEOUT
             )
-
+            Log(r, "RRRRRRRRRRRRRRRRRRRR")
             self.responseStatus = r.status_code
             Log.actionLog("Api Supplicant: remote response status: "+str(self.responseStatus))
 
@@ -117,16 +111,10 @@ class ApiSupplicant:
         # If a request exceeds the configured number of maximum redirections, a TooManyRedirects exception is raised.
 
         # On KO status codes, a CustomException is raised, with response status and body.
-        standardHeaders = {
+        headers = {
             "Content-Type": "application/json"
         }
-
-        # Merge headers.
-        for k, v in standardHeaders.items():
-            if standardHeaders[k] in self.additionalHeaders:
-                standardHeaders[k] = self.additionalHeaders[k]  # additionalHeaders wins on common headers.
-
-        headers = {**standardHeaders, **self.additionalHeaders}  # merge dicts.
+        headers.update(self.additionalHeaders)
 
         try:
             Log.actionLog("To remote: POST "+str(self.endpoint)+" with query params: "+str(self.params))
@@ -146,7 +134,7 @@ class ApiSupplicant:
             except Exception:
                 self.responseObject = {}
 
-            if self.responseStatus == 201: # created.
+            if self.responseStatus == 201 or self.responseStatus == 200:
                 pass
             else:
                 raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
@@ -164,16 +152,10 @@ class ApiSupplicant:
         # If a request exceeds the configured number of maximum redirections, a TooManyRedirects exception is raised.
 
         # On KO status codes, a CustomException is raised, with response status and body.
-        standardHeaders = {
+        headers = {
             "Content-Type": "application/json"
         }
-
-        # Merge headers.
-        for k, v in standardHeaders.items():
-            if standardHeaders[k] in self.additionalHeaders:
-                standardHeaders[k] = self.additionalHeaders[k]  # additionalHeaders wins on common headers.
-
-        headers = {**standardHeaders, **self.additionalHeaders}  # merge dicts.
+        headers.update(self.additionalHeaders)
 
         try:
             Log.actionLog("To remote: PATCH "+str(self.endpoint)+" with query params: "+str(self.params))
@@ -211,16 +193,10 @@ class ApiSupplicant:
         # If a request exceeds the configured number of maximum redirections, a TooManyRedirects exception is raised.
 
         # On KO status codes, a CustomException is raised, with response status and body.
-        standardHeaders = {
+        headers = {
             "Content-Type": "application/json"
         }
-
-        # Merge headers.
-        for k, v in standardHeaders.items():
-            if standardHeaders[k] in self.additionalHeaders:
-                standardHeaders[k] = self.additionalHeaders[k]  # additionalHeaders wins on common headers.
-
-        headers = {**standardHeaders, **self.additionalHeaders}  # merge dicts.
+        headers.update(self.additionalHeaders)
 
         try:
             Log.actionLog("To remote: PUT "+str(self.endpoint)+" with query params: "+str(self.params))

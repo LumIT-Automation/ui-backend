@@ -8,6 +8,8 @@ from ui_backend.helpers.Log import Log
 # JWT settings.
 from backend.settings_jwt import *
 
+from backend.settings_workflow import *
+
 
 # Resolver.
 consulResolver = dns.resolver.Resolver()
@@ -242,22 +244,32 @@ SIMPLE_JWT = {
 # Consul adaptive connector: automatically configures any api-* service provided by Consul's agent.
 API_BACKEND_BASE_URL = dict()
 API_BACKEND_PROTOCOL = "http://"
+API_SSO_BASE_URL = ""
 
 try:
     ss, st, o = Process.execute("consul catalog services")
     if ss and o:
         for service in o.split("\n"):
-            if service and "api-" in service:
-                # service like: api-f5.
-                technology = service.replace("api-", "")
+            if service:
+                if "api-" in service:
+                    # service like: api-f5.
+                    technology = service.replace("api-", "")
 
-                try:
-                    apiAddress = str(consulResolver.query(service+".service.consul")[0])
-                    apiPort = str(str(consulResolver.query(service+".service.consul", "SRV")[0]).split(" ")[2])
+                    try:
+                        apiAddress = str(consulResolver.query(service+".service.consul")[0])
+                        apiPort = str(str(consulResolver.query(service+".service.consul", "SRV")[0]).split(" ")[2])
 
-                    API_BACKEND_BASE_URL[technology] = API_BACKEND_PROTOCOL+apiAddress+":"+apiPort+"/api/v1/" # from Consul agent's local resolver.
-                except Exception:
-                    pass
+                        API_BACKEND_BASE_URL[technology] = API_BACKEND_PROTOCOL+apiAddress+":"+apiPort+"/api/v1/" # from Consul agent's local resolver.
+                    except Exception:
+                        pass
+                elif service == "sso":
+                    try:
+                        ssoAddress = str(consulResolver.query(service+".service.consul")[0])
+                        ssoPort = str(str(consulResolver.query(service+".service.consul", "SRV")[0]).split(" ")[2])
+
+                        API_SSO_BASE_URL = API_BACKEND_PROTOCOL+ssoAddress+":"+ssoPort+"/api/v1/" # from Consul agent's local resolver.
+                    except Exception:
+                        pass
 except Exception:
     pass
 
