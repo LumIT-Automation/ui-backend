@@ -24,13 +24,15 @@ class Workflow:
             api = ApiSupplicant(
                 endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/" + urlSegment,
                 additionalHeaders={
-                    "Authorization": "Bearer " + Workflow.__getToken(),
+                    "Authorization": "Bearer " + Workflow.__getToken(), # "workflow" system user.
                     "workflowUser": self.username
                 }
             )
 
             if method == "GET":
                 data = api.get()
+            if method == "PUT":
+                data = api.put(data)
         except KeyError:
             raise CustomException(status=503, payload={"UI-BACKEND": str(technology)+" API not resolved, try again later."})
         except Exception as e:
@@ -46,7 +48,7 @@ class Workflow:
 
     @staticmethod
     def __getToken() -> str:
-        # Get token of workflow system user from SSO.
+        # Get token of "workflow" system user from SSO.
         try:
             if settings.API_SSO_BASE_URL:
                 return ApiSupplicant(endpoint=settings.API_SSO_BASE_URL + "token/").post({

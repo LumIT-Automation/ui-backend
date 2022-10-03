@@ -13,6 +13,8 @@ class CheckPointRemoveHostController(CustomController):
         response = dict()
         user = CustomController.loggedUser(request)
 
+        # @todo: correlation ID.
+
         try:
             #if Permission.hasUserPermission(groups=user["groups"], action="groups_post", assetId=assetId, domain=domain) or user["authDisabled"]:
             if True:

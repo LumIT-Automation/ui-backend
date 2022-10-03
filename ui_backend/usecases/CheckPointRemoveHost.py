@@ -17,13 +17,24 @@ class CheckPointRemoveHost(Workflow):
 
     def __call__(self):
         try:
-            technology = "vmware"
-            urlSegment = "1/datacenters/"
+            # API requests with "workflow" system user.
+            #technology = "vmware"
+            #urlSegment = "1/datacenters/"
+
+            #data = self.requestFacade(
+            #    method="GET",
+            #    technology=technology,
+            #    urlSegment=urlSegment
+            #)
+
+            technology = "checkpoint"
+            urlSegment = "1/remove-host/"
 
             data = self.requestFacade(
-                method="GET",
+                method="PUT",
                 technology=technology,
-                urlSegment=urlSegment
+                urlSegment=urlSegment,
+                data=self.data
             )
         except Exception as e:
             raise e
