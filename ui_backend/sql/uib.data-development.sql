@@ -27,9 +27,24 @@ SET time_zone = "+00:00";
 
 INSERT INTO `identity_group` (`id`, `name`, `identity_group_identifier`) VALUES
 (1, 'groupAdmin', 'cn=groupadmin,cn=users,dc=lab,dc=local'),
-(2, 'groupStaff', 'cn=groupstaff,cn=users,dc=lab,dc=local'),
-(3, 'groupReadOnly', 'cn=groupreadonly,cn=users,dc=lab,dc=local');
+(2, 'groupStaff', 'cn=groupstaff,cn=users,dc=lab,dc=local');
 
+
+--
+-- Dump dei dati per la tabella `workflow`
+--
+
+INSERT INTO `workflow` (`id`, `name`, `description`) VALUES
+(1, 'any', 'any');
+
+
+
+-- Dump dei dati per la tabella `group_role_workflow`
+--
+
+INSERT INTO `group_role_workflow` (`id_group`, `id_role`, `id_workflow`) VALUES
+(1, 1, 1),
+(2, 2, 1);
 
 COMMIT;
 

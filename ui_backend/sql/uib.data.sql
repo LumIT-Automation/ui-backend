@@ -40,8 +40,7 @@ INSERT INTO `privilege` (`id`, `privilege`, `privilege_type`, `description`) VAL
 
 INSERT INTO `role` (`id`, `role`, `description`) VALUES
 (1, 'admin', 'admin'),
-(2, 'staff', 'read / write, excluding assets'),
-(3, 'readonly', 'readonly');
+(2, 'exec', 'can execute worlflows');
 
 --
 -- Dump dei dati per la tabella `role_privilege`
