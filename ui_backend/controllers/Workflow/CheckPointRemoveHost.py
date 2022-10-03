@@ -10,7 +10,7 @@ from ui_backend.helpers.Log import Log
 class CheckPointRemoveHostController(CustomController):
     @staticmethod
     def put(request: Request) -> Response:
-        response = dict()
+        response = None
         user = CustomController.loggedUser(request)
 
         # @todo: correlation ID.
@@ -28,7 +28,7 @@ class CheckPointRemoveHostController(CustomController):
                     data = request.data["data"]
 
                     httpStatus = status.HTTP_200_OK
-                    response["data"] = CheckPointRemoveHost(data=data, username=user.get("username", ""))()
+                    CheckPointRemoveHost(data=data, username=user.get("username", ""))()
                 else:
                     httpStatus = status.HTTP_400_BAD_REQUEST
                     #response = {
@@ -40,7 +40,6 @@ class CheckPointRemoveHostController(CustomController):
                     #Log.actionLog("User data incorrect: " + str(response), user)
             else:
                 httpStatus = status.HTTP_403_FORBIDDEN
-                response = None
 
         except Exception as e:
             data, httpStatus, headers = CustomController.exceptionHandler(e)
