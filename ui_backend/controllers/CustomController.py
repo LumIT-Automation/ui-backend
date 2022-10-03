@@ -25,7 +25,6 @@ class BaseCustomController(APIView):
             httpStatus = status.HTTP_503_SERVICE_UNAVAILABLE
             data["reason"] = e.__str__()
         elif e.__class__.__name__ == "CustomException":
-            data = None
             httpStatus = e.status
             if "API" in e.payload:
                 if "error" in e.payload["API"]:
@@ -34,10 +33,13 @@ class BaseCustomController(APIView):
                     reason = e.payload["API"]["error"]
                     for k, v in reason.items():
                         data["reason"] = v
+            else:
+                data["reason"] = e.__str__()
         elif e.__class__.__name__ == "ParseError":
             data = None
             httpStatus = status.HTTP_400_BAD_REQUEST # json parse.
         else:
+            data = None
             httpStatus = status.HTTP_500_INTERNAL_SERVER_ERROR # generic.
 
         return data, httpStatus, headers
@@ -69,7 +71,7 @@ class CustomController(BaseCustomController):
         # Resolve API endpoint URLs.
         # For example: /backend/f5/identity-groups/?related=privileges&filter_by=data.items.name&filter_value=groupAdmin
         # -> url: <settings.API_BACKEND_BASE_URL[technology]>/f5/identity-groups/
-        # -> params: ?related=privileges
+        # -> params: related=privileges
 
         endpoint = ""
         queryParams = dict(request.query_params.copy())

@@ -5,10 +5,15 @@ class CustomException(Exception):
 
 
 
-    def status(self):
+    def status(self) -> int:
         return self.status
 
 
 
-    def __str__(self):
-        return str(self.status) + ", " + str(self.payload)
+    def __str__(self) -> str:
+        if "UI-BACKEND" in self.payload:
+            r = str(self.payload["UI-BACKEND"])
+        else:
+            r = str(self.payload)
+
+        return r
