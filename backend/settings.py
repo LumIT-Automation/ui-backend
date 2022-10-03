@@ -252,7 +252,7 @@ try:
         for service in o.split("\n"):
             if service:
                 if "api-" in service:
-                    # service like: api-f5.
+                    # Service like: api-f5.
                     technology = service.replace("api-", "")
 
                     try:
@@ -268,7 +268,7 @@ try:
                         ssoAddress = str(consulResolver.query(service + ".service.consul")[0])
                         ssoPort = str(str(consulResolver.query(service + ".service.consul", "SRV")[0]).split(" ")[2])
 
-                        API_SSO_BASE_URL = API_BACKEND_PROTOCOL+ssoAddress + ":" + ssoPort+"/api/v1/" # from Consul agent's local resolver.
+                        API_SSO_BASE_URL = API_BACKEND_PROTOCOL+ssoAddress + ":" + ssoPort+"/api/v1/"
                     except Exception:
                         pass
 except Exception:

@@ -27,12 +27,15 @@ class BaseCustomController(APIView):
         elif e.__class__.__name__ == "CustomException":
             httpStatus = e.status
             if "API" in e.payload:
-                if "error" in e.payload["API"]:
-                    data = dict()
+                data = None
 
-                    reason = e.payload["API"]["error"]
+                if "error" in e.payload["API"]:
+                    reason = e.payload["API"].get("error", "")
                     for k, v in reason.items():
-                        data["reason"] = v
+                        if v:
+                            data = {
+                                "reason": v
+                            }
             else:
                 data["reason"] = e.__str__()
         elif e.__class__.__name__ == "ParseError":
