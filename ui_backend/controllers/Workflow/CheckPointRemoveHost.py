@@ -7,36 +7,26 @@ from ui_backend.usecases.CheckPointRemoveHost import CheckPointRemoveHost
 from ui_backend.helpers.Log import Log
 
 
-
 class CheckPointRemoveHostController(CustomController):
     @staticmethod
     def put(request: Request) -> Response:
-        user = CustomController.loggedUser(request)
         response = dict()
-        username = user.get("username", "")
+        user = CustomController.loggedUser(request)
 
         try:
             #if Permission.hasUserPermission(groups=user["groups"], action="groups_post", assetId=assetId, domain=domain) or user["authDisabled"]:
-            #    Log.actionLog("Node addition", user)
-            #    Log.actionLog("User data: " + str(request.data), user)
             if True:
+                #Log.actionLog("Node addition", user)
+                #Log.actionLog("User data: " + str(request.data), user)
+
                 #serializer = Serializer(data=request.data["data"], partial=True)
                 #if serializer.is_valid():
                 #    data = serializer.validated_data
                 if True:
                     data = request.data["data"]
 
-                    #lock = Lock("group", locals())
-                    #if lock.isUnlocked():
-                    if True:
-                        #lock.lock()
-
-                        response["data"] = CheckPointRemoveHost(data=data, username=username)()
-                        httpStatus = status.HTTP_200_OK
-                        #lock.release()
-                    else:
-                        httpStatus = status.HTTP_423_LOCKED
-                        response = None
+                    httpStatus = status.HTTP_200_OK
+                    response["data"] = CheckPointRemoveHost(data=data, username=user.get("username", ""))()
                 else:
                     httpStatus = status.HTTP_400_BAD_REQUEST
                     #response = {
@@ -51,8 +41,6 @@ class CheckPointRemoveHostController(CustomController):
                 response = None
 
         except Exception as e:
-            #Lock("group", locals()).release()
-
             data, httpStatus, headers = CustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
 
