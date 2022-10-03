@@ -37,15 +37,49 @@ if [ "$1" == "configure" ]; then
     printf "\n Set the timezone of the container to be the same as the host timezone...\n"
     podman exec ui-backend bash -c "timedatectl set-timezone $timeZone"
 
-    # Activate MariaDB audit plugin if MariaDB is installed.
-    podman exec ui-backend bash -c "if dpkg -l | grep -q mariadb-server; then \
-            cp /usr/share/automation-interface-ui-backend/51-mariadb.cnf /etc/mysql/mariadb.conf.d; \
-            chmod 644 /etc/mysql/mariadb.conf.d/51-mariadb.cnf; \
-            systemctl restart mariadb; \
-        fi"
+    printf "\n* Internal database configuration...\n"
+    if podman exec ui-backend mysql -e "exit"; then
+        # User uib.
+        # Upon podman image creation, a password is generated for the user api.
+        databaseUserPassword=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+
+        if [ "$(podman exec ui-backend mysql --vertical -e "SELECT User FROM mysql.user WHERE User = 'uib';" | tail -1 | awk '{print $2}')" == "" ]; then
+            # User api not present: create.
+            echo "Creating uib user..."
+            podman exec ui-backend mysql -e "CREATE USER 'uib'@'localhost' IDENTIFIED BY '$databaseUserPassword';"
+            podman exec ui-backend mysql -e "GRANT USAGE ON *.* TO 'uib'@'localhost' REQUIRE NONE WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;"
+            podman exec ui-backend mysql -e 'GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER, CREATE TEMPORARY TABLES, CREATE VIEW, SHOW VIEW, EXECUTE ON `api`.* TO `uib`@`localhost`;'
+        else
+            # Update user's password.
+            echo "Updating uib user's password..."
+            podman exec ui-backend mysql -e "SET PASSWORD FOR 'uib'@'localhost' = PASSWORD('$databaseUserPassword');"
+        fi
+
+        # Change database password into Django config file, too.
+        echo "Configuring Django..."
+        sed -i "s/^.*DATABASE_USER$/        'USER': 'uib', #DATABASE_USER/g" /var/lib/containers/storage/volumes/ui-backend/_data/settings.py
+        sed -i "s/^.*DATABASE_PASSWORD$/        'PASSWORD': '$databaseUserPassword', #DATABASE_PASSWORD/g" /var/lib/containers/storage/volumes/ui-backend/_data/settings.py
+
+        # Database uib.
+        if [ "$(podman exec ui-backend mysql --vertical -e "SHOW DATABASES LIKE 'uib';" | tail -1 | awk -F': ' '{print $2}')" == "" ]; then
+            # Database not present: create.
+            echo "Creating database uib and restoring SQL dump..."
+            podman exec ui-backend mysql -e 'CREATE DATABASE uib DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;' # create database.
+            podman exec ui-backend mysql api -e "source /var/www/ui-backend/ui_backend/sql/uib.schema.sql" # restore database schema.
+            podman exec ui-backend mysql api -e "source /var/www/ui-backend/ui_backend/sql/uib.data.sql" # restore database data.
+        fi
+
+        # Database update via diff.sql (migrations).
+        echo "Applying migrations..."
+        podman exec ui-backend bash /var/www/ui-backend/ui_backend/sql/migrate.sh
+    else
+        echo "Failed to access MariaDB RDBMS, auth_socket plugin must be enabled for the database root user. Quitting."
+        exit 1
+    fi
 
     printf "\n* Restarting container's services..."
     podman exec ui-backend systemctl restart apache2
+    podman exec ui-backend systemctl restart mysql
 
     printf "\n* Differences from package's stock config file and the installed one (please import NEW directives in your installed config file, if any):\n"
     podman exec ui-backend diff /var/www/ui-backend_default_settings.py /var/www/ui-backend/backend/settings.py | grep '^[<>].*' | grep -v SECRET | grep -v PASSWORD | grep -v VENV || true

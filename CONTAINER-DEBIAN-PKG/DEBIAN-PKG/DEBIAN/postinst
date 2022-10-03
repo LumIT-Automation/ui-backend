@@ -36,14 +36,11 @@ if [ "$1" == "configure" ]; then
         sed -i -e '$a syslog-enabled yes' /etc/redis/redis.conf
     fi
 
-    # Configure mariadb logging if it is installed.
+    # Configure mariadb service if it is installed.
     if dpkg -l | grep -q mariadb-server; then
-        # By default /etc/systemd/system/mysql.service and mysqld.service are symlink to /lib/systemd/system/mariadb.service.
-        sed -i -r -e '/^\[Service\]$/a StandardOutput=syslog\nStandardError=syslog\nSyslogFacility=daemon\nSyslogLevel=warning\nSyslogIdentifier=mysql' /etc/systemd/system/mysql.service # this one replaces the symlink with a new file.
-        chmod 644 /etc/systemd/system/mysql.service
-        rm -f /etc/systemd/system/mysqld.service
-        ln -s /etc/systemd/system/mysql.service /etc/systemd/system/mysqld.service
-        ln -s /etc/systemd/system/mysql.service /etc/systemd/system/mariadb.service
+        ln -s /etc/systemd/system/mariadb.service /etc/systemd/system/mysql.service
+        ln -s /etc/systemd/system/mariadb.service /etc/systemd/system/mysqld.service
+        systemctl enable mariadb.service
     fi
 
     printf "\n* Enabling local services...\n"
