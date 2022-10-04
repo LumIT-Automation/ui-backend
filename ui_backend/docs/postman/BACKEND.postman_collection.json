@@ -49,6 +49,45 @@
 					"response": []
 				},
 				{
+					"name": "workflows",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow/workflows/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow",
+								"workflows",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "permissions",
 					"request": {
 						"auth": {
