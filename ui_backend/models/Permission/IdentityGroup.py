@@ -47,14 +47,29 @@ class IdentityGroup:
 
     @staticmethod
     def list() -> list:
+        try:
+            return Repository.list()
+        except Exception as e:
+            raise e
+
+
+
+    @staticmethod
+    def listWithRelated(showPrivileges: bool = False) -> list:
         j = 0
 
         try:
             items = Repository.list()
 
             # [
-            # {'id': 1, 'name': 'admin', 'identity_group_identifier': 'cn=admin,cn=users,dc=lab,dc=local', 'roles_workflow': 'admin::1'},
-            # {'id': 2, 'name': 'staff', 'identity_group_identifier': 'cn=staff,cn=users,dc=lab,dc=local', 'roles_workflow': 'exec::2,exec::1'}
+            # {
+            #     'id': 1,
+            #     'name': 'groupStaff',
+            #     'identity_group_identifier': 'cn=groupstaff,cn=users,dc=lab,dc=local',
+            #     'roles_workflow': 'exec::2::stub,exec::1::checkpoint_remove_host',
+            #     'privileges_workflow': 'exec::2::stub,exec::1::checkpoint_remove_host'
+            # },
+            # ...
             # ]
 
             for ln in items:
@@ -64,7 +79,13 @@ class IdentityGroup:
                     else:
                         items[j]["roles_workflow"] = [ln["roles_workflow"]]
 
-                    # {'id': 1, 'name': 'admin', 'identity_group_identifier': 'cn=admin,cn=users,dc=lab,dc=local', 'roles_workflow': ['admin::1']}
+                    # [{
+                    #     'id': 1,
+                    #     'name': 'groupStaff',
+                    #     'identity_group_identifier': 'cn=groupstaff,cn=users,dc=lab,dc=local',
+                    #     'roles_workflow': ['exec::2::stub', 'exec::1::checkpoint_remove_host'],
+                    #     'privileges_workflow': 'exec::2::stub,exec::1::checkpoint_remove_host'}
+                    # }, ...]
 
                     rolesStructure = dict()
                     for rls in items[j]["roles_workflow"]:
@@ -75,16 +96,39 @@ class IdentityGroup:
                                 rolesStructure[rlsList[0]] = list()
 
                             rolesStructure[rlsList[0]].append({
-                                "workflow": rlsList[1]
+                                "id": rlsList[1],
+                                "name": rlsList[1],
                             })
 
                     items[j]["roles_workflow"] = rolesStructure
 
+                if showPrivileges:
+                    # Add detailed privileges' descriptions to the output.
+                    if "privileges_workflow" in items[j]:
+                        if "," in ln["privileges_workflow"]:
+                            items[j]["privileges_workflow"] = ln["privileges_workflow"].split(",")
+                        else:
+                            items[j]["privileges_workflow"] = [ ln["privileges_workflow"] ]
+
+                        ppStructure = dict()
+                        for pls in items[j]["privileges_workflow"]:
+                            if "::" in pls:
+                                pList = pls.split("::")
+                                if not str(pList[0]) in ppStructure:
+                                    ppStructure[pList[0]] = list()
+
+                                ppStructure[pList[0]].append({
+                                    "id": pList[1],
+                                    "name": pList[2],
+                                })
+
+                        items[j]["privileges_workflow"] = ppStructure
+                else:
+                    del items[j]["privileges_workflow"]
+
                 j = j + 1
 
             return items
-        except Exception as e:
-            raise e
         except Exception as e:
             raise e
 
