@@ -90,8 +90,6 @@ class IdentityGroup:
 
     @staticmethod
     def list() -> list:
-        # List identity groups with related information regarding the associated roles on partitions
-        # and optionally detailed privileges' descriptions.
         c = connection.cursor()
 
         try:

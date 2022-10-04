@@ -27,9 +27,13 @@ class PermissionRolesController(CustomController):
                 Log.actionLog("Roles list", user)
 
                 itemData["items"] = Role.list()
-                data["data"] = itemData["items"]
-                #data["data"] = Serializer(itemData).data
-                data["href"] = request.get_full_path()
+
+                #serializer = Serializer(data=itemData)
+                #if serializer.is_valid():
+                if True:
+                    #data["data"] = serializer.validated_data
+                    data["data"] = itemData["items"]
+                    data["href"] = request.get_full_path()
 
                 # Check the response's ETag validity (against client request).
                 conditional = Conditional(request)

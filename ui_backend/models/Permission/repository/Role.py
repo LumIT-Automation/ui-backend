@@ -37,23 +37,11 @@ class Role:
 
 
     @staticmethod
-    def list(showPrivileges: bool = False) -> list:
+    def list() -> list:
         c = connection.cursor()
 
         try:
-            if showPrivileges:
-                # Grouping roles' and privileges' values into two columns.
-                c.execute(
-                    "SELECT role.*, IFNULL(group_concat(DISTINCT privilege.privilege), '') AS privileges "
-                    "FROM role "
-                    "LEFT JOIN role_privilege ON role_privilege.id_role = role.id "
-                    "LEFT JOIN privilege ON privilege.id = role_privilege.id_privilege "
-                    "GROUP BY role.role"
-                )
-            else:
-                # Grouping roles' values in a single column.
-                c.execute("SELECT * FROM role")
-
+            c.execute("SELECT * FROM role")
             return DBHelper.asDict(c)
         except Exception as e:
             raise CustomException(status=400, payload={"database": e.__str__()})

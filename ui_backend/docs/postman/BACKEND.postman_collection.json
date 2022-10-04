@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "81f99350-7c0b-4d6a-b9df-e0060a7fecac",
+		"_postman_id": "2792d0a4-0626-4a92-aeaf-928b10b52eac",
 		"name": "BACKEND",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -291,18 +291,17 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.22/api/v1/f5/identity-groups/",
+							"raw": "http://10.0.111.12/backend/workflow/identity-groups/",
 							"protocol": "http",
 							"host": [
 								"10",
 								"0",
 								"111",
-								"22"
+								"12"
 							],
 							"path": [
-								"api",
-								"v1",
-								"f5",
+								"backend",
+								"workflow",
 								"identity-groups",
 								""
 							]
@@ -334,18 +333,17 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.22/api/v1/f5/identity-group/cn=groupStaff,cn=users,dc=lab,dc=localNew/",
+							"raw": "http://10.0.111.12/backend/workflow/identity-group/cn=groupStaff,cn=users,dc=lab,dc=localNew/",
 							"protocol": "http",
 							"host": [
 								"10",
 								"0",
 								"111",
-								"22"
+								"12"
 							],
 							"path": [
-								"api",
-								"v1",
-								"f5",
+								"backend",
+								"workflow",
 								"identity-group",
 								"cn=groupStaff,cn=users,dc=lab,dc=localNew",
 								""
@@ -378,18 +376,17 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.22/api/v1/f5/identity-group/cn=groupStaff,cn=users,dc=lab,dc=localNewModified/",
+							"raw": "http://10.0.111.12/backend/workflow/identity-group/cn=groupStaff,cn=users,dc=lab,dc=localNewModified/",
 							"protocol": "http",
 							"host": [
 								"10",
 								"0",
 								"111",
-								"22"
+								"12"
 							],
 							"path": [
-								"api",
-								"v1",
-								"f5",
+								"backend",
+								"workflow",
 								"identity-group",
 								"cn=groupStaff,cn=users,dc=lab,dc=localNewModified",
 								""

@@ -28,9 +28,13 @@ class PermissionIdentityGroupsController(CustomController):
                 Log.actionLog("Identity group list", user)
 
                 itemData["items"] = IdentityGroup.list()
-                #data["data"] = GroupsSerializer(itemData).data
-                data["data"] = itemData["items"]
-                data["href"] = request.get_full_path()
+
+                #serializer = Serializer(data=itemData)
+                #if serializer.is_valid():
+                if True:
+                    #data["data"] = serializer.validated_data
+                    data["data"] = itemData["items"]
+                    data["href"] = request.get_full_path()
 
                 # Check the response's ETag validity (against client request).
                 conditional = Conditional(request)
