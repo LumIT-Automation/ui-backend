@@ -84,7 +84,6 @@ CREATE TABLE `migrations` (
 CREATE TABLE `privilege` (
   `id` int(11) NOT NULL,
   `privilege` varchar(64) NOT NULL,
-  `privilege_type` enum('object','global') NOT NULL DEFAULT 'object',
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

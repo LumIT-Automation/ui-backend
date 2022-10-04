@@ -424,6 +424,59 @@
 			]
 		},
 		{
+			"name": "Workflows",
+			"item": [
+				{
+					"name": "workflow CheckPoint",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"checkpoint-asset\": 1,\n        \"infoblox-asset\": 1,\n        \"ipv4-address\": \"10.213.214.33\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow/checkpoint-remove-host/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow",
+								"checkpoint-remove-host",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "authorizations",
 			"request": {
 				"auth": {
@@ -526,54 +579,6 @@
 					"path": [
 						"backend",
 						"ui-config",
-						""
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "workflow CheckPoint",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Authorization",
-						"type": "text",
-						"value": "Bearer {{jwttoken}}"
-					},
-					{
-						"key": "If-None-Match",
-						"value": "c485212f298abe5f8b867ca42617292a",
-						"type": "text",
-						"disabled": true
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"data\": {\n        \"checkpoint-asset\": 1,\n        \"infoblox-asset\": 1,\n        \"ipv4-address\": \"10.213.214.33\"\n    }\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://10.0.111.12/backend/workflow/checkpoint-remove-host/",
-					"protocol": "http",
-					"host": [
-						"10",
-						"0",
-						"111",
-						"12"
-					],
-					"path": [
-						"backend",
-						"workflow",
-						"checkpoint-remove-host",
 						""
 					]
 				}

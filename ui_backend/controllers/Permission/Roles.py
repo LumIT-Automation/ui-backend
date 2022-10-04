@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from ui_backend.models.Permission.Role import Role
-#from ui_backend.models.Permission.Permission import Permission
+from ui_backend.models.Permission.Permission import Permission
 
 #from ui_backend.serializers.Permission.Roles import IdentityRolesSerializer as Serializer
 
@@ -22,8 +22,7 @@ class PermissionRolesController(CustomController):
         user = CustomController.loggedUser(request)
 
         try:
-            #if Permission.hasUserPermission(groups=user["groups"], action="permission_roles_get") or user["authDisabled"]:
-            if True:
+            if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Roles list", user)
 
                 itemData["items"] = Role.list()
@@ -44,6 +43,7 @@ class PermissionRolesController(CustomController):
                 else:
                     httpStatus = status.HTTP_200_OK
             else:
+                data = None
                 httpStatus = status.HTTP_403_FORBIDDEN
 
         except Exception as e:

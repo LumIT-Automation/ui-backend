@@ -54,16 +54,26 @@ class CustomController(BaseCustomController):
     authentication_classes = [JWTTokenUserAuthentication]
 
 
+
     @staticmethod
     def loggedUser(request: Request) -> dict:
-        # Retrieve user from the JWT token.
-        authenticator = request.successful_authenticator
-        user = jwt.decode(
-            authenticator.get_raw_token(authenticator.get_header(request)),
-            settings.SIMPLE_JWT['VERIFYING_KEY'],
-            settings.SIMPLE_JWT['ALGORITHM'],
-            do_time_check=True
-        )
+        if settings.DISABLE_AUTHENTICATION:
+            user = {
+                "authDisabled": True,
+                "groups": []
+            }
+        else:
+            # Retrieve user from the JWT token.
+            import jwt
+
+            authenticator = request.successful_authenticator
+            user = jwt.decode(
+                authenticator.get_raw_token(authenticator.get_header(request)),
+                settings.SIMPLE_JWT['VERIFYING_KEY'],
+                settings.SIMPLE_JWT['ALGORITHM'],
+                do_time_check=True
+            )
+            user["authDisabled"] = False
 
         return user
 

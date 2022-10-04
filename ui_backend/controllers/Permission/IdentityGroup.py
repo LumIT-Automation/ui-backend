@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from ui_backend.models.Permission.IdentityGroup import IdentityGroup
-# from ui_backend.models.Permission.Permission import Permission
+from ui_backend.models.Permission.Permission import Permission
 
 # from ui_backend.serializers.Permission.IdentityGroup import IdentityGroupSerializer as GroupSerializer
 
@@ -17,8 +17,7 @@ class PermissionIdentityGroupController(CustomController):
         user = CustomController.loggedUser(request)
 
         try:
-            #if Permission.hasUserPermission(groups=user["groups"], action="permission_identityGroup_delete") or user["authDisabled"]:
-            if True:
+            if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Identity group deletion", user)
 
                 ig = IdentityGroup(identityGroupIdentifier)
@@ -44,8 +43,7 @@ class PermissionIdentityGroupController(CustomController):
         user = CustomController.loggedUser(request)
 
         try:
-            #if Permission.hasUserPermission(groups=user["groups"], action="permission_identityGroup_patch") or user["authDisabled"]:
-            if True:
+            if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Identity group modification", user)
                 Log.actionLog("User data: "+str(request.data), user)
 

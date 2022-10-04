@@ -17,8 +17,7 @@ class PermissionController(CustomController):
         user = CustomController.loggedUser(request)
 
         try:
-            #if Permission.hasUserPermission(groups=user["groups"], action="permission_identityGroup_delete") or user["authDisabled"]:
-            if True:
+            if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Permission deletion", user)
 
                 p = Permission(permissionId)
@@ -44,8 +43,7 @@ class PermissionController(CustomController):
         user = CustomController.loggedUser(request)
 
         try:
-            #if Permission.hasUserPermission(groups=user["groups"], action="permission_identityGroup_patch") or user["authDisabled"]:
-            if True:
+            if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Permission modification", user)
                 Log.actionLog("User data: "+str(request.data), user)
 

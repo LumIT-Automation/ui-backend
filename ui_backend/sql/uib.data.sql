@@ -25,37 +25,29 @@ SET time_zone = "+00:00";
 -- Dump dei dati per la tabella `privilege`
 --
 
-INSERT INTO `privilege` (`id`, `privilege`, `privilege_type`, `description`) VALUES
-(1, 'permission_identityGroups_get', 'global', NULL),
-(2, 'permission_identityGroups_post', 'global', NULL),
-(3, 'permission_roles_get', 'global', NULL),
-(4, 'permission_identityGroup_patch', 'global', NULL),
-(5, 'permission_identityGroup_delete', 'global', NULL),
-(6, 'workflows_get', 'object', NULL),
-(7, 'workflow_put', 'object', NULL);
+INSERT INTO `privilege` (`id`, `privilege`, `description`) VALUES
+(1, 'exec', 'Can execute workflow');
 
 --
 -- Dump dei dati per la tabella `role`
 --
 
 INSERT INTO `role` (`id`, `role`, `description`) VALUES
-(1, 'admin', 'admin'),
-(2, 'exec', 'can execute worlflows');
+(1, 'exec', '');
 
 --
 -- Dump dei dati per la tabella `role_privilege`
 --
 
 INSERT INTO `role_privilege` (`id_role`, `id_privilege`) VALUES
-(1, 1),
-(1, 2),
-(1, 3),
-(1, 4),
-(1, 5),
-(1, 6),
-(1, 7),
-(2, 6),
-(2, 7);
+(1, 1);
+
+--
+-- Dump dei dati per la tabella `workflow`
+--
+
+INSERT INTO `workflow` (`id`, `name`, `description`) VALUES
+(1, 'checkpoint_remove_host', 'CheckPoint remove host, with Infoblox information fetching');
 
 
 COMMIT;

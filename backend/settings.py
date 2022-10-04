@@ -29,6 +29,7 @@ SECRET_KEY = 'o7lx@83-%tdncpo0qx4h#nbf-kd_bbswajgrvigy55-c8z!#dz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+DISABLE_AUTHENTICATION = False # for debugging purposes only.
 
 ALLOWED_HOSTS = ['*']
 

@@ -2,6 +2,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
+from ui_backend.models.Permission.Permission import Permission
+
 from ui_backend.controllers.CustomController import CustomController
 from ui_backend.usecases.CheckPointRemoveHost import CheckPointRemoveHost
 from ui_backend.helpers.Log import Log
@@ -16,8 +18,7 @@ class CheckPointRemoveHostController(CustomController):
         # @todo: correlation ID.
 
         try:
-            #if Permission.hasUserPermission(groups=user["groups"], action="groups_post", assetId=assetId, domain=domain) or user["authDisabled"]:
-            if True:
+            if Permission.hasUserPermission(groups=user["groups"], action="exec", workflowName="checkpoint_remove_host") or user["authDisabled"]:
                 #Log.actionLog("Node addition", user)
                 #Log.actionLog("User data: " + str(request.data), user)
 

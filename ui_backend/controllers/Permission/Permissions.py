@@ -24,8 +24,7 @@ class PermissionsController(CustomController):
         user = CustomController.loggedUser(request)
 
         try:
-            #if Permission.hasUserPermission(groups=user["groups"], action="permission_identityGroups_get") or user["authDisabled"]:
-            if True:
+            if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Permissions list", user)
 
                 itemData["items"] = Permission.listIdentityGroupsRolesWorkflows()
@@ -46,6 +45,7 @@ class PermissionsController(CustomController):
                 else:
                     httpStatus = status.HTTP_200_OK
             else:
+                data = None
                 httpStatus = status.HTTP_403_FORBIDDEN
 
         except Exception as e:
@@ -65,8 +65,7 @@ class PermissionsController(CustomController):
         user = CustomController.loggedUser(request)
 
         try:
-            #if Permission.hasUserPermission(groups=user["groups"], action="permission_identityGroups_post") or user["authDisabled"]:
-            if True:
+            if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Permission addition", user)
                 Log.actionLog("User data: "+str(request.data), user)
 
