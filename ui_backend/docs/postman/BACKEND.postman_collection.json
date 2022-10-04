@@ -157,7 +157,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"identity_group_name\": \"groupStaff\",\n        \"identity_group_identifier\": \"cn=groupstaff,cn=users,dc=lab,dc=local\",\n        \"role\": \"staff\",\n        \"partition\": {\n            \"name\": \"any\",\n            \"id_asset\": 1\n        }\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"identity_group_identifier\": \"cn=groupstaff,cn=users,dc=lab,dc=local\",\n        \"role\": \"admin\",\n        \"workflow_id\": 1\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -165,20 +165,19 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.22/api/v1/f5/permission/6/",
+							"raw": "http://10.0.111.12/backend/workflow/permission/2/",
 							"protocol": "http",
 							"host": [
 								"10",
 								"0",
 								"111",
-								"22"
+								"12"
 							],
 							"path": [
-								"api",
-								"v1",
-								"f5",
+								"backend",
+								"workflow",
 								"permission",
-								"6",
+								"2",
 								""
 							]
 						}
@@ -206,18 +205,17 @@
 							}
 						],
 						"url": {
-							"raw": "http://10.0.111.22/api/v1/f5/permission/3/",
+							"raw": "http://10.0.111.12/backend/workflow/permission/3/",
 							"protocol": "http",
 							"host": [
 								"10",
 								"0",
 								"111",
-								"22"
+								"12"
 							],
 							"path": [
-								"api",
-								"v1",
-								"f5",
+								"backend",
+								"workflow",
 								"permission",
 								"3",
 								""

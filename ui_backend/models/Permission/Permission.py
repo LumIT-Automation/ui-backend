@@ -22,20 +22,13 @@ class Permission:
     # Public methods
     ####################################################################################################################
 
-    def modify(self, identityGroupId: int, role: str, assetId: int, partitionName: str) -> None:
+    def modify(self, identityGroupId: int, role: str, workflowId: int) -> None:
         try:
-            if role == "admin":
-                # If admin, "any" is the only valid choice for partitionName (on selected assetId).
-                partitionName = "any"
-
             # RoleId.
             r = Role(role=role)
             roleId = r.info()["id"]
 
-            # Partition id.
-            partitionId = Permission.__getPartition(assetId, partitionName)
-
-            Repository.modify(self.id, identityGroupId, roleId, partitionId)
+            Repository.modify(self.id, identityGroupId, roleId, workflowId)
         except Exception as e:
             raise e
 

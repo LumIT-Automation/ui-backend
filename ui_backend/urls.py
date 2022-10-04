@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 
 from .controllers import Root, Controller, Authorizations, History, UiConfiguration
-from .controllers.Permission import Roles, IdentityGroup, IdentityGroups, Permissions
+from .controllers.Permission import Roles, IdentityGroup, IdentityGroups, Permission, Permissions
 from .controllers.Workflow import CheckPointRemoveHost
 
 
@@ -17,6 +17,7 @@ urlpatterns = [
     path('backend/workflow/identity-group/<str:identityGroupIdentifier>/', IdentityGroup.PermissionIdentityGroupController.as_view()),
 
     path('backend/workflow/permissions/', Permissions.PermissionsController.as_view()),
+    path('backend/workflow/permission/<int:permissionId>/', Permission.PermissionController.as_view()),
 
     path('backend/workflow/checkpoint-remove-host/', CheckPointRemoveHost.CheckPointRemoveHostController.as_view()),
 

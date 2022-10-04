@@ -29,14 +29,14 @@ class Permission:
     ####################################################################################################################
 
     @staticmethod
-    def modify(permissionId: int, identityGroupId: int, roleId: int, partitionId: int) -> None:
+    def modify(permissionId: int, identityGroupId: int, roleId: int, workflowId: int) -> None:
         c = connection.cursor()
 
         try:
-            c.execute("UPDATE group_role_partition SET id_group=%s, id_role=%s, id_partition=%s WHERE id=%s", [
+            c.execute("UPDATE group_role_workflow SET id_group=%s, id_role=%s, id_workflow=%s WHERE id=%s", [
                 identityGroupId, # AD or RADIUS group.
                 roleId,
-                partitionId,
+                workflowId,
                 permissionId
             ])
         except Exception as e:
@@ -51,7 +51,7 @@ class Permission:
         c = connection.cursor()
 
         try:
-            c.execute("DELETE FROM group_role_partition WHERE id = %s", [
+            c.execute("DELETE FROM group_role_workflow WHERE id = %s", [
                 permissionId
             ])
         except Exception as e:
