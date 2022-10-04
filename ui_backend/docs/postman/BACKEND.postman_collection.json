@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "2792d0a4-0626-4a92-aeaf-928b10b52eac",
+		"_postman_id": "b8e71ff4-7300-4807-a266-db393e62720e",
 		"name": "BACKEND",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -366,15 +366,6 @@
 								"value": "Bearer {{jwttoken}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"name\": \"groupStaff\",\n        \"ldap_dn\": \"cn=groupStaff,cn=users,dc=lab,dc=localxx\",\n        \"radius_group\": \"\",\n        \"roles\": [\n            \"admin\", \"wwwww\"\n        ]\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "http://10.0.111.12/backend/workflow/identity-group/cn=groupStaff,cn=users,dc=lab,dc=localNewModified/",
 							"protocol": "http",
