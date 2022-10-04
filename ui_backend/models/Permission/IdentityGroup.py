@@ -96,8 +96,8 @@ class IdentityGroup:
                                 rolesStructure[rlsList[0]] = list()
 
                             rolesStructure[rlsList[0]].append({
-                                "id": rlsList[1],
-                                "name": rlsList[1],
+                                "workflow_id": rlsList[1],
+                                "workflow_name": rlsList[1],
                             })
 
                     items[j]["roles_workflow"] = rolesStructure
@@ -118,8 +118,8 @@ class IdentityGroup:
                                     ppStructure[pList[0]] = list()
 
                                 ppStructure[pList[0]].append({
-                                    "id": pList[1],
-                                    "name": pList[2],
+                                    "workflow_id": pList[1],
+                                    "workflow_name": pList[2],
                                 })
 
                         items[j]["privileges_workflow"] = ppStructure

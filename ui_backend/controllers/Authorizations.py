@@ -11,7 +11,7 @@ from ui_backend.helpers.Log import Log
 
 
 class AuthorizationsController(CustomController):
-    # Enlist global authorizations for the user across all api-*.
+    # Enlist global authorizations for the user across all api-* and uib itself (as workflows gateway).
     @staticmethod
     def get(request: Request) -> Response:
         user = CustomController.loggedUser(request)
@@ -24,17 +24,26 @@ class AuthorizationsController(CustomController):
         if "Authorization" in request.headers:
             headers["Authorization"] = request.headers["Authorization"]
 
-        for technology in settings.API_BACKEND_BASE_URL:
+        services = settings.API_BACKEND_BASE_URL
+        services.update(settings.MYSELF_BASE_URL) # adding my own authorizations.
+
+        for technology, url in services.items():
             Log.actionLog("Permissions' list for technology " + technology, user)
-            endpoint = settings.API_BACKEND_BASE_URL[technology] + technology + "/authorizations/"
+
+            if technology == "backend":
+                endpoint = url + technology + "/workflow/authorizations/"
+            else:
+                endpoint = url + technology + "/authorizations/"
 
             try:
                 if endpoint:
                     Log.actionLog("GET " + str(request.get_full_path())+" with headers " + str(request.headers), user)
 
                     api = ApiSupplicant(endpoint, {}, headers)
-                    data["data"][technology] = api.get()
-
+                    if technology == "backend":
+                        data["data"]["workflow"] = api.get()
+                    else:
+                        data["data"][technology] = api.get()
             except Exception:
                 data["data"][technology] = {"data": {"items": {}}}
 

@@ -147,7 +147,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"identity_group_identifier\": \"cn=groupStaff,cn=users,dc=lab,dc=local\",\n        \"role\": \"admin\",\n        \"workflow\": {\n            \"id\": 1\n        }\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"identity_group_identifier\": \"cn=groupStaff,cn=users,dc=lab,dc=local\",\n        \"role\": \"exec\",\n        \"workflow\": {\n            \"id\": 1\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"

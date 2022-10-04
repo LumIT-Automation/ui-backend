@@ -243,9 +243,12 @@ SIMPLE_JWT = {
 # Variables.
 
 # Consul adaptive connector: automatically configures any api-* service provided by Consul's agent.
-API_BACKEND_BASE_URL = dict()
 API_BACKEND_PROTOCOL = "http://"
+API_BACKEND_BASE_URL = dict()
 API_SSO_BASE_URL = ""
+MYSELF_BASE_URL = {
+    "backend": API_BACKEND_PROTOCOL + "localhost/"
+}
 
 try:
     ss, st, o = Process.execute("consul catalog services")
