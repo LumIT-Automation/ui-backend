@@ -1,5 +1,4 @@
-from ui_backend.helpers.Workflow import Workflow
-from ui_backend.helpers.Log import Log
+from ui_backend.usecases.Workflow import Workflow
 
 
 class CheckPointRemoveHost(Workflow):
