@@ -7,19 +7,19 @@ from ui_backend.helpers.Database import Database as DBHelper
 
 class Permission:
 
-    # IdentityGroupRolePartition
+    # IdentityGroupRoleWorkflow
 
-    # Table: group_role_partition
+    # Table: group_role_workflow
 
     #   `id` int(255) NOT NULL AUTO_INCREMENT,
     #   `id_group` int(11) NOT NULL KEY,
     #   `id_role` int(11) NOT NULL KEY,
-    #   `id_partition` int(11) NOT NULL KEY
+    #   `id_workflow` int(11) NOT NULL KEY
     #
-    #   PRIMARY KEY (`id_group`,`id_role`,`id_partition`)
+    #   PRIMARY KEY (`id_group`,`id_role`,`id_workflow`)
     #
     #   CONSTRAINT `grp_group` FOREIGN KEY (`id_group`) REFERENCES `identity_group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    #   CONSTRAINT `grp_partition` FOREIGN KEY (`id_partition`) REFERENCES `partition` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    #   CONSTRAINT `grp_workflow` FOREIGN KEY (`id_workflow`) REFERENCES `workflow` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     #   CONSTRAINT `grp_role` FOREIGN KEY (`id_role`) REFERENCES `role` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
@@ -62,11 +62,10 @@ class Permission:
 
 
     @staticmethod
-    def countUserPermissions(groups: list, action: str, assetId: int = 0, partitionName: str = "") -> int:
+    def countUserPermissions(groups: list, action: str, workflowName: str = "") -> int:
         if action and groups:
             args = groups.copy()
-            assetWhere = ""
-            partitionWhere = ""
+            workflowWhere = ""
 
             c = connection.cursor()
 
@@ -77,28 +76,22 @@ class Permission:
                 for g in groups:
                     groupWhere += 'identity_group.identity_group_identifier = %s || '
 
-                # Put all the args of the query in a list.
-                if assetId:
-                    args.append(assetId)
-                    assetWhere = "AND `partition`.id_asset = %s "
-
-                if partitionName:
-                    args.append(partitionName)
-                    partitionWhere = "AND (`partition`.`partition` = %s OR `partition`.`partition` = 'any') " # if "any" appears in the query results so far -> pass.
+                if workflowName:
+                    args.append(workflowName)
+                    workflowWhere = "AND workflow.name = %s "
 
                 args.append(action)
 
                 c.execute(
                     "SELECT COUNT(*) AS count "
                     "FROM identity_group "
-                    "LEFT JOIN group_role_partition ON group_role_partition.id_group = identity_group.id "
-                    "LEFT JOIN role ON role.id = group_role_partition.id_role "
+                    "LEFT JOIN group_role_workflow ON group_role_workflow.id_group = identity_group.id "
+                    "LEFT JOIN role ON role.id = group_role_workflow.id_role "
                     "LEFT JOIN role_privilege ON role_privilege.id_role = role.id "
-                    "LEFT JOIN `partition` ON `partition`.id = group_role_partition.id_partition "                      
+                    "LEFT JOIN workflow ON workflow.id = group_role_workflow.id_workflow "                      
                     "LEFT JOIN privilege ON privilege.id = role_privilege.id_privilege "
                     "WHERE ("+groupWhere[:-4]+") " +
-                    assetWhere +
-                    partitionWhere +
+                    workflowWhere +
                     "AND privilege.privilege = %s ",
                         args
                 )

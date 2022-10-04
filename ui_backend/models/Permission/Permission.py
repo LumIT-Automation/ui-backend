@@ -5,16 +5,16 @@ from ui_backend.models.Permission.repository.Permission import Permission as Rep
 
 class Permission:
 
-    # IdentityGroupRolePartition
+    # IdentityGroupRoleWorkflow
 
-    def __init__(self, id: int, groupId: int = 0, roleId: int = 0, partitionId: int = 0, *args, **kwargs):
+    def __init__(self, id: int, groupId: int = 0, roleId: int = 0, workflowId: int = 0, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.id = id
         
         self.id_group = groupId
         self.id_role = roleId
-        self.id_partition = partitionId
+        self.id_workflow = workflowId
 
 
 
@@ -24,11 +24,12 @@ class Permission:
 
     def modify(self, identityGroupId: int, role: str, workflowId: int) -> None:
         try:
-            # RoleId.
-            r = Role(role=role)
-            roleId = r.info()["id"]
-
-            Repository.modify(self.id, identityGroupId, roleId, workflowId)
+            Repository.modify(
+                self.id,
+                identityGroupId,
+                Role(role=role).info()["id"], # roleId.
+                workflowId
+            )
         except Exception as e:
             raise e
 
@@ -47,7 +48,7 @@ class Permission:
     ####################################################################################################################
 
     @staticmethod
-    def hasUserPermission(groups: list, action: str, assetId: int = 0, partitionName: str = "") -> bool:
+    def hasUserPermission(groups: list, action: str, workflowName: str = "") -> bool:
         # Superadmin's group.
         for gr in groups:
             if gr.lower() == "automation.local":
@@ -55,7 +56,7 @@ class Permission:
 
         try:
             return bool(
-                Repository.countUserPermissions(groups, action, assetId, partitionName)
+                Repository.countUserPermissions(groups, action, workflowName)
             )
         except Exception as e:
             raise e
@@ -74,11 +75,11 @@ class Permission:
     @staticmethod
     def add(identityGroupId: int, role: str, workflowId: int) -> None:
         try:
-            # RoleId.
-            r = Role(role=role)
-            roleId = r.info()["id"]
-
-            Repository.add(identityGroupId, roleId, workflowId)
+            Repository.add(
+                identityGroupId,
+                Role(role=role).info()["id"], # roleId.
+                workflowId
+            )
         except Exception as e:
             raise e
 

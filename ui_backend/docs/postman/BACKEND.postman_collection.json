@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b8e71ff4-7300-4807-a266-db393e62720e",
+		"_postman_id": "47e2ae55-fdfd-4c64-b6a8-1c8f7b54e712",
 		"name": "BACKEND",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -109,7 +109,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"identity_group_identifier\": \"cn=groupadmin,cn=users,dc=lab,dc=local\",\n        \"role\": \"exec\",\n        \"workflow_id\": 1\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"identity_group_identifier\": \"cn=groupStaff,cn=users,dc=lab,dc=local\",\n        \"role\": \"admin\",\n        \"workflow\": {\n            \"id\": 1\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -157,7 +157,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"identity_group_identifier\": \"cn=groupstaff,cn=users,dc=lab,dc=local\",\n        \"role\": \"admin\",\n        \"workflow_id\": 1\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"identity_group_identifier\": \"cn=groupstaff,cn=users,dc=lab,dc=local\",\n        \"role\": \"exec\",\n        \"workflow\": {\n            \"id\": 1\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -165,7 +165,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/permission/2/",
+							"raw": "http://10.0.111.12/backend/workflow/permission/5/",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -177,7 +177,7 @@
 								"backend",
 								"workflow",
 								"permission",
-								"2",
+								"5",
 								""
 							]
 						}
