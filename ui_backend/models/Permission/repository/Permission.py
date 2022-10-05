@@ -1,3 +1,4 @@
+import json
 from django.db import connection
 
 from ui_backend.helpers.Log import Log
@@ -15,6 +16,7 @@ class Permission:
     #   `id_group` int(11) NOT NULL KEY,
     #   `id_role` int(11) NOT NULL KEY,
     #   `id_workflow` int(11) NOT NULL KEY
+    #   `details` varchar(8192) NOT NULL DEFAULT '{}' CHECK (json_valid(`details`))
     #
     #   PRIMARY KEY (`id_group`,`id_role`,`id_workflow`)
     #
@@ -29,14 +31,15 @@ class Permission:
     ####################################################################################################################
 
     @staticmethod
-    def modify(permissionId: int, identityGroupId: int, roleId: int, workflowId: int) -> None:
+    def modify(permissionId: int, identityGroupId: int, roleId: int, workflowId: int, details: dict) -> None:
         c = connection.cursor()
 
         try:
-            c.execute("UPDATE group_role_workflow SET id_group=%s, id_role=%s, id_workflow=%s WHERE id=%s", [
+            c.execute("UPDATE group_role_workflow SET id_group=%s, id_role=%s, id_workflow=%s, details=%s WHERE id=%s", [
                 identityGroupId, # AD or RADIUS group.
                 roleId,
                 workflowId,
+                json.dumps(details),
                 permissionId
             ])
         except Exception as e:
@@ -62,7 +65,7 @@ class Permission:
 
 
     @staticmethod
-    def countUserPermissions(groups: list, action: str, workflowName: str = "") -> int:
+    def countUserPermissions(groups: list, action: str, workflowName: str = "") -> tuple:
         if action and groups:
             args = groups.copy()
             workflowWhere = ""
@@ -83,7 +86,7 @@ class Permission:
                 args.append(action)
 
                 c.execute(
-                    "SELECT COUNT(*) AS count "
+                    "SELECT COUNT(*) AS c, group_role_workflow.details "
                     "FROM identity_group "
                     "LEFT JOIN group_role_workflow ON group_role_workflow.id_group = identity_group.id "
                     "LEFT JOIN role ON role.id = group_role_workflow.id_role "
@@ -96,13 +99,13 @@ class Permission:
                         args
                 )
 
-                return DBHelper.asDict(c)[0]["count"]
+                o = DBHelper.asDict(c)[0]
+                return o["c"], \
+                       o["details"]
             except Exception as e:
                 raise CustomException(status=400, payload={"database": e.__str__()})
             finally:
                 c.close()
-
-        return False
 
 
 
@@ -113,7 +116,7 @@ class Permission:
         try:
             c.execute(
                 "SELECT "
-                    "group_role_workflow.id, "
+                    "group_role_workflow.id, group_role_workflow.details, "
                     "identity_group.name AS identity_group_name, "
                     "identity_group.identity_group_identifier AS identity_group_identifier, "
                     "role.role AS role, "
@@ -132,6 +135,8 @@ class Permission:
                     "name": el["workflow_name"]
                 }
 
+                el["details"] = json.loads(el["details"])
+
                 del(el["workflow_id"])
                 del(el["workflow_name"])
 
@@ -144,14 +149,15 @@ class Permission:
 
 
     @staticmethod
-    def add(identityGroupId: int, roleId: int, workflowId: int) -> None:
+    def add(identityGroupId: int, roleId: int, workflowId: int, details: dict) -> None:
         c = connection.cursor()
 
         try:
-            c.execute("INSERT INTO group_role_workflow (id_group, id_role, id_workflow) VALUES (%s, %s, %s)", [
+            c.execute("INSERT INTO group_role_workflow (id_group, id_role, id_workflow, details) VALUES (%s, %s, %s, %s)", [
                 identityGroupId, # AD or RADIUS group.
                 roleId,
-                workflowId
+                workflowId,
+                json.dumps(details)
             ])
         except Exception as e:
             raise CustomException(status=400, payload={"database": e.__str__()})

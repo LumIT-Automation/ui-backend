@@ -2,6 +2,8 @@ from ui_backend.models.Permission.Role import Role
 
 from ui_backend.models.Permission.repository.Permission import Permission as Repository
 
+from ui_backend.helpers.Log import Log
+
 
 class Permission:
 
@@ -22,13 +24,14 @@ class Permission:
     # Public methods
     ####################################################################################################################
 
-    def modify(self, identityGroupId: int, role: str, workflowId: int) -> None:
+    def modify(self, identityGroupId: int, role: str, workflowId: int, details: dict) -> None:
         try:
             Repository.modify(
                 self.id,
                 identityGroupId,
                 Role(role=role).info()["id"], # roleId.
-                workflowId
+                workflowId,
+                details
             )
         except Exception as e:
             raise e
@@ -55,9 +58,15 @@ class Permission:
                 return True
 
         try:
-            return bool(
-                Repository.countUserPermissions(groups, action, workflowName)
-            )
+            perms, details = Repository.countUserPermissions(groups, action, workflowName)
+            if perms:
+                # details example:
+                # {"f5": {"allowed_asset_ids": [1, 2]}}
+
+                # @todo: perform checks.
+                return True
+            else:
+                return False
         except Exception as e:
             raise e
 
@@ -73,12 +82,13 @@ class Permission:
 
 
     @staticmethod
-    def add(identityGroupId: int, role: str, workflowId: int) -> None:
+    def add(identityGroupId: int, role: str, workflowId: int, details: dict) -> None:
         try:
             Repository.add(
                 identityGroupId,
                 Role(role=role).info()["id"], # roleId.
-                workflowId
+                workflowId,
+                details
             )
         except Exception as e:
             raise e

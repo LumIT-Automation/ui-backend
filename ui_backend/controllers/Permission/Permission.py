@@ -60,7 +60,8 @@ class PermissionController(CustomController):
                     p.modify(
                         identityGroupId,
                         data["role"],
-                        data["workflow"]["id"]
+                        data["workflow"]["id"],
+                        data["details"],
                     )
 
                     httpStatus = status.HTTP_200_OK

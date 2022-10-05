@@ -147,7 +147,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"identity_group_identifier\": \"cn=groupStaff,cn=users,dc=lab,dc=local\",\n        \"role\": \"exec\",\n        \"workflow\": {\n            \"id\": 1\n        }\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"identity_group_identifier\": \"cn=groupStaff,cn=users,dc=lab,dc=local\",\n        \"role\": \"exec\",\n        \"workflow\": {\n            \"id\": 1\n        },\n        \"details\": {\n            \"checkpoint\": {\n                \"allowed_asset_ids\": [\n                    1,\n                    2\n                ]\n            }\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -195,7 +195,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"identity_group_identifier\": \"cn=groupstaff,cn=users,dc=lab,dc=local\",\n        \"role\": \"exec\",\n        \"workflow\": {\n            \"id\": 1\n        }\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"identity_group_identifier\": \"cn=groupstaff,cn=users,dc=lab,dc=local\",\n        \"role\": \"exec\",\n        \"workflow\": {\n            \"id\": 1\n        },\n        \"details\": {\n            \"f5\": {\n                \"allowed_asset_ids\": [\n                    1,\n                    2\n                ]\n            }\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"

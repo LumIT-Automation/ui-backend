@@ -31,7 +31,8 @@ CREATE TABLE `group_role_workflow` (
   `id` int(255) NOT NULL,
   `id_group` int(11) NOT NULL,
   `id_role` int(11) NOT NULL,
-  `id_workflow` int(11) NOT NULL
+  `id_workflow` int(11) NOT NULL,
+  `details` varchar(8192) NOT NULL DEFAULT '{}' CHECK (json_valid(`details`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------

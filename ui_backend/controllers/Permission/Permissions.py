@@ -83,7 +83,8 @@ class PermissionsController(CustomController):
                     Permission.add(
                         identityGroupId,
                         data["role"],
-                        data["workflow"]["id"]
+                        data["workflow"]["id"],
+                        data["details"]
                     )
 
                     httpStatus = status.HTTP_201_CREATED
