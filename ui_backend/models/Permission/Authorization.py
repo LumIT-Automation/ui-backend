@@ -1,5 +1,10 @@
+from django.conf import settings
+
+from rest_framework.request import Request
+
 from ui_backend.models.Permission.IdentityGroup import IdentityGroup
 
+from ui_backend.helpers.ApiSupplicant import ApiSupplicant
 from ui_backend.helpers.Log import Log
 
 
@@ -60,3 +65,40 @@ class Authorization:
             # }
 
         return combinedPermissions
+
+
+
+    @staticmethod
+    def listPlatformAuthorizations(request: Request, user: dict) -> dict:
+        headers = dict()
+        data = dict()
+
+        if "Authorization" in request.headers:
+            headers["Authorization"] = request.headers["Authorization"]
+
+        services = settings.API_BACKEND_BASE_URL
+        services.update(settings.MYSELF_BASE_URL) # adding my own authorizations.
+
+        for technology, url in services.items():
+            if technology == "backend":
+                endpoint = url + technology + "/workflow/authorizations/"
+            else:
+                endpoint = url + technology + "/authorizations/"
+
+            try:
+                if endpoint:
+                    Log.actionLog("GET " + str(request.get_full_path()) + " with headers " + str(request.headers), user)
+
+                    api = ApiSupplicant(endpoint, {}, headers)
+                    if technology == "backend":
+                        data["workflow"] = api.get()
+                    else:
+                        data[technology] = api.get()
+            except Exception:
+                data[technology] = {
+                    "data": {
+                        "items": {}
+                    }
+                }
+
+        return data
