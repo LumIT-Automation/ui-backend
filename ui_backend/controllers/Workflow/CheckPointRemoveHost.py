@@ -1,16 +1,16 @@
-from datetime import datetime
-from random import randrange
-
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
+
+from ui_backend.usecases.CheckPointRemoveHost import CheckPointRemoveHost
 
 from ui_backend.models.Permission.Permission import Permission
 
 from ui_backend.serializers.usecases.CheckPointRemoveHost import CheckPointRemoveHostSerializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
-from ui_backend.usecases.CheckPointRemoveHost import CheckPointRemoveHost
+
+from ui_backend.helpers.Date import Date
 from ui_backend.helpers.Log import Log
 
 
@@ -20,11 +20,8 @@ class CheckPointRemoveHostController(CustomController):
         response = None
         user = CustomController.loggedUser(request)
 
-        workflowId = datetime.now().strftime("%Y%m%d:%H%M-") + str(randrange(0, 9999))
-
         try:
-            #if Permission.hasUserPermission(groups=user["groups"], action="exec", workflowName="checkpoint_remove_host") or user["authDisabled"]:
-            if True:
+            if Permission.hasUserPermission(groups=user["groups"], action="exec", workflowName="checkpoint_remove_host") or user["authDisabled"]:
                 Log.actionLog("Checkpoint host removal", user)
                 Log.actionLog("User data: " + str(request.data), user)
 
@@ -33,7 +30,7 @@ class CheckPointRemoveHostController(CustomController):
                     data = serializer.validated_data
 
                     httpStatus = status.HTTP_200_OK
-                    CheckPointRemoveHost(data=data, username=user.get("username", ""), workflowId=workflowId)()
+                    CheckPointRemoveHost(data=data, username=user.get("username", ""), workflowId=Date.getWorkflowId())()
                 else:
                     httpStatus = status.HTTP_400_BAD_REQUEST
                     response = {
