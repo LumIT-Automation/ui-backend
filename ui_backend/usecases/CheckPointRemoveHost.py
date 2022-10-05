@@ -2,11 +2,12 @@ from ui_backend.usecases.Workflow import Workflow
 
 
 class CheckPointRemoveHost(Workflow):
-    def __init__(self, data: dict, username: str, *args, **kwargs):
-        super().__init__(username, *args, **kwargs)
+    def __init__(self, data: dict, username: str, workflowId: str, *args, **kwargs):
+        super().__init__(username, workflowId, *args, **kwargs)
 
         self.data = data
         self.username = username
+        self.workflowId = workflowId
 
 
 

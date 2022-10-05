@@ -6,10 +6,11 @@ from ui_backend.helpers.Log import Log
 
 
 class Workflow:
-    def __init__(self, username: str, *args, **kwargs):
+    def __init__(self, username: str, workflowId: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.username = username
+        self.workflowId = workflowId
 
 
 
@@ -25,7 +26,8 @@ class Workflow:
                 endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/" + urlSegment,
                 additionalHeaders={
                     "Authorization": "Bearer " + Workflow.__getToken(), # "workflow" system user.
-                    "workflowUser": self.username
+                    "workflowUser": self.username,
+                    "workflowId": self.workflowId
                 }
             )
 
