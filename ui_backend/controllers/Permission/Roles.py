@@ -5,7 +5,7 @@ from rest_framework import status
 from ui_backend.models.Permission.Role import Role
 from ui_backend.models.Permission.Permission import Permission
 
-#from ui_backend.serializers.Permission.Roles import IdentityRolesSerializer as Serializer
+from ui_backend.serializers.Permission.Roles import RolesSerializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
 from ui_backend.helpers.Conditional import Conditional
@@ -16,7 +16,9 @@ class PermissionRolesController(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
         data = dict()
-        itemData = dict()
+        itemData = {
+            "data": dict()
+        }
         etagCondition = {"responseEtag": ""}
 
         user = CustomController.loggedUser(request)
@@ -25,18 +27,15 @@ class PermissionRolesController(CustomController):
             if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Roles list", user)
 
-                itemData["items"] = Role.list()
-
-                #serializer = Serializer(data=itemData)
-                #if serializer.is_valid():
-                if True:
-                    #data["data"] = serializer.validated_data
-                    data["data"] = itemData["items"]
+                itemData["data"]["items"] = Role.list()
+                serializer = Serializer(data=itemData)
+                if serializer.is_valid():
+                    data = serializer.validated_data
                     data["href"] = request.get_full_path()
 
                 # Check the response's ETag validity (against client request).
                 conditional = Conditional(request)
-                etagCondition = conditional.responseEtagFreshnessAgainstRequest(data["data"])
+                etagCondition = conditional.responseEtagFreshnessAgainstRequest(str(data["data"]))
                 if etagCondition["state"] == "fresh":
                     data = None
                     httpStatus = status.HTTP_304_NOT_MODIFIED
