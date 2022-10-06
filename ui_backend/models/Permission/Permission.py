@@ -63,21 +63,17 @@ class Permission:
         try:
             perms, details = Repository.countUserPermissions(groups, action, workflowName)
             if perms:
-
                 # details example: {"checkpoint": {"allowed_asset_ids": [1, 2]}}
-                # requestedAssets example: {'checkpoint': 1, 'infoblox': 1}
+                # requestedAssets example: {'checkpoint': [1], 'infoblox': [1]}
                 for tech, assetIds in requestedAssets.items():
-                    if not (tech in details and not False in [False if assetId not in details[tech].get("allowed_asset_ids", []) else True for assetId in assetIds]):
+                    if not (tech in details and all(map(lambda a: a in details[tech].get("allowed_asset_ids", []), assetIds))):
                         return False
 
-                    # Check that the assetId is currently in the api database.
+                    # Check that the assetId is currently available.
                     apiAssets = Repository.getApiAssets(tech)
                     for assetId in assetIds:
-                        if assetId not in [ el.get("id") for el in [api for api in apiAssets["data"]["items"]] ]:
-                            raise CustomException(status=400, payload={"ui-backend": "assetId not present in api database"})
-
-
-                # @todo: perform checks.
+                        if assetId not in [ el.get("id") for el in [api for api in apiAssets] ]:
+                            raise CustomException(status=400, payload={"UI-BACKEND": "assetId unavailable"})
                 return True
             else:
                 return False
