@@ -2,6 +2,7 @@ from ui_backend.models.Permission.Role import Role
 
 from ui_backend.models.Permission.repository.Permission import Permission as Repository
 
+from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Log import Log
 
 
@@ -62,12 +63,19 @@ class Permission:
         try:
             perms, details = Repository.countUserPermissions(groups, action, workflowName)
             if perms:
+
                 # details example: {"checkpoint": {"allowed_asset_ids": [1, 2]}}
                 # requestedAssets example: {'checkpoint': 1, 'infoblox': 1}
-                for tech, assetId in requestedAssets.items():
-                    if not (tech in details
-                            and assetId in details[tech].get("allowed_asset_ids", [])):
+                for tech, assetIds in requestedAssets.items():
+                    if not (tech in details and not False in [False if assetId not in details[tech].get("allowed_asset_ids", []) else True for assetId in assetIds]):
                         return False
+
+                    # Check that the assetId is currently in the api database.
+                    apiAssets = Repository.getApiAssets(tech)
+                    for assetId in assetIds:
+                        if assetId not in [ el.get("id") for el in [api for api in apiAssets["data"]["items"]] ]:
+                            raise CustomException(status=400, payload={"ui-backend": "assetId not present in api database"})
+
 
                 # @todo: perform checks.
                 return True

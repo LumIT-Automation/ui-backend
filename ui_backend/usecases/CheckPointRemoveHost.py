@@ -27,8 +27,10 @@ class CheckPointRemoveHost(Workflow):
             #    urlSegment=urlSegment
             #)
 
+            # Todo: pass assetIds from the asset field in the request.
+            assetId = "1"
             technology = "checkpoint"
-            urlSegment = "1/remove-host/"
+            urlSegment = assetId + "/remove-host/"
 
             data = self.requestFacade(
                 method="PUT",

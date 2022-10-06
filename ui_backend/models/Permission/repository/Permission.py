@@ -4,6 +4,7 @@ from django.db import connection
 from ui_backend.helpers.Log import Log
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Database import Database as DBHelper
+from ui_backend.usecases.Workflow import Workflow
 
 
 class Permission:
@@ -162,3 +163,17 @@ class Permission:
             raise CustomException(status=400, payload={"database": e.__str__()})
         finally:
             c.close()
+
+
+
+    # Todo: instead of using a workflow, make a parent class of Workflow in helpers.
+    @staticmethod
+    def getApiAssets(technology: str):
+        try:
+            apiAssets = Workflow(username="", workflowId="")
+            data = apiAssets.requestFacade(method="GET", technology=technology, urlSegment="/assets/")
+
+        except Exception as e:
+            raise e
+
+        return data
