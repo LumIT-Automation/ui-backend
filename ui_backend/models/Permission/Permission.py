@@ -66,7 +66,7 @@ class Permission:
                 # requestedAssets example: {'checkpoint': 1, 'infoblox': 1}
                 for tech, assetId in requestedAssets.items():
                     if not (tech in details
-                            and assetId in details[tech]["allowed_asset_ids"]):
+                            and assetId in details[tech].get("allowed_asset_ids", [])):
                         return False
 
                 # @todo: perform checks.
