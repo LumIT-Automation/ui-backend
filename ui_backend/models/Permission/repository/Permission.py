@@ -167,7 +167,6 @@ class Permission:
 
 
 
-    # Todo: instead of using a workflow, make a parent class of Workflow in helpers.
     @staticmethod
     def getApiAssets(technology: str) -> list:
         try:
