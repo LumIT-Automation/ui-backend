@@ -531,7 +531,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"checkpoint-asset\": 1,\n        \"infoblox-asset\": 1,\n        \"ipv4-address\": \"10.213.214.33\"\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"asset\": {\n            \"checkpoint\": 1\n        },\n        \"ipv4-address\": \"10.213.214.33\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"

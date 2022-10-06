@@ -100,8 +100,7 @@ class Permission:
                 )
 
                 o = DBHelper.asDict(c)[0]
-                return o["c"], \
-                       o["details"]
+                return o["c"], json.loads(o["details"])
             except Exception as e:
                 raise CustomException(status=400, payload={"database": e.__str__()})
             finally:

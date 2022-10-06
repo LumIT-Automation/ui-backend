@@ -51,7 +51,9 @@ class Permission:
     ####################################################################################################################
 
     @staticmethod
-    def hasUserPermission(groups: list, action: str, workflowName: str = "") -> bool:
+    def hasUserPermission(groups: list, action: str, workflowName: str = "", requestedAssets: dict = None) -> bool:
+        requestedAssets = requestedAssets or {}
+
         # Superadmin's group.
         for gr in groups:
             if gr.lower() == "automation.local":
@@ -60,8 +62,12 @@ class Permission:
         try:
             perms, details = Repository.countUserPermissions(groups, action, workflowName)
             if perms:
-                # details example:
-                # {"f5": {"allowed_asset_ids": [1, 2]}}
+                # details example: {"checkpoint": {"allowed_asset_ids": [1, 2]}}
+                # requestedAssets example: {'checkpoint': 1, 'infoblox': 1}
+                for tech, assetId in requestedAssets.items():
+                    if not (tech in details
+                            and assetId in details[tech]["allowed_asset_ids"]):
+                        return False
 
                 # @todo: perform checks.
                 return True

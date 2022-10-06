@@ -21,28 +21,29 @@ class CheckPointRemoveHostController(CustomController):
         user = CustomController.loggedUser(request)
 
         try:
-            if Permission.hasUserPermission(groups=user["groups"], action="exec", workflowName="checkpoint_remove_host") or user["authDisabled"]:
-                Log.actionLog("Checkpoint host removal", user)
-                Log.actionLog("User data: " + str(request.data), user)
+            #serializer = Serializer(data=request.data["data"])
+            #if serializer.is_valid():
+            if True:
+                #data = serializer.validated_data
+                data = request.data["data"]
 
-                serializer = Serializer(data=request.data["data"])
-                if serializer.is_valid():
-                    data = serializer.validated_data
+                if Permission.hasUserPermission(groups=user["groups"], action="exec", workflowName="checkpoint_remove_host", requestedAssets=data["asset"]) or user["authDisabled"]:
+                    Log.actionLog("Checkpoint host removal", user)
+                    Log.actionLog("User data: " + str(request.data), user)
 
                     httpStatus = status.HTTP_200_OK
                     CheckPointRemoveHost(data=data, username=user.get("username", ""), workflowId=Date.getWorkflowId())()
                 else:
-                    httpStatus = status.HTTP_400_BAD_REQUEST
-                    response = {
-                        "Workflow": {
-                            "error": str(serializer.errors)
-                        }
-                    }
-
-                    Log.actionLog("User data incorrect: " + str(response), user)
+                    httpStatus = status.HTTP_403_FORBIDDEN
             else:
-                httpStatus = status.HTTP_403_FORBIDDEN
+                httpStatus = status.HTTP_400_BAD_REQUEST
+                response = {
+                    "Workflow": {
+                        "error": str(serializer.errors)
+                    }
+                }
 
+                Log.actionLog("User data incorrect: " + str(response), user)
         except Exception as e:
             data, httpStatus, headers = CustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
