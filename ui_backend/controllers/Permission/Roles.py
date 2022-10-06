@@ -20,7 +20,6 @@ class PermissionRolesController(CustomController):
             "data": dict()
         }
         etagCondition = {"responseEtag": ""}
-
         user = CustomController.loggedUser(request)
 
         try:
@@ -35,7 +34,7 @@ class PermissionRolesController(CustomController):
 
                 # Check the response's ETag validity (against client request).
                 conditional = Conditional(request)
-                etagCondition = conditional.responseEtagFreshnessAgainstRequest(str(data["data"]))
+                etagCondition = conditional.responseEtagFreshnessAgainstRequest(data["data"])
                 if etagCondition["state"] == "fresh":
                     data = None
                     httpStatus = status.HTTP_304_NOT_MODIFIED

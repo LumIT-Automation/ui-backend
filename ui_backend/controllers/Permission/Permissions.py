@@ -5,8 +5,8 @@ from rest_framework import status
 from ui_backend.models.Permission.IdentityGroup import IdentityGroup
 from ui_backend.models.Permission.Permission import Permission
 
-#from ui_backend.serializers.Permission.Permissions import PermissionsSerializer as PermissionsSerializer
-#from ui_backend.serializers.Permission.Permission import PermissionSerializer as PermissionSerializer
+from ui_backend.serializers.Permission.Permissions import PermissionsSerializer
+from ui_backend.serializers.Permission.Permission import PermissionSerializer
 
 from ui_backend.controllers.CustomController import CustomController
 from ui_backend.helpers.Conditional import Conditional
@@ -18,27 +18,27 @@ class PermissionsController(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
         data = dict()
-        itemData = dict()
+        itemData = {
+            "data": dict()
+        }
         etagCondition = {"responseEtag": ""}
-
         user = CustomController.loggedUser(request)
 
         try:
             if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Permissions list", user)
 
-                itemData["items"] = Permission.listIdentityGroupsRolesWorkflows()
+                itemData["data"]["items"] = Permission.listIdentityGroupsRolesWorkflows()
 
-                #serializer = PermissionsSerializer(data=itemData)
-                #if serializer.is_valid():
-                if True:
-                    #data["data"] = serializer.validated_data
-                    data["data"] = itemData
+                Log.log(itemData, '_')
+                serializer = PermissionsSerializer(data=itemData)
+                if serializer.is_valid():
+                    data = serializer.validated_data
                     data["href"] = request.get_full_path()
 
                 # Check the response's ETag validity (against client request).
                 conditional = Conditional(request)
-                etagCondition = conditional.responseEtagFreshnessAgainstRequest(data["data"])
+                etagCondition = conditional.responseEtagFreshnessAgainstRequest(str(data["data"]))
                 if etagCondition["state"] == "fresh":
                     data = None
                     httpStatus = status.HTTP_304_NOT_MODIFIED
@@ -69,11 +69,9 @@ class PermissionsController(CustomController):
                 Log.actionLog("Permission addition", user)
                 Log.actionLog("User data: "+str(request.data), user)
 
-                #serializer = PermissionSerializer(data=request.data["data"])
-                #if serializer.is_valid():
-                #    data = serializer.validated_data
-                if True:
-                    data = request.data["data"]
+                serializer = PermissionSerializer(data=request.data["data"])
+                if serializer.is_valid():
+                    data = serializer.validated_data
                     ig = IdentityGroup(data["identity_group_identifier"])
                     try:
                         identityGroupId = ig.info()["id"]

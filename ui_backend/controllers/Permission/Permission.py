@@ -5,7 +5,7 @@ from rest_framework import status
 from ui_backend.models.Permission.IdentityGroup import IdentityGroup
 from ui_backend.models.Permission.Permission import Permission
 
-#from ui_backend.serializers.Permission.Permission import PermissionSerializer as Serializer
+from ui_backend.serializers.Permission.Permission import PermissionSerializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
 from ui_backend.helpers.Log import Log
@@ -47,11 +47,9 @@ class PermissionController(CustomController):
                 Log.actionLog("Permission modification", user)
                 Log.actionLog("User data: "+str(request.data), user)
 
-                #serializer = Serializer(data=request.data["data"], partial=True)
-                #if serializer.is_valid():
-                #    data = serializer.validated_data
-                if True:
-                    data = request.data["data"]
+                serializer = Serializer(data=request.data["data"], partial=True)
+                if serializer.is_valid():
+                    data = serializer.validated_data
 
                     ig = IdentityGroup(data["identity_group_identifier"])
                     identityGroupId = ig.info()["id"]
