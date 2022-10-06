@@ -5,8 +5,8 @@ from rest_framework import status
 from ui_backend.models.Permission.IdentityGroup import IdentityGroup
 from ui_backend.models.Permission.Permission import Permission
 
-#from ui_backend.serializers.Permission.IdentityGroups import IdentityGroupsSerializer as GroupsSerializer
-#from ui_backend.serializers.Permission.IdentityGroup import IdentityGroupSerializer as GroupSerializer
+from ui_backend.serializers.Permission.IdentityGroups import IdentityGroupsSerializer as GroupsSerializer
+from ui_backend.serializers.Permission.IdentityGroup import IdentityGroupSerializer as GroupSerializer
 
 from ui_backend.controllers.CustomController import CustomController
 from ui_backend.helpers.Conditional import Conditional
@@ -35,11 +35,9 @@ class PermissionIdentityGroupsController(CustomController):
 
                 itemData["items"] = IdentityGroup.listWithRelated(showPrivileges)
 
-                #serializer = Serializer(data=itemData)
-                #if serializer.is_valid():
-                if True:
-                    #data["data"] = serializer.validated_data
-                    data["data"] = itemData["items"]
+                serializer = GroupsSerializer(data=itemData)
+                if serializer.is_valid():
+                    data["data"] = serializer.validated_data
                     data["href"] = request.get_full_path()
 
                 # Check the response's ETag validity (against client request).
@@ -75,18 +73,16 @@ class PermissionIdentityGroupsController(CustomController):
                 Log.actionLog("Identity group addition", user)
                 Log.actionLog("User data: "+str(request.data), user)
 
-                #serializer = GroupSerializer(data=request.data["data"])
-                #if serializer.is_valid():
-                #    validatedData = serializer.validated_data
-                if True:
-                    #IdentityGroup.add(validatedData)
-                    IdentityGroup.add(request.data["data"])
+                serializer = GroupSerializer(data=request.data["data"])
+                if serializer.is_valid():
+                    data = serializer.validated_data
+                    IdentityGroup.add(data)
 
                     httpStatus = status.HTTP_201_CREATED
                 else:
                     httpStatus = status.HTTP_400_BAD_REQUEST
                     response = {
-                        "F5": {
+                        "ui-backend": {
                             "error": str(serializer.errors)
                         }
                     }
