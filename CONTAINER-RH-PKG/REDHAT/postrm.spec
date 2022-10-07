@@ -16,6 +16,7 @@ if [ "$1" -eq "0" ]; then
     if podman volume ls | awk '{print $2}' | grep ^ui-backend$; then
         printf "\n* Clean up ui-backend volume...\n"
         podman volume rm ui-backend
+        podman volume rm ui-backend-db
     fi
 fi
 
