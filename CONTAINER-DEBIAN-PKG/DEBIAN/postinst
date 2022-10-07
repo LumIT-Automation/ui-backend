@@ -16,8 +16,9 @@ if [ "$1" == "configure" ]; then
 
     # First container run: associate name, bind ports, bind fs volume, define init process, ...
     # backend folder will be bound to /var/lib/containers/storage/volumes/.
-    podman run --name ui-backend -v ui-backend:/var/www/ui-backend/backend -dt localhost/ui-backend /lib/systemd/systemd 
-    podman exec ui-backend chown www-data:www-data /var/www/ui-backend/backend
+    podman run --name ui-backend -v ui-backend:/var/www/ui-backend/backend -v ui-backend-db::/var/lib/mysql localhost/ui-backend /lib/systemd/systemd
+    podman exec ui-backend chown -R www-data:www-data /var/www/ui-backend/backend
+    podman exec ui-backend chown -R mysql:mysql /var/lib/mysql
 
     printf "\n* Starting Container Service on HOST...\n"
     systemctl daemon-reload
