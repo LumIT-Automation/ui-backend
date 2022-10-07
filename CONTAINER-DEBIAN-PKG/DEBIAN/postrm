@@ -12,6 +12,7 @@ if [ "$1" == "purge" ]; then
     if podman volume ls | awk '{print $2}' | grep ^ui-backend$; then
         printf "\n* Clean up uib volume...\n"
         podman volume rm ui-backend
+        podman volume rm ui-backend-db
     fi
 fi
 
