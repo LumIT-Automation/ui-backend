@@ -77,13 +77,6 @@ printf "$wallBanner Internal database configuration...\n"
             podman exec ui-backend mysql uib -e "source /var/www/ui-backend/ui_backend/sql/uib.data.sql" # restore database data.
         fi
 
-        # Database update via diff.sql (migrations).
-        echo "Applying migrations..."
-        podman exec ui-backend bash /var/www/ui-backend/ui_backend/sql/migrate.sh
-    else
-        echo "Failed to access MariaDB RDBMS, auth_socket plugin must be enabled for the database root user. Quitting."
-        exit 1
-    fi
         # Database uib.
         if [ "$(podman exec ui-backend mysql --vertical -e "SHOW DATABASES LIKE 'uib';" | tail -1 | awk -F': ' '{print $2}')" == "" ]; then
             # Database not present: create.
