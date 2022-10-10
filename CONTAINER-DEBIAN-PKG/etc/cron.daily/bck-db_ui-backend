@@ -12,7 +12,7 @@ now=`date +%Y%m%d-%H.%M`
 api="ui-backend"
 
 bckDir="/home/bck/${api}"
-containerDir="/var/www/api/api"
+containerDir="/var/www/ui-backend/backend"
 containerDirOnHost="/var/lib/containers/storage/volumes/${api}/_data"
 
 # Name of the databases that should be backed up.
