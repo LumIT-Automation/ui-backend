@@ -26,11 +26,13 @@ class CheckPointRemoveHostController(CustomController):
                 data = serializer.validated_data
 
                 if Permission.hasUserPermission(groups=user["groups"], action="exec", workflowName="checkpoint_remove_host", requestedAssets=data["asset"]) or user["authDisabled"]:
+                    workflowId = Date.getWorkflowId()
                     Log.actionLog("Checkpoint host removal", user)
                     Log.actionLog("User data: " + str(request.data), user)
+                    Log.actionLog("Workflow id: "+workflowId, user)
 
                     httpStatus = status.HTTP_200_OK
-                    CheckPointRemoveHost(data=data, username=user.get("username", ""), workflowId=Date.getWorkflowId())()
+                    CheckPointRemoveHost(data=data, username=user.get("username", ""), workflowId=workflowId)()
                 else:
                     httpStatus = status.HTTP_403_FORBIDDEN
             else:

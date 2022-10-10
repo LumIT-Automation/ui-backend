@@ -1,7 +1,7 @@
 from ui_backend.usecases.Workflow import Workflow
 
 from ui_backend.helpers.Exception import CustomException
-
+from ui_backend.helpers.Log import Log
 
 class CheckPointRemoveHost(Workflow):
     def __init__(self, data: dict, username: str, workflowId: str, *args, **kwargs):
@@ -19,12 +19,13 @@ class CheckPointRemoveHost(Workflow):
 
     def __call__(self):
         try:
+            data = dict()
             assets = self.data["asset"]
             for assetId in assets["checkpoint"]:
                 technology = "checkpoint"
-                urlSegment = assetId + "/remove-host/"
+                urlSegment = str(assetId) + "/remove-host/"
 
-                data = self.requestFacade(
+                data[assetId] = self.requestFacade(
                     method="PUT",
                     technology=technology,
                     urlSegment=urlSegment,
