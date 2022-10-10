@@ -150,6 +150,7 @@ function System_systemFilesSetup()
     find "$workingFolderPath" -type d -exec chmod 0755 {} \;
     find "$workingFolderPath" -type f -exec chmod 0644 {} \;
 
+    chmod +x ${workingFolderPath}/etc/cron.daily/bck-db_${shortName}
     chmod +x ${workingFolderPath}/etc/cron.weekly/bck-volume_${shortName}
     chmod +x ${workingFolderPath}/usr/bin/${shortName}-container.sh
     chmod +x ${workingFolderPath}/usr/lib/${shortName}/bootstrap.sh
