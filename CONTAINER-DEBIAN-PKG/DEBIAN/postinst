@@ -17,7 +17,7 @@ if [ "$1" == "configure" ]; then
     # First container run: associate name, bind ports, bind fs volume, define init process, ...
     # backend folder will be bound to /var/lib/containers/storage/volumes/.
     podman run --name ui-backend -v ui-backend:/var/www/ui-backend/backend -v ui-backend-db:/var/lib/mysql -dt localhost/ui-backend /lib/systemd/systemd
-    podman exec ui-backend chown -R www-data:www-data /var/www/ui-backend/backend
+    podman exec ui-backend chown -R www-data:www-data /var/www/ui-backend/backend # bound settings folder.
     podman exec ui-backend chown -R mysql:mysql /var/lib/mysql
 
     printf "\n* Starting Container Service on HOST...\n"
@@ -35,7 +35,8 @@ if [ "$1" == "configure" ]; then
     cp -f /var/lib/containers/storage/volumes/sso/_data/settings_jwt.py /var/lib/containers/storage/volumes/ui-backend/_data/settings_jwt.py
     sed -i -e ':a;N;$!ba;s|\s*"privateKey.*}|\n}|g' /var/lib/containers/storage/volumes/ui-backend/_data/settings_jwt.py
 
-    cp -af /var/lib/containers/storage/volumes/sso/_data/settings_workflow.py /var/lib/containers/storage/volumes/ui-backend/_data/settings_workflow.py
+    cp -f /var/lib/containers/storage/volumes/sso/_data/settings_workflow.py /var/lib/containers/storage/volumes/ui-backend/_data/settings_workflow.py
+    podman exec ui-backend chown www-data:www-data /var/www/ui-backend/backend/settings_workflow.py
 
     printf "\n Set the timezone of the container to be the same as the host timezone...\n"
     podman exec ui-backend bash -c "timedatectl set-timezone $timeZone"
