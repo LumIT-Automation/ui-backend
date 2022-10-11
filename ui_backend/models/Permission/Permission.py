@@ -102,4 +102,3 @@ class Permission:
             )
         except Exception as e:
             raise e
-

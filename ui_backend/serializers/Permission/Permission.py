@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 
 class PermissionSerializer(serializers.Serializer):
-
     class PermissionWorkflowSerializer(serializers.Serializer):
         id = serializers.IntegerField(required=True)
         name = serializers.CharField(max_length=64, required=False)
