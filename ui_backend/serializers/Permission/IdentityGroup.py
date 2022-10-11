@@ -11,7 +11,6 @@ class IdentityGroupsPrivilegesWorkflowSubItems(serializers.Serializer):
     workflow_id = serializers.CharField(max_length=15, required=True)
     workflow_name = serializers.CharField(max_length=63, required=True)
 
-
 class IdentityGroupsRolesWorkflowItems(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

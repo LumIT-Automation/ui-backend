@@ -96,7 +96,6 @@ class ApiSupplicant:
                     self.responseObject = {}
 
                 raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
-
         except Exception as e:
             raise e
 
@@ -138,7 +137,6 @@ class ApiSupplicant:
                 pass
             else:
                 raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
-
         except Exception as e:
             raise e
 
@@ -179,7 +177,6 @@ class ApiSupplicant:
                 pass
             else:
                 raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
-
         except Exception as e:
             raise e
 
@@ -220,7 +217,6 @@ class ApiSupplicant:
                 pass
             else:
                 raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
-
         except Exception as e:
             raise e
 
@@ -256,7 +252,6 @@ class ApiSupplicant:
                 pass
             else:
                 raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
-
         except Exception as e:
             raise e
 
@@ -283,7 +278,6 @@ class ApiSupplicant:
                     cache.set(entry['id'], entry, timeout=settings.API_SUPPLICANT_CACHE_VALIDITY)
 
                 Log.log("Cache " + str(entry['id'])+" updated.")
-
             except Exception:
                 pass
 

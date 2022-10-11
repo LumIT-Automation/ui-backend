@@ -38,7 +38,7 @@ class CheckPointRemoveHostController(CustomController):
             else:
                 httpStatus = status.HTTP_400_BAD_REQUEST
                 response = {
-                    "Workflow": {
+                    "ui_backend": {
                         "error": str(serializer.errors)
                     }
                 }
