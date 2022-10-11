@@ -171,7 +171,7 @@ class Permission:
     def getApiAssets(technology: str) -> list:
         try:
             apiAssets = Workflow(username="", workflowId="")
-            data = apiAssets.requestFacade(method="GET", technology=technology, urlSegment="/assets/")
+            data = apiAssets.requestFacade(method="GET", technology=technology, urlSegment="assets/")
 
             return data["data"]["items"]
         except KeyError:
