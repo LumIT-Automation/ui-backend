@@ -45,44 +45,35 @@ class CheckPointRemoveHost(Workflow):
     # Private methods
     ####################################################################################################################
 
-    def __gatewayCheck(self):
-        try:
-            technology = "infoblox"
-            urlSegment = "assets/"
+    def __gatewayCheck(self) -> None:
+        network = ""
 
-            o = self.requestFacade(
+        try:
+            infobloxAssets = self.requestFacade(
                 method="GET",
-                technology=technology,
-                urlSegment=urlSegment
+                technology="infoblox",
+                urlSegment="assets/"
             )
 
-            for infobloxAsset in o["data"]["items"]:
+            for infobloxAsset in infobloxAssets["data"]["items"]:
                 try:
-                    # IPAM: check if IPv4 is a network gateway.
-                    technology = "infoblox"
-                    urlSegment = str(infobloxAsset["id"]) + "/ipv4/" + self.data["ipv4-address"]
-
+                    # Check if IPv4 is a network gateway on all Infoblox assets.
                     o = self.requestFacade(
                         method="GET",
-                        technology=technology,
-                        urlSegment=urlSegment
+                        technology="infoblox",
+                        urlSegment=str(infobloxAsset["id"]) + "/ipv4/" + self.data["ipv4-address"]
                     )
 
-                    gw = o["data"]["extattrs"]["Gateway"]["value"]
-                    nw = o["data"]["network"]
-
-                    if self.data["ipv4-address"] == gw:
-                        raise CustomException(
-                            status=412,
-                            payload={"UI-BACKEND": "IPv4 " + self.data["ipv4-address"] + " is the default gateway of the network " + nw + ". Not deleting. Nothing done."}
-                        )
-                except CustomException as e:
-                    if "UI-BACKEND" in e.payload and e.status == 412:
-                        raise e
+                    if self.data["ipv4-address"] == o["data"]["extattrs"]["Gateway"]["value"]:
+                        network = o["data"]["network"]
+                        break
                 except Exception:
                     pass
-        except CustomException as e:
-            if "UI-BACKEND" in e.payload and e.status == 412:
-                raise e
         except Exception:
             pass
+
+        if network:
+            raise CustomException(
+                status=412,
+                payload={"UI-BACKEND": self.data["ipv4-address"] + " is the default gateway of the network " + network + ". Not deleting: nothing done."}
+            )
