@@ -18,9 +18,7 @@ class CheckPointRemoveHost(Workflow):
     # Public methods
     ####################################################################################################################
 
-    def __call__(self):
-        data = dict()
-
+    def __call__(self) -> None:
         try:
             # IPAM: check if IPv4 is a network gateway.
             technology = "infoblox"
@@ -42,7 +40,8 @@ class CheckPointRemoveHost(Workflow):
                         payload={"UI-BACKEND": "IPv4 " + self.data["ipv4-address"] + " is the default gateway of the network " + nw + ". Not deleting. Nothing done."}
                     )
             except CustomException as e:
-                raise e
+                if "UI-BACKEND" in e.payload and e.status == 412:
+                    raise e
             except Exception:
                 pass
 
@@ -52,7 +51,7 @@ class CheckPointRemoveHost(Workflow):
                 technology = "checkpoint"
                 urlSegment = str(assetId) + "/remove-host/"
 
-                data[assetId] = self.requestFacade(
+                self.requestFacade(
                     method="PUT",
                     technology=technology,
                     urlSegment=urlSegment,
@@ -62,5 +61,3 @@ class CheckPointRemoveHost(Workflow):
             raise CustomException(status=400, payload={"UI-BACKEND": "at least one checkpoint asset is required to complete this workflow."})
         except Exception as e:
             raise e
-
-        #return data
