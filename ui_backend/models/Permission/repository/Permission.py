@@ -102,7 +102,13 @@ class Permission:
                 )
 
                 o = DBHelper.asDict(c)[0]
-                return o["c"], json.loads(o["details"])
+
+                try:
+                    details = json.loads(o["details"])
+                except Exception:
+                    details = {}
+
+                return o["c"], details
             except Exception as e:
                 raise CustomException(status=400, payload={"database": e.__str__()})
             finally:

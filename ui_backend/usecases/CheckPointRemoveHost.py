@@ -47,6 +47,7 @@ class CheckPointRemoveHost(Workflow):
 
     def __gatewayCheck(self) -> None:
         network = ""
+        valid = True
 
         try:
             infobloxAssets = self.requestFacade(
@@ -68,9 +69,16 @@ class CheckPointRemoveHost(Workflow):
                         network = o["data"]["network"]
                         break
                 except Exception:
-                    pass
+                    valid = False
+                    break
         except Exception:
             pass
+
+        if not valid:
+            raise CustomException(
+                status=412,
+                payload={"UI-BACKEND": "One or more Infoblox asset/s is not responding: cannot verify if IPv4 is a default gateway. Not deleting: nothing done."}
+            )
 
         if network:
             raise CustomException(
