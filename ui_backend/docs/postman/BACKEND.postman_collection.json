@@ -579,7 +579,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"asset\": {\n            \"checkpoint\": [\n                1\n            ]\n        },\n        \"name\": \"10.213.214.16\",\n        \"ipv4-address\": \"10.213.214.16\"\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"asset\": {\n            \"checkpoint\": [\n                1\n            ]\n        },\n        \"name\": \"ipì\",\n        \"ipv4-address\": \"10.8.1.2\",\n        \"domain\": \"POLAND\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"

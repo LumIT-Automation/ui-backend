@@ -36,9 +36,9 @@ class Workflow:
             if method == "GET":
                 data = api.get()
             if method == "PUT":
-                data = api.put({
-                    "data": data
-                })
+                data = api.put({"data": data})
+            if method == "POST":
+                data = api.post({"data": data})
         except KeyError:
             raise CustomException(status=503, payload={"UI-BACKEND": str(technology)+" API not resolved, try again later."})
         except Exception as e:
