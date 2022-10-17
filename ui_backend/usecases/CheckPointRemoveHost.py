@@ -62,15 +62,20 @@ class CheckPointRemoveHost(Workflow):
                     o = self.requestFacade(
                         method="GET",
                         technology="infoblox",
-                        urlSegment=str(infobloxAsset["id"]) + "/ipv4/" + self.data["ipv4-address"]
+                        urlSegment=str(infobloxAsset["id"]) + "/ipv4/" + self.data["ipv4-address"] + "/"
                     )
 
                     if self.data["ipv4-address"] == o["data"]["extattrs"]["Gateway"]["value"]:
                         network = o["data"]["network"]
                         break
-                except Exception:
-                    valid = False
-                    break
+                except Exception as e:
+                    if e.__class__.__name__ == "CustomException":
+                        if e.status != 400 and e.status != 404:
+                            valid = False # some error on fetching data from remote Infoblox.
+                            break
+                    else:
+                        valid = False
+                        break
         except Exception:
             pass
 

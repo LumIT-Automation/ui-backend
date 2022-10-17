@@ -10,7 +10,7 @@ from ui_backend.serializers.usecases.CheckPointRemoveHost import CheckPointRemov
 
 from ui_backend.controllers.CustomController import CustomController
 
-from ui_backend.helpers.Date import Date
+from ui_backend.helpers.Misc import Misc
 from ui_backend.helpers.Log import Log
 
 
@@ -26,7 +26,8 @@ class CheckPointRemoveHostController(CustomController):
                 data = serializer.validated_data
 
                 if Permission.hasUserPermission(groups=user["groups"], action="exec", workflowName="checkpoint_remove_host", requestedAssets=data["asset"]) or user["authDisabled"]:
-                    workflowId = Date.getWorkflowId()
+                    workflowId = Misc.getWorkflowCorrelationId()
+
                     Log.actionLog("Checkpoint host removal", user)
                     Log.actionLog("User data: " + str(request.data), user)
                     Log.actionLog("Workflow id: "+workflowId, user)
