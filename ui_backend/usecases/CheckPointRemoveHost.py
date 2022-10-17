@@ -47,7 +47,7 @@ class CheckPointRemoveHost(Workflow):
 
     def __gatewayCheck(self) -> None:
         network = ""
-        valid = True
+        valid = True # track issues on network/Infoblox assets.
 
         try:
             infobloxAssets = self.requestFacade(
@@ -68,6 +68,8 @@ class CheckPointRemoveHost(Workflow):
                     if self.data["ipv4-address"] == o["data"]["extattrs"]["Gateway"]["value"]:
                         network = o["data"]["network"]
                         break
+                except KeyError:
+                    pass
                 except Exception as e:
                     if e.__class__.__name__ == "CustomException":
                         if e.status != 400 and e.status != 404:
@@ -77,7 +79,7 @@ class CheckPointRemoveHost(Workflow):
                         valid = False
                         break
         except Exception:
-            pass
+            valid = False
 
         if not valid:
             raise CustomException(
