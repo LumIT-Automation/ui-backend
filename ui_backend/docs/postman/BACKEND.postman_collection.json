@@ -563,7 +563,7 @@
 						"auth": {
 							"type": "noauth"
 						},
-						"method": "POST",
+						"method": "PUT",
 						"header": [
 							{
 								"key": "Authorization",
@@ -587,7 +587,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/checkpoint-remove-host/",
+							"raw": "http://10.0.111.12/backend/workflow/checkpoint-add-host/",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -598,7 +598,7 @@
 							"path": [
 								"backend",
 								"workflow",
-								"checkpoint-remove-host",
+								"checkpoint-add-host",
 								""
 							]
 						}

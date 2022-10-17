@@ -1,12 +1,14 @@
-from ui_backend.usecases.Workflow import Workflow
+from typing import List
+
+from ui_backend.usecases.CheckPointWorkflow import CheckPointWorkflow
 
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Log import Log
 
 
-class CheckPointRemoveHost(Workflow):
+class CheckPointRemoveHost(CheckPointWorkflow):
     def __init__(self, data: dict, username: str, workflowId: str, *args, **kwargs):
-        super().__init__(username, workflowId, *args, **kwargs)
+        super().__init__(data, username, workflowId, *args, **kwargs)
 
         self.data = data
         self.username = username
@@ -47,45 +49,16 @@ class CheckPointRemoveHost(Workflow):
 
     def __gatewayCheck(self) -> None:
         network = ""
-        valid = True # track issues on network/Infoblox assets.
 
         try:
-            infobloxAssets = self.requestFacade(
-                method="GET",
-                technology="infoblox",
-                urlSegment="assets/"
-            )
-
-            for infobloxAsset in infobloxAssets["data"]["items"]:
-                try:
-                    # Check if IPv4 is a network gateway on all Infoblox assets.
-                    o = self.requestFacade(
-                        method="GET",
-                        technology="infoblox",
-                        urlSegment=str(infobloxAsset["id"]) + "/ipv4/" + self.data["ipv4-address"] + "/"
-                    )
-
-                    if self.data["ipv4-address"] == o["data"]["extattrs"]["Gateway"]["value"]:
-                        network = o["data"]["network"]
-                        break
-                except KeyError:
-                    pass
-                except Exception as e:
-                    if e.__class__.__name__ == "CustomException":
-                        if e.status != 400 and e.status != 404:
-                            valid = False # some error on fetching data from remote Infoblox.
-                            break
-                    else:
-                        valid = False
-                        break
-        except Exception:
-            valid = False
-
-        if not valid:
-            raise CustomException(
-                status=412,
-                payload={"UI-BACKEND": "One or more Infoblox asset/s is not responding: cannot verify if IPv4 is a default gateway. Not deleting: nothing done."}
-            )
+            for el in self.getIpv4Information():
+                if self.data["ipv4-address"] == el["extattrs"]["Gateway"]["value"]:
+                    network = el["network"]
+                    break
+        except KeyError:
+            pass
+        except Exception as e:
+            raise e
 
         if network:
             raise CustomException(
