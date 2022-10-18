@@ -2,7 +2,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from ui_backend.usecases.CheckPointAddHost import CheckPointAddHost
+from ui_backend.usecases.checkpoint.Host import Host as CheckPointHost
 
 from ui_backend.models.Permission.Permission import Permission
 
@@ -33,7 +33,7 @@ class CheckPointAddHostController(CustomController):
                     Log.actionLog("Workflow id: "+workflowId, user)
 
                     httpStatus = status.HTTP_200_OK
-                    response = CheckPointAddHost(data=data, username=user.get("username", ""), workflowId=workflowId)()
+                    response = CheckPointHost(data=data, username=user.get("username", ""), workflowId=workflowId).add()
                 else:
                     httpStatus = status.HTTP_403_FORBIDDEN
             else:
