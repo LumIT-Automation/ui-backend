@@ -531,7 +531,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"asset\": {\n            \"checkpoint\": [\n                1\n            ]\n        },\n        \"ipv4-address\": \"10.8.1.2\"\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"asset\": {\n            \"checkpoint\": [\n                1\n            ]\n        },\n        \"ipv4-address\": \"10.8.1.66\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -539,7 +539,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/checkpoint-remove-host/",
+							"raw": "http://10.0.111.12/backend/workflow/checkpoint/remove-host/",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -550,7 +550,8 @@
 							"path": [
 								"backend",
 								"workflow",
-								"checkpoint-remove-host",
+								"checkpoint",
+								"remove-host",
 								""
 							]
 						}
@@ -579,7 +580,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"asset\": {\n            \"checkpoint\": [\n                1\n            ]\n        },\n        \"name\": \"ipì\",\n        \"ipv4-address\": \"10.8.1.2\",\n        \"domain\": \"POLAND\"\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"asset\": {\n            \"checkpoint\": [\n                1\n            ]\n        },\n        \"name\": \"ipì\",\n        \"ipv4-address\": \"10.8.1.66\",\n        \"domain\": \"POLAND\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -587,7 +588,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/checkpoint-add-host/",
+							"raw": "http://10.0.111.12/backend/workflow/checkpoint/add-host/",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -598,7 +599,8 @@
 							"path": [
 								"backend",
 								"workflow",
-								"checkpoint-add-host",
+								"checkpoint",
+								"add-host",
 								""
 							]
 						}

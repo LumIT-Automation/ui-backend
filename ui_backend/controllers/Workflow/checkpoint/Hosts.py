@@ -14,7 +14,7 @@ from ui_backend.helpers.Misc import Misc
 from ui_backend.helpers.Log import Log
 
 
-class CheckPointAddHostController(CustomController):
+class CheckPointHostsController(CustomController):
     @staticmethod
     def put(request: Request) -> Response:
         response = None
