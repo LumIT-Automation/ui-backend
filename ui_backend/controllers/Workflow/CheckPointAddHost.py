@@ -6,7 +6,7 @@ from ui_backend.usecases.CheckPointAddHost import CheckPointAddHost
 
 from ui_backend.models.Permission.Permission import Permission
 
-from ui_backend.serializers.usecases.CheckPointRemoveHost import CheckPointRemoveHostSerializer as Serializer
+from ui_backend.serializers.usecases.CheckPointAddHost import CheckPointAddHostSerializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
 
@@ -22,10 +22,8 @@ class CheckPointAddHostController(CustomController):
 
         try:
             serializer = Serializer(data=request.data["data"])
-            #if serializer.is_valid():
-            if True:
-                #data = serializer.validated_data
-                data = request.data["data"]
+            if serializer.is_valid():
+                data = serializer.validated_data
 
                 if Permission.hasUserPermission(groups=user["groups"], action="exec", workflowName="checkpoint_add_host", requestedAssets=data["asset"]) or user["authDisabled"]:
                     workflowId = Misc.getWorkflowCorrelationId()
@@ -35,7 +33,7 @@ class CheckPointAddHostController(CustomController):
                     Log.actionLog("Workflow id: "+workflowId, user)
 
                     httpStatus = status.HTTP_200_OK
-                    CheckPointAddHost(data=data, username=user.get("username", ""), workflowId=workflowId)()
+                    response = CheckPointAddHost(data=data, username=user.get("username", ""), workflowId=workflowId)()
                 else:
                     httpStatus = status.HTTP_403_FORBIDDEN
             else:

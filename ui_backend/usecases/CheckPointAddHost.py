@@ -18,7 +18,7 @@ class CheckPointAddHost(CheckPointWorkflow):
     # Public methods
     ####################################################################################################################
 
-    def __call__(self) -> None:
+    def __call__(self) -> dict:
         try:
             self.__ipv4AddressCheck()
 
@@ -28,7 +28,7 @@ class CheckPointAddHost(CheckPointWorkflow):
                 technology = "checkpoint"
                 urlSegment = str(assetId) + "/" + self.data["domain"] + "/hosts/"
 
-                self.requestFacade(
+                return self.requestFacade(
                     method="POST",
                     technology=technology,
                     urlSegment=urlSegment,

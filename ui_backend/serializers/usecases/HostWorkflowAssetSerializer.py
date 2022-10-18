@@ -12,6 +12,8 @@ class HostWorkflowAssetSerializer(serializers.Serializer):
 
         self.mandatoryTechs = mandatoryTechs or []
 
+
+
     def to_internal_value(self, data):
         try:
             for technology in self.mandatoryTechs:
