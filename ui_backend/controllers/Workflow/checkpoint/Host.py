@@ -6,7 +6,7 @@ from ui_backend.usecases.checkpoint.Host import Host as CheckPointHost
 
 from ui_backend.models.Permission.Permission import Permission
 
-from ui_backend.serializers.usecases.CheckPointRemoveHost import CheckPointRemoveHostSerializer as Serializer
+from ui_backend.serializers.usecases.checkpoint.RemoveHost import CheckPointRemoveHostSerializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
 

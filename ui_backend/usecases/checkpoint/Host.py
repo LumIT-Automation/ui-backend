@@ -1,12 +1,13 @@
-from ui_backend.usecases.CheckPointWorkflow import CheckPointWorkflow
+from ui_backend.usecases.Workflow import Workflow
+from ui_backend.usecases.infoblox.Ipv4 import Ipv4
 
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Log import Log
 
 
-class Host(CheckPointWorkflow):
+class Host(Workflow):
     def __init__(self, data: dict, username: str, workflowId: str, *args, **kwargs):
-        super().__init__(data, username, workflowId, *args, **kwargs)
+        super().__init__(username, workflowId, *args, **kwargs)
 
         self.data = data
         self.username = username
@@ -20,19 +21,23 @@ class Host(CheckPointWorkflow):
 
     def add(self) -> dict:
         try:
-            self.__ipv4AddressCheck()
+            if Ipv4(username=self.username, workflowId=self.workflowId, ipv4=self.data["ipv4-address"]).isUsed():
+                assets = self.data["asset"]
+                for assetId in assets["checkpoint"]:
+                    technology = "checkpoint"
+                    urlSegment = str(assetId) + "/" + self.data["domain"] + "/hosts/"
 
-            # Call the add host workflow on CheckPoint API.
-            assets = self.data["asset"]
-            for assetId in assets["checkpoint"]:
-                technology = "checkpoint"
-                urlSegment = str(assetId) + "/" + self.data["domain"] + "/hosts/"
-
-                return self.requestFacade(
-                    method="POST",
-                    technology=technology,
-                    urlSegment=urlSegment,
-                    data=self.data
+                    return self.requestFacade(
+                        method="POST",
+                        technology=technology,
+                        urlSegment=urlSegment,
+                        data=self.data
+                    )
+            else:
+                raise CustomException(
+                    status=412,
+                    payload={
+                        "UI-BACKEND": "No IPv4 address has been found on any Infoblox asset: cannot add host on CheckPoint; nothing done."}
                 )
         except KeyError:
             raise CustomException(status=400, payload={"UI-BACKEND": "at least one checkpoint asset is required to complete this workflow."})
@@ -43,63 +48,26 @@ class Host(CheckPointWorkflow):
 
     def remove(self) -> None:
         try:
-            self.__gatewayCheck()
+            network = Ipv4(username=self.username, workflowId=self.workflowId, ipv4=self.data["ipv4-address"]).isGateway()
+            if not network:
+                assets = self.data["asset"]
+                for assetId in assets["checkpoint"]:
+                    technology = "checkpoint"
+                    urlSegment = str(assetId) + "/remove-host/"
 
-            # Call the remove host workflow on CheckPoint API.
-            assets = self.data["asset"]
-            for assetId in assets["checkpoint"]:
-                technology = "checkpoint"
-                urlSegment = str(assetId) + "/remove-host/"
-
-                self.requestFacade(
-                    method="PUT",
-                    technology=technology,
-                    urlSegment=urlSegment,
-                    data=self.data
+                    self.requestFacade(
+                        method="PUT",
+                        technology=technology,
+                        urlSegment=urlSegment,
+                        data=self.data
+                    )
+            else:
+                raise CustomException(
+                    status=412,
+                    payload={
+                        "UI-BACKEND":  self.data["ipv4-address"] + " is the default gateway of the network " + network + ". Not deleting: nothing done."}
                 )
         except KeyError:
             raise CustomException(status=400, payload={"UI-BACKEND": "at least one checkpoint asset is required to complete this workflow."})
         except Exception as e:
             raise e
-
-
-
-    ####################################################################################################################
-    # Private methods
-    ####################################################################################################################
-
-    def __ipv4AddressCheck(self) -> None:
-        try:
-            for el in self.getIpv4Information():
-                if el["status"] == "USED":
-                    return
-        except KeyError:
-            pass
-        except Exception as e:
-            raise e
-
-        raise CustomException(
-            status=412,
-            payload={"UI-BACKEND": "No IPv4 address has been found on any Infoblox asset: cannot add host on CheckPoint; nothing done."}
-        )
-
-
-
-    def __gatewayCheck(self) -> None:
-        network = ""
-
-        try:
-            for el in self.getIpv4Information():
-                if self.data["ipv4-address"] == el["extattrs"]["Gateway"]["value"]:
-                    network = el["network"]
-                    break
-        except KeyError:
-            pass
-        except Exception as e:
-            raise e
-
-        if network:
-            raise CustomException(
-                status=412,
-                payload={"UI-BACKEND": self.data["ipv4-address"] + " is the default gateway of the network " + network + ". Not deleting: nothing done."}
-            )
