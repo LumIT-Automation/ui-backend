@@ -5,7 +5,7 @@ from rest_framework import status
 from ui_backend.models.Permission.Workflow import Workflow
 from ui_backend.models.Permission.Permission import Permission
 
-#from ui_backend.serializers.Permission.Roles import IdentityRolesSerializer as Serializer
+from ui_backend.serializers.Permission.Workflows import WorkflowsSerializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
 from ui_backend.helpers.Conditional import Conditional
@@ -16,7 +16,9 @@ class WorkflowsController(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
         data = dict()
-        itemData = dict()
+        itemData = {
+            "data": dict()
+        }
         etagCondition = {"responseEtag": ""}
 
         user = CustomController.loggedUser(request)
@@ -25,13 +27,11 @@ class WorkflowsController(CustomController):
             if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Roles list", user)
 
-                itemData["items"] = Workflow.list()
+                itemData["data"]["items"] = Workflow.list()
 
-                #serializer = Serializer(data=itemData)
-                #if serializer.is_valid():
-                if True:
-                    #data["data"] = serializer.validated_data
-                    data["data"] = itemData["items"]
+                serializer = Serializer(data=itemData)
+                if serializer.is_valid():
+                    data["data"] = serializer.validated_data
                     data["href"] = request.get_full_path()
 
                 # Check the response's ETag validity (against client request).
