@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from ui_backend.models.Permission.IdentityGroup import IdentityGroup
+from ui_backend.models.Permission.Role import Role
+from ui_backend.models.Permission.Workflow import Workflow
 from ui_backend.models.Permission.Permission import Permission
 
 from ui_backend.serializers.Permission.Permissions import PermissionsSerializer
@@ -11,7 +13,6 @@ from ui_backend.serializers.Permission.Permission import PermissionSerializer
 from ui_backend.controllers.CustomController import CustomController
 from ui_backend.helpers.Conditional import Conditional
 from ui_backend.helpers.Log import Log
-from ui_backend.helpers.Exception import CustomException
 
 
 class PermissionsController(CustomController):
@@ -38,7 +39,7 @@ class PermissionsController(CustomController):
 
                 # Check the response's ETag validity (against client request).
                 conditional = Conditional(request)
-                etagCondition = conditional.responseEtagFreshnessAgainstRequest(str(data["data"]))
+                etagCondition = conditional.responseEtagFreshnessAgainstRequest(data["data"])
                 if etagCondition["state"] == "fresh":
                     data = None
                     httpStatus = status.HTTP_304_NOT_MODIFIED
@@ -72,17 +73,17 @@ class PermissionsController(CustomController):
                 serializer = PermissionSerializer(data=request.data["data"])
                 if serializer.is_valid():
                     data = serializer.validated_data
-                    ig = IdentityGroup(identityGroupIdentifier=data["identity_group_identifier"])
-                    try:
-                        identityGroupId = ig.id
-                    except Exception:
-                        raise CustomException(status=status.HTTP_422_UNPROCESSABLE_ENTITY, payload={"database": "Group identifier doesn't exist."})
+
+                    group = data["identity_group_identifier"]
+                    role = data["role"]
+                    workflowId = data["workflow"]["id"]
+                    details = data["details"]
 
                     Permission.add(
-                        identityGroupId,
-                        data["role"],
-                        data["workflow"]["id"],
-                        data["details"]
+                        identityGroup=IdentityGroup(identityGroupIdentifier=group),
+                        role=Role(role=role),
+                        workflow=Workflow(id=workflowId),
+                        details=details
                     )
 
                     httpStatus = status.HTTP_201_CREATED

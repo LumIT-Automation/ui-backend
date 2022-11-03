@@ -3,7 +3,6 @@ from django.db import connection
 
 from ui_backend.usecases.Workflow import Workflow
 
-from ui_backend.helpers.Log import Log
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Database import Database as DBHelper
 
@@ -33,6 +32,23 @@ class Permission:
     ####################################################################################################################
 
     @staticmethod
+    def get(permissionId: int) -> dict:
+        c = connection.cursor()
+
+        try:
+            c.execute("SELECT * FROM group_role_workflow WHERE id=%s", [permissionId])
+
+            return DBHelper.asDict(c)[0]
+        except IndexError:
+            raise CustomException(status=404, payload={"database": "non existent permission"})
+        except Exception as e:
+            raise CustomException(status=400, payload={"database": e.__str__()})
+        finally:
+            c.close()
+
+
+
+    @staticmethod
     def modify(permissionId: int, identityGroupId: int, roleId: int, workflowId: int, details: dict) -> None:
         c = connection.cursor()
 
@@ -45,7 +61,11 @@ class Permission:
                 permissionId
             ])
         except Exception as e:
-            raise CustomException(status=400, payload={"database": e.__str__()})
+            if e.__class__.__name__ == "IntegrityError" \
+                    and e.args and e.args[0] and e.args[0] == 1062:
+                        raise CustomException(status=400, payload={"database": "duplicated entry"})
+            else:
+                raise CustomException(status=400, payload={"database": e.__str__()})
         finally:
             c.close()
 
@@ -167,7 +187,11 @@ class Permission:
                 json.dumps(details)
             ])
         except Exception as e:
-            raise CustomException(status=400, payload={"database": e.__str__()})
+            if e.__class__.__name__ == "IntegrityError" \
+                    and e.args and e.args[0] and e.args[0] == 1062:
+                        raise CustomException(status=400, payload={"database": "duplicated entry"})
+            else:
+                raise CustomException(status=400, payload={"database": e.__str__()})
         finally:
             c.close()
 

@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from ui_backend.models.Permission.IdentityGroup import IdentityGroup
+from ui_backend.models.Permission.Role import Role
+from ui_backend.models.Permission.Workflow import Workflow
 from ui_backend.models.Permission.Permission import Permission
 
 from ui_backend.serializers.Permission.Permission import PermissionSerializer as Serializer
@@ -51,15 +53,16 @@ class PermissionController(CustomController):
                 if serializer.is_valid():
                     data = serializer.validated_data
 
-                    ig = IdentityGroup(identityGroupIdentifier=data["identity_group_identifier"])
-                    identityGroupId = ig.id
+                    group = data["identity_group_identifier"]
+                    role = data["role"]
+                    workflowId = data["workflow"]["id"]
+                    details = data["details"]
 
-                    p = Permission(permissionId)
-                    p.modify(
-                        identityGroupId,
-                        data["role"],
-                        data["workflow"]["id"],
-                        data["details"],
+                    Permission(permissionId).modify(
+                        identityGroup=IdentityGroup(identityGroupIdentifier=group),
+                        role=Role(role=role),
+                        workflow=Workflow(id=workflowId),
+                        details=details
                     )
 
                     httpStatus = status.HTTP_200_OK

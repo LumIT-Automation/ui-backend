@@ -1,23 +1,25 @@
 from ui_backend.models.Permission.Role import Role
+from ui_backend.models.Permission.Workflow import Workflow
+from ui_backend.models.Permission.IdentityGroup import IdentityGroup
 
 from ui_backend.models.Permission.repository.Permission import Permission as Repository
 
 from ui_backend.helpers.Exception import CustomException
-from ui_backend.helpers.Log import Log
 
 
 class Permission:
 
     # IdentityGroupRoleWorkflow
 
-    def __init__(self, id: int, groupId: int = 0, roleId: int = 0, workflowId: int = 0, *args, **kwargs):
+    def __init__(self, permissionId: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.id = id
-        
-        self.id_group = groupId
-        self.id_role = roleId
-        self.id_workflow = workflowId
+        self.id: int = int(permissionId)
+        self.identityGroup: IdentityGroup
+        self.role: Role
+        self.workflow: Workflow
+
+        self.__load()
 
 
 
@@ -25,14 +27,14 @@ class Permission:
     # Public methods
     ####################################################################################################################
 
-    def modify(self, identityGroupId: int, role: str, workflowId: int, details: dict) -> None:
+    def modify(self, identityGroup: IdentityGroup, role: Role, workflow: Workflow, details: dict) -> None:
         try:
             Repository.modify(
                 self.id,
-                identityGroupId,
-                Role(role=role).id, # roleId.
-                workflowId,
-                details
+                identityGroupId=identityGroup.id,
+                roleId=role.id,
+                workflowId=workflow.id,
+                details=details
             )
         except Exception as e:
             raise e
@@ -92,13 +94,29 @@ class Permission:
 
 
     @staticmethod
-    def add(identityGroupId: int, role: str, workflowId: int, details: dict) -> None:
+    def add(identityGroup: IdentityGroup, role: Role, workflow: Workflow, details: dict) -> None:
         try:
             Repository.add(
-                identityGroupId,
-                Role(role=role).id, # roleId.
-                workflowId,
-                details
+                identityGroupId=identityGroup.id,
+                roleId=role.id,
+                workflowId=workflow.id,
+                details=details
             )
+        except Exception as e:
+            raise e
+
+
+
+    ####################################################################################################################
+    # Private methods
+    ####################################################################################################################
+
+    def __load(self) -> None:
+        try:
+            info = Repository.get(self.id)
+
+            self.identityGroup = IdentityGroup(id=info["id_group"])
+            self.role = Role(id=info["id_role"])
+            self.workflow = Workflow(id=info["id_workflow"])
         except Exception as e:
             raise e
