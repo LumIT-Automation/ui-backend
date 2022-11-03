@@ -86,30 +86,7 @@ class IdentityGroup:
         c = connection.cursor()
 
         try:
-            c.execute("SELECT "
-                "identity_group.*, " 
-
-                "IFNULL(GROUP_CONCAT( "
-                    "DISTINCT CONCAT(role.role,'::',workflow.id,'::',workflow.name) " 
-                    "ORDER BY role.id "
-                    "SEPARATOR ',' "
-                "), '') AS roles_workflow, "
-                      
-                "IFNULL(GROUP_CONCAT( "
-                    "DISTINCT CONCAT(privilege.privilege,'::',workflow.id,'::',workflow.name) " 
-                    "ORDER BY privilege.id "
-                    "SEPARATOR ',' "
-                "), '') AS privileges_workflow "                      
- 
-                "FROM identity_group "
-                "LEFT JOIN group_role_workflow ON group_role_workflow.id_group = identity_group.id "
-                "LEFT JOIN role ON role.id = group_role_workflow.id_role "
-                "LEFT JOIN workflow ON workflow.id = group_role_workflow.id_workflow "
-                "LEFT JOIN role_privilege ON role_privilege.id_role = role.id "
-                "LEFT JOIN privilege ON privilege.id = role_privilege.id_privilege "       
-                      
-                "GROUP BY identity_group.id"
-            )
+            c.execute("SELECT * FROM identity_group")
 
             return DBHelper.asDict(c)
         except Exception as e:
