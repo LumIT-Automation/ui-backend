@@ -2,7 +2,6 @@ from django.db import connection
 
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Database import Database as DBHelper
-from ui_backend.helpers.Log import Log
 
 
 class Privilege:
@@ -20,8 +19,26 @@ class Privilege:
     ####################################################################################################################
 
     @staticmethod
+    def get(id: int) -> dict:
+        c = connection.cursor()
+
+        try:
+            c.execute("SELECT * FROM privilege WHERE id = %s", [id])
+
+            return DBHelper.asDict(c)[0]
+        except IndexError:
+            raise CustomException(status=404, payload={"database": "non existent privilege"})
+        except Exception as e:
+            raise CustomException(status=400, payload={"database": e.__str__()})
+        finally:
+            c.close()
+
+
+
+    @staticmethod
     def list() -> list:
         c = connection.cursor()
+
         try:
             c.execute("SELECT * FROM privilege")
 

@@ -16,6 +16,7 @@ class PermissionRolesController(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
         data = dict()
+        loadPrivilege = False
         itemData = {
             "data": dict()
         }
@@ -26,7 +27,13 @@ class PermissionRolesController(CustomController):
             if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Roles list", user)
 
-                itemData["data"]["items"] = Role.list()
+                # If asked for, get related privileges.
+                if "related" in request.GET:
+                    rList = request.GET.getlist('related')
+                    if "privileges" in rList:
+                        loadPrivilege = True
+
+                itemData["data"]["items"] = Role.dataList(loadPrivilege=loadPrivilege)
                 serializer = Serializer(data=itemData)
                 if serializer.is_valid():
                     data = serializer.validated_data

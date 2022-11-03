@@ -1,6 +1,5 @@
 from django.db import connection
 
-from ui_backend.helpers.Log import Log
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Database import Database as DBHelper
 
@@ -20,15 +19,18 @@ class Role:
     ####################################################################################################################
 
     @staticmethod
-    def get(roleName: str) -> dict:
+    def get(id: int, role: str) -> dict:
         c = connection.cursor()
 
         try:
-            c.execute("SELECT * FROM role WHERE role = %s", [
-                roleName
-            ])
+            if id:
+                c.execute("SELECT * FROM role WHERE id = %s", [id])
+            if role:
+                c.execute("SELECT * FROM role WHERE role = %s", [role])
 
             return DBHelper.asDict(c)[0]
+        except IndexError:
+            raise CustomException(status=404, payload={"database": "non existent role"})
         except Exception as e:
             raise CustomException(status=400, payload={"database": e.__str__()})
         finally:
@@ -42,6 +44,7 @@ class Role:
 
         try:
             c.execute("SELECT * FROM role")
+
             return DBHelper.asDict(c)
         except Exception as e:
             raise CustomException(status=400, payload={"database": e.__str__()})

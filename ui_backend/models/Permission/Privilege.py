@@ -1,3 +1,5 @@
+from typing import List
+
 from ui_backend.models.Permission.repository.Privilege import Privilege as Repository
 
 
@@ -9,6 +11,8 @@ class Privilege:
         self.privilege = ""
         self.description = ""
 
+        self.__load()
+
 
 
     ####################################################################################################################
@@ -17,7 +21,39 @@ class Privilege:
 
     @staticmethod
     def list() -> list:
+        privileges = []
+
+        try:
+            for privilege in Repository.list():
+                privileges.append(
+                    Privilege(privilege["id"])
+                )
+
+            return privileges
+        except Exception as e:
+            raise e
+
+
+
+    @staticmethod
+    def dataList() -> List[dict]:
         try:
             return Repository.list()
+        except Exception as e:
+            raise e
+
+
+
+    ####################################################################################################################
+    # Private methods
+    ####################################################################################################################
+
+    def __load(self) -> None:
+        try:
+            info = Repository.get(self.id)
+
+            # Set attributes.
+            for k, v in info.items():
+                setattr(self, k, v)
         except Exception as e:
             raise e

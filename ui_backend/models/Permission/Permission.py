@@ -30,7 +30,7 @@ class Permission:
             Repository.modify(
                 self.id,
                 identityGroupId,
-                Role(role=role).info()["id"], # roleId.
+                Role(role=role).id, # roleId.
                 workflowId,
                 details
             )
@@ -96,7 +96,7 @@ class Permission:
         try:
             Repository.add(
                 identityGroupId,
-                Role(role=role).info()["id"], # roleId.
+                Role(role=role).id, # roleId.
                 workflowId,
                 details
             )
