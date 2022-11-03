@@ -29,7 +29,7 @@ class PermissionsController(CustomController):
             if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Permissions list", user)
 
-                itemData["data"]["items"] = Permission.listIdentityGroupsRolesWorkflows()
+                itemData["data"]["items"] = Permission.permissionsDataList()
 
                 Log.log(itemData, '_')
                 serializer = PermissionsSerializer(data=itemData)

@@ -3,6 +3,7 @@ from ui_backend.models.Permission.Workflow import Workflow
 from ui_backend.models.Permission.IdentityGroup import IdentityGroup
 
 from ui_backend.models.Permission.repository.Permission import Permission as Repository
+from ui_backend.models.Permission.repository.PermissionPrivilege import PermissionPrivilege as PermissionPrivilegeRepository
 
 from ui_backend.helpers.Exception import CustomException
 
@@ -63,7 +64,7 @@ class Permission:
                 return True
 
         try:
-            perms, details = Repository.countUserPermissions(groups, action, workflowName)
+            perms, details = PermissionPrivilegeRepository.countUserPermissions(groups, action, workflowName)
             if perms:
                 # details example: {"checkpoint": {"allowed_asset_ids": [1, 2]}}
                 # requestedAssets example: {'checkpoint': [1], 'infoblox': [1]}
@@ -85,7 +86,22 @@ class Permission:
 
 
     @staticmethod
-    def listIdentityGroupsRolesWorkflows() -> list:
+    def permissionsDataList() -> list:
+
+        # List of permissions as List[dict].
+        # Note. Partition information differ a bit from Partition model (historical reasons).
+
+        #     {
+        #         "id": 2,
+        #         "identity_group_name": "groupAdmin",
+        #         "identity_group_identifier": "cn=groupadmin,cn=users,dc=lab,dc=local",
+        #         "role": "admin",
+        #         "partition": {
+        #             "asset_id": 1,
+        #             "name": "any"
+        #         }
+        #     },
+
         try:
             return Repository.list()
         except Exception as e:

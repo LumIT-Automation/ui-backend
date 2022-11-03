@@ -1,3 +1,4 @@
+import json
 from typing import List, Dict
 
 from django.db import connection
@@ -109,3 +110,53 @@ class PermissionPrivilege:
             raise CustomException(status=400, payload={"database": e.__str__()})
         finally:
             c.close()
+
+
+
+    @staticmethod
+    def countUserPermissions(groups: list, action: str, workflowName: str = "") -> tuple:
+        if action and groups:
+            args = groups.copy()
+            workflowWhere = ""
+
+            c = connection.cursor()
+
+            try:
+                # Build the first half of the where condition of the query.
+                # Obtain: WHERE (identity_group.identity_group_identifier = %s || identity_group.identity_group_identifier = %s || identity_group.identity_group_identifier = %s || ....)
+                groupWhere = ''
+                for _ in groups:
+                    groupWhere += 'identity_group.identity_group_identifier = %s || '
+
+                if workflowName:
+                    args.append(workflowName)
+                    workflowWhere = "AND workflow.name = %s "
+
+                args.append(action)
+
+                c.execute(
+                    "SELECT COUNT(*) AS c, group_role_workflow.details "
+                    "FROM identity_group "
+                    "LEFT JOIN group_role_workflow ON group_role_workflow.id_group = identity_group.id "
+                    "LEFT JOIN role ON role.id = group_role_workflow.id_role "
+                    "LEFT JOIN role_privilege ON role_privilege.id_role = role.id "
+                    "LEFT JOIN workflow ON workflow.id = group_role_workflow.id_workflow "                      
+                    "LEFT JOIN privilege ON privilege.id = role_privilege.id_privilege "
+                    "WHERE ("+groupWhere[:-4]+") " +
+                    workflowWhere +
+                    "AND privilege.privilege = %s ",
+                        args
+                )
+
+                o = DBHelper.asDict(c)[0]
+
+                try:
+                    details = json.loads(o["details"])
+                except Exception:
+                    details = {}
+
+                return o["c"], details
+            except Exception as e:
+                raise CustomException(status=400, payload={"database": e.__str__()})
+            finally:
+                c.close()
