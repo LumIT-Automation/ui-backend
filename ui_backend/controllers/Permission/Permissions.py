@@ -18,10 +18,10 @@ from ui_backend.helpers.Log import Log
 class PermissionsController(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
-        data = dict()
-        itemData = {
+        data = {
             "data": dict()
         }
+        itemData = dict()
         etagCondition = {"responseEtag": ""}
         user = CustomController.loggedUser(request)
 
@@ -29,12 +29,10 @@ class PermissionsController(CustomController):
             if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Permissions list", user)
 
-                itemData["data"]["items"] = Permission.permissionsDataList()
-
-                Log.log(itemData, '_')
+                itemData["items"] = Permission.permissionsDataList()
                 serializer = PermissionsSerializer(data=itemData)
                 if serializer.is_valid():
-                    data = serializer.validated_data
+                    data["data"] = serializer.validated_data
                     data["href"] = request.get_full_path()
 
                 # Check the response's ETag validity (against client request).

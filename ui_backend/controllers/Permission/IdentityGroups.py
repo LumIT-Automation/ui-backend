@@ -16,7 +16,9 @@ from ui_backend.helpers.Log import Log
 class PermissionIdentityGroupsController(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
-        data = dict()
+        data = {
+            "data": dict()
+        }
         itemData = dict()
         showPrivileges = False
         etagCondition = {"responseEtag": ""}
@@ -34,7 +36,6 @@ class PermissionIdentityGroupsController(CustomController):
                         showPrivileges = True
 
                 itemData["items"] = IdentityGroup.listWithPermissionsPrivileges(showPrivileges)
-
                 serializer = GroupsSerializer(data=itemData)
                 if serializer.is_valid():
                     data["data"] = serializer.validated_data

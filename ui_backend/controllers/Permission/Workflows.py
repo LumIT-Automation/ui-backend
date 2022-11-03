@@ -15,23 +15,21 @@ from ui_backend.helpers.Log import Log
 class WorkflowsController(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
-        data = dict()
-        itemData = {
+        data = {
             "data": dict()
         }
+        itemData = dict()
         etagCondition = {"responseEtag": ""}
-
         user = CustomController.loggedUser(request)
 
         try:
             if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Roles list", user)
 
-                itemData["data"]["items"] = Workflow.dataList()
-
+                itemData["items"] = Workflow.dataList()
                 serializer = Serializer(data=itemData)
                 if serializer.is_valid():
-                    data = serializer.validated_data
+                    data["data"] = serializer.validated_data
                     data["href"] = request.get_full_path()
 
                 # Check the response's ETag validity (against client request).

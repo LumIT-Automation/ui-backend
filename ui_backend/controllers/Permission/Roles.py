@@ -15,11 +15,11 @@ from ui_backend.helpers.Log import Log
 class PermissionRolesController(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
-        data = dict()
-        loadPrivilege = False
-        itemData = {
+        data = {
             "data": dict()
         }
+        itemData = dict()
+        loadPrivilege = False
         etagCondition = {"responseEtag": ""}
         user = CustomController.loggedUser(request)
 
@@ -33,10 +33,10 @@ class PermissionRolesController(CustomController):
                     if "privileges" in rList:
                         loadPrivilege = True
 
-                itemData["data"]["items"] = Role.dataList(loadPrivilege=loadPrivilege)
+                itemData["items"] = Role.dataList(loadPrivilege=loadPrivilege)
                 serializer = Serializer(data=itemData)
                 if serializer.is_valid():
-                    data = serializer.validated_data
+                    data["data"] = serializer.validated_data
                     data["href"] = request.get_full_path()
 
                 # Check the response's ETag validity (against client request).

@@ -12,7 +12,6 @@ class AuthorizationsController(CustomController):
     @staticmethod
     # Authorizations on THIS node (uib).
     def get(request: Request) -> Response:
-        data = {"data": dict()}
         etagCondition = {"responseEtag": ""}
 
         user = CustomController.loggedUser(request)
@@ -21,8 +20,12 @@ class AuthorizationsController(CustomController):
             if not user["authDisabled"]:
                 Log.actionLog("Permissions' list", user)
 
-                data["data"]["items"] = Authorization.list(user["groups"])
-                data["href"] = request.get_full_path()
+                data = {
+                    "data": {
+                        "items":  Authorization.list(user["groups"])
+                    },
+                    "href": request.get_full_path()
+                }
 
                 # Check the response's ETag validity (against client request).
                 conditional = Conditional(request)
