@@ -1,15 +1,15 @@
 from ui_backend.models.Permission.repository.IdentityGroup import IdentityGroup as Repository
 
-from ui_backend.helpers.Log import Log
-
 
 class IdentityGroup:
-    def __init__(self, identityGroupIdentifier: str,  *args, **kwargs):
+    def __init__(self, id: int = 0, identityGroupIdentifier: str = "",  *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.id = 0
-        self.identity_group_identifier = identityGroupIdentifier
-        self.name = ""
+        self.id: int = int(id)
+        self.name: str = ""
+        self.identity_group_identifier: str = identityGroupIdentifier
+
+        self.__load()
 
 
 
@@ -17,17 +17,9 @@ class IdentityGroup:
     # Public methods
     ####################################################################################################################
 
-    def info(self) -> dict:
-        try:
-            return Repository.get(self.identity_group_identifier)
-        except Exception as e:
-            raise e
-
-
-
     def modify(self, data: dict) -> None:
         try:
-            Repository.modify(self.identity_group_identifier, data)
+            Repository.modify(self.id, data)
         except Exception as e:
             raise e
 
@@ -35,7 +27,7 @@ class IdentityGroup:
 
     def delete(self) -> None:
         try:
-            Repository.delete(self.identity_group_identifier)
+            Repository.delete(self.id)
         except Exception as e:
             raise e
 
@@ -46,7 +38,7 @@ class IdentityGroup:
     ####################################################################################################################
 
     @staticmethod
-    def list() -> list:
+    def dataList() -> list:
         try:
             return Repository.list()
         except Exception as e:
@@ -55,7 +47,7 @@ class IdentityGroup:
 
 
     @staticmethod
-    def listWithRelated(showPrivileges: bool = False) -> list:
+    def listWithPermissionsPrivileges(showPrivileges: bool = False) -> list:
         j = 0
 
         try:
@@ -138,5 +130,21 @@ class IdentityGroup:
     def add(data: dict) -> None:
         try:
             Repository.add(data)
+        except Exception as e:
+            raise e
+
+
+
+    ####################################################################################################################
+    # Private methods
+    ####################################################################################################################
+
+    def __load(self) -> None:
+        try:
+            info = Repository.get(self.id, self.identity_group_identifier)
+
+            # Set attributes.
+            for k, v in info.items():
+                setattr(self, k, v)
         except Exception as e:
             raise e

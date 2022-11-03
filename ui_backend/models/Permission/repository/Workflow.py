@@ -21,6 +21,26 @@ class Workflow:
     ####################################################################################################################
 
     @staticmethod
+    def get(id: int = 0, name: str = "") -> dict:
+        c = connection.cursor()
+
+        try:
+            if id:
+                c.execute("SELECT * FROM `workflow` WHERE id = %s", [id])
+            if name:
+                c.execute("SELECT * FROM `workflow` WHERE `name` = %s", [name])
+
+            return DBHelper.asDict(c)[0]
+        except IndexError:
+            raise CustomException(status=404, payload={"database": "non existent workflow"})
+        except Exception as e:
+            raise CustomException(status=400, payload={"database": e.__str__()})
+        finally:
+            c.close()
+
+
+
+    @staticmethod
     def list() -> list:
         c = connection.cursor()
 

@@ -51,8 +51,8 @@ class PermissionController(CustomController):
                 if serializer.is_valid():
                     data = serializer.validated_data
 
-                    ig = IdentityGroup(data["identity_group_identifier"])
-                    identityGroupId = ig.info()["id"]
+                    ig = IdentityGroup(identityGroupIdentifier=data["identity_group_identifier"])
+                    identityGroupId = ig.id
 
                     p = Permission(permissionId)
                     p.modify(

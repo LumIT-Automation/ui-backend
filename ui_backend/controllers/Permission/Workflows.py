@@ -27,7 +27,7 @@ class WorkflowsController(CustomController):
             if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Roles list", user)
 
-                itemData["data"]["items"] = Workflow.list()
+                itemData["data"]["items"] = Workflow.dataList()
 
                 serializer = Serializer(data=itemData)
                 if serializer.is_valid():

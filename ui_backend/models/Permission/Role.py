@@ -10,9 +10,9 @@ class Role:
     def __init__(self, id: int = 0, role: str = "", loadPrivilege: bool = False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.id = id
-        self.role = role
-        self.description = ""
+        self.id: int = int(id)
+        self.role: str = role
+        self.description: str = ""
 
         self.privileges: List[Privilege] = []
 
