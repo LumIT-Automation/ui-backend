@@ -2,6 +2,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
+from django.conf import settings
+
 from ui_backend.models.Asset.ApiAsset import ApiAsset
 from ui_backend.serializers.Asset.Assets import ApiAssetsSerializer as Serializer
 
@@ -22,10 +24,12 @@ class ApiAssetsController(CustomController):
         }
         etagCondition = {"responseEtag": ""}
         user = CustomController.loggedUser(request)
+        techs = list()
 
         try:
-            # Todo: Get technology list from settings:
-            techs = [ "checkpoint" ]
+            for k in settings.API_BACKEND_BASE_URL.keys():
+                techs.append(k)
+            techs = [ "checkpoint" ] # Todo: each api should have the workflow role/user.
             for tech in techs:
                 Log.actionLog("Asset list: " + tech + ": ", user)
                 itemData = ApiAsset.list(technology=tech)
