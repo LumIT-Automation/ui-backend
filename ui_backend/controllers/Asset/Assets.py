@@ -3,10 +3,10 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from ui_backend.models.Asset.ApiAsset import ApiAsset
-#from ui_backend.models.Permission.Permission import Permission
-
+from ui_backend.serializers.Asset.Assets import ApiAssetsSerializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
+from ui_backend.helpers.Conditional import Conditional
 from ui_backend.helpers.Log import Log
 
 
@@ -15,9 +15,10 @@ class ApiAssetsController(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
         data = {
-            "data": {
-                "items": []
-            }
+            "data": dict()
+        }
+        allowedData = {
+            "items": list()
         }
         etagCondition = {"responseEtag": ""}
         user = CustomController.loggedUser(request)
@@ -28,11 +29,31 @@ class ApiAssetsController(CustomController):
             for tech in techs:
                 Log.actionLog("Asset list: " + tech + ": ", user)
                 itemData = ApiAsset.list(technology=tech)
-                for p in itemData:
+                for a in itemData:
                     # Todo: Filter assets' list basing on actual permissions (maybe before build the techs list).
                     #if Permission.hasUserPermission(groups=user["groups"], action="assets_get", assetId=p["id"]) or user["authDisabled"]:
-                    data["data"]["items"].append(p)
-            httpStatus = status.HTTP_200_OK
+                    allowedData["items"].append(a)
+
+            serializer = Serializer(data=allowedData)
+            if serializer.is_valid():
+                data["data"] = serializer.validated_data
+                data["href"] = request.get_full_path()
+
+                # Check the response's ETag validity (against client request).
+                conditional = Conditional(request)
+                etagCondition = conditional.responseEtagFreshnessAgainstRequest(data["data"])
+                if etagCondition["state"] == "fresh":
+                    data = None
+                    httpStatus = status.HTTP_304_NOT_MODIFIED
+                else:
+                    httpStatus = status.HTTP_200_OK
+            else:
+                httpStatus = status.HTTP_500_INTERNAL_SERVER_ERROR
+                data = {
+                    "API": "upstream data mismatch."
+                }
+
+                Log.log("Upstream data incorrect: " + str(serializer.errors))
 
         except Exception as e:
             data, httpStatus, headers = CustomController.exceptionHandler(e)
