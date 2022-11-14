@@ -9,6 +9,8 @@ from ui_backend.models.Permission.repository.PermissionPrivilege import Permissi
 
 from ui_backend.helpers.Exception import CustomException
 
+from ui_backend.helpers.Log import Log
+
 
 class Permission:
 
@@ -107,6 +109,22 @@ class Permission:
 
         try:
             return Repository.list()
+        except Exception as e:
+            raise e
+
+
+
+    @staticmethod
+    def permissionTechnologyAssetsList(groups: list, technology: str) -> list:
+        assetIds = list()
+        try:
+            allPerms = Repository.list()
+            for perm in allPerms:
+                if perm["identity_group_identifier"] in groups:
+                    if "details" in perm and technology in perm["details"]:
+                        assetIds = perm["details"][technology].get("allowed_asset_ids", [])
+
+            return assetIds
         except Exception as e:
             raise e
 

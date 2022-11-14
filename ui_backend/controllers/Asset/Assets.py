@@ -5,6 +5,8 @@ from rest_framework import status
 from django.conf import settings
 
 from ui_backend.models.Asset.ApiAsset import ApiAsset
+from ui_backend.models.Permission.Permission import Permission
+
 from ui_backend.serializers.Asset.Assets import ApiAssetsSerializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
@@ -33,10 +35,18 @@ class ApiAssetsController(CustomController):
             for tech in techs:
                 Log.actionLog("Asset list: " + tech + ": ", user)
                 itemData = ApiAsset.list(technology=tech)
+
+                # Todo: skip permission check for admin (in models somewhere).
+                # Superadmin's group.
+                #for gr in groups:
+                #    if gr.lower() == "automation.local":
+                #        allowedData = itemData
+
+                # Filter the assets list basing on actual permissions.
+                allowedIds = Permission.permissionTechnologyAssetsList(groups=user["groups"], technology=tech)
                 for a in itemData:
-                    # Todo: Filter assets' list basing on actual permissions (maybe before build the techs list).
-                    #if Permission.hasUserPermission(groups=user["groups"], action="assets_get", assetId=p["id"]) or user["authDisabled"]:
-                    allowedData["items"].append(a)
+                    if a["id"] in allowedIds:
+                        allowedData["items"].append(a)
 
             serializer = Serializer(data=allowedData)
             if serializer.is_valid():
