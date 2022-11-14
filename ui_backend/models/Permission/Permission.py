@@ -2,6 +2,8 @@ from ui_backend.models.Permission.Role import Role
 from ui_backend.models.Permission.Workflow import Workflow
 from ui_backend.models.Permission.IdentityGroup import IdentityGroup
 
+from ui_backend.models.Asset.ApiAsset import ApiAsset
+
 from ui_backend.models.Permission.repository.Permission import Permission as Repository
 from ui_backend.models.Permission.repository.PermissionPrivilege import PermissionPrivilege as PermissionPrivilegeRepository
 
@@ -73,7 +75,8 @@ class Permission:
                         return False
 
                     # Check that the assetId is currently available.
-                    apiAssets = Repository.getApiAssets(tech)
+                    apiAssets = ApiAsset.list(technology=tech)
+
                     for assetId in assetIds:
                         if assetId not in [ el.get("id") for el in [api for api in apiAssets] ]:
                             raise CustomException(status=400, payload={"UI-BACKEND": "assetId unavailable"})
