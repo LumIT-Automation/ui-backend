@@ -14,7 +14,6 @@ from ui_backend.helpers.Conditional import Conditional
 from ui_backend.helpers.Log import Log
 
 
-
 class ApiAssetsController(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
@@ -31,23 +30,11 @@ class ApiAssetsController(CustomController):
         try:
             for k in settings.API_BACKEND_BASE_URL.keys():
                 techs.append(k)
-            techs = [ "checkpoint" ] # Todo: each api should have the workflow role/user.
+            techs = ["checkpoint"]  # Todo: each api should have the workflow role/user.
             for tech in techs:
-                Log.actionLog("Asset list: " + tech + ": ", user)
-                itemData = ApiAsset.list(technology=tech)
+                Log.actionLog("Asset list (filtered by permissions): " + tech + ": ", user)
 
-                # Todo: skip permission check for admin (in models somewhere).
-                # Superadmin's group.
-                #for gr in groups:
-                #    if gr.lower() == "automation.local":
-                #        allowedData = itemData
-
-                # Filter the assets list basing on actual permissions.
-                allowedIds = Permission.permissionTechnologyAssetsList(groups=user["groups"], technology=tech)
-                for a in itemData:
-                    if a["id"] in allowedIds:
-                        allowedData["items"].append(a)
-
+                allowedData["items"] = Permission.filterAssetsListByPermission(groups=user["groups"], technology=tech)
             serializer = Serializer(data=allowedData)
             if serializer.is_valid():
                 data["data"] = serializer.validated_data

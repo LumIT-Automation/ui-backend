@@ -114,17 +114,30 @@ class Permission:
 
 
 
-    @staticmethod
-    def permissionTechnologyAssetsList(groups: list, technology: str) -> list:
-        assetIds = list()
+    def filterAssetsListByPermission(groups: list, technology: str) -> list:
+        allowedAssetIds = list()
+        allowedAssets = list()
+
         try:
             allPerms = Repository.list()
             for perm in allPerms:
                 if perm["identity_group_identifier"] in groups:
                     if "details" in perm and technology in perm["details"]:
-                        assetIds = perm["details"][technology].get("allowed_asset_ids", [])
+                        allowedAssetIds = perm["details"][technology].get("allowed_asset_ids", [])
 
-            return assetIds
+            # Filter the technolofy assets list by allowedAssetIds.
+            allAssets = ApiAsset.list(technology=technology)
+
+            # Superadmin's group.
+            for gr in groups:
+                if gr.lower() == "automation.local":
+                    allowedAssets = allAssets
+                else:
+                    for a in allAssets:
+                        if a["id"] in allowedAssetIds and a not in allowedAssets:
+                            allowedAssets.append(a)
+
+            return allowedAssets
         except Exception as e:
             raise e
 
