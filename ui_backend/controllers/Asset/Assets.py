@@ -2,9 +2,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from django.conf import settings
-
-from ui_backend.models.Asset.ApiAsset import ApiAsset
 from ui_backend.models.Permission.Permission import Permission
 
 from ui_backend.serializers.Asset.Assets import ApiAssetsSerializer as Serializer
@@ -23,14 +20,9 @@ class ApiAssetsController(CustomController):
         }
         etagCondition = {"responseEtag": ""}
         user = CustomController.loggedUser(request)
-        techs = list()
 
         try:
-            for k in settings.API_BACKEND_BASE_URL.keys():
-                techs.append(k)
-
-            itemData["items"] = Permission.filterAssetsListByPermission(groups=user["groups"], workflow=workflow, AssetsTechnologies=techs)
-
+            itemData["items"] = Permission.filterAssetsListByPermission(groups=user["groups"], workflow=workflow)
             serializer = Serializer(data=itemData)
             if serializer.is_valid():
                 data["data"] = serializer.validated_data
@@ -60,5 +52,3 @@ class ApiAssetsController(CustomController):
             "ETag": etagCondition["responseEtag"],
             "Cache-Control": "must-revalidate"
         })
-
-

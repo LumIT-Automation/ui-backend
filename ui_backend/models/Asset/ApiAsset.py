@@ -1,6 +1,7 @@
 from ui_backend.models.Asset.repository.ApiAsset import ApiAsset as Repository
 from ui_backend.helpers.Log import Log
 
+
 class ApiAsset:
     def __init__(self, technology, assetId: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -16,6 +17,8 @@ class ApiAsset:
         self.position = ""
 
         self.__load()
+
+
 
     ####################################################################################################################
     # Public static methods

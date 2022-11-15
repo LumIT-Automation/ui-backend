@@ -1,11 +1,8 @@
 import json
 from django.db import connection
 
-from ui_backend.usecases.Workflow import Workflow
-
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Database import Database as DBHelper
-from ui_backend.helpers.Log import Log
 
 
 class Permission:
@@ -38,38 +35,6 @@ class Permission:
 
         try:
             c.execute("SELECT * FROM group_role_workflow WHERE id=%s", [permissionId])
-
-            return DBHelper.asDict(c)[0]
-        except IndexError:
-            raise CustomException(status=404, payload={"database": "non existent permission"})
-        except Exception as e:
-            raise CustomException(status=400, payload={"database": e.__str__()})
-        finally:
-            c.close()
-
-
-
-    @staticmethod
-    def getPermissionDetails(identityGroups: list, role: str, workflow: str) -> dict:
-        c = connection.cursor()
-
-        try:
-            args = identityGroups.copy()
-            args.append(role)
-            args.append(workflow)
-
-            groupsWhere = ""
-            for g in identityGroups:
-                groupsWhere += 'identity_group.identity_group_identifier = %s || '
-
-            c.execute("select details from group_role_workflow "
-                        "LEFT JOIN identity_group ON identity_group.id = group_role_workflow.id_group "
-                        "LEFT JOIN role ON role.id = group_role_workflow.id_role "
-                        "LEFT JOIN workflow on workflow.id = group_role_workflow.id_workflow "
-                        "WHERE (" + groupsWhere[:-4] + ") " +
-                        "AND role.role=%s AND workflow.name=%s",
-                args
-            )
 
             return DBHelper.asDict(c)[0]
         except IndexError:
@@ -120,8 +85,36 @@ class Permission:
 
 
     @staticmethod
-    def list() -> list:
+    def list(filter: dict = None) -> list:
+        filter = filter or {}
+        args = []
+
         c = connection.cursor()
+
+        identityGroups = filter.get("identityGroups", [])
+        groupsWhere = ""
+        if identityGroups:
+            for _ in identityGroups:
+                groupsWhere += 'identity_group.identity_group_identifier = %s || '
+            groupsWhere = "(" + groupsWhere[:-4] + ")"
+            for i in identityGroups:
+                args.append(i)
+        else:
+            groupsWhere = "1"
+
+        role = filter.get("role", "")
+        if role:
+            roleWhere = "role.role=%s"
+            args.append(role)
+        else:
+            roleWhere = "1"
+
+        workflow = filter.get("workflow", "")
+        if workflow:
+            workflowWhere = "workflow.name=%s"
+            args.append(workflow)
+        else:
+            workflowWhere = "1"
 
         try:
             c.execute(
@@ -136,7 +129,10 @@ class Permission:
                 "LEFT JOIN group_role_workflow ON group_role_workflow.id_group = identity_group.id "
                 "LEFT JOIN role ON role.id = group_role_workflow.id_role "
                 "LEFT JOIN workflow ON workflow.id = group_role_workflow.id_workflow "
-                "WHERE role.role IS NOT NULL")
+                "WHERE " + groupsWhere + " AND " + roleWhere + " AND " + workflowWhere + " AND "
+                "role.role IS NOT NULL",
+                    args
+            )
 
             l = DBHelper.asDict(c)
             for el in l:

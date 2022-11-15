@@ -1,4 +1,4 @@
-import json
+from django.conf import settings
 
 from ui_backend.models.Permission.Role import Role
 from ui_backend.models.Permission.Workflow import Workflow
@@ -116,33 +116,37 @@ class Permission:
 
 
 
-    def filterAssetsListByPermission(groups: list, workflow: str, AssetsTechnologies: list,  role: str = "exec") -> list:
+    @staticmethod
+    def filterAssetsListByPermission(groups: list, workflow: str, role: str="exec") -> list:
         allowedAssets = dict()
         assets = list()
+        techs = list()
 
         try:
+            for k in settings.API_BACKEND_BASE_URL.keys():
+                techs.append(k)
+
             # Superadmin's group.
             for gr in groups:
                 if gr.lower() == "automation.local":
-                    for tech in AssetsTechnologies:
+                    for tech in techs:
                         allowedAssets[tech] = "any"
 
             if not allowedAssets:
-                perm = Repository.getPermissionDetails(identityGroups=groups, role=role, workflow=workflow)
-                if "details" in perm and perm["details"]:
-                    details = json.loads(perm["details"])
-                    for tech in AssetsTechnologies:
-                        if tech in details:
-                            allowedAssets[tech] = details[tech].get("allowed_asset_ids", [])
+                perm = Repository.list(filter={"identityGroups": groups, "role": role, "workflow": workflow})
+                details = perm[0]["details"]
+                for tech in techs:
+                    if tech in details:
+                        allowedAssets[tech] = details[tech].get("allowed_asset_ids", [])
 
             # Filter the technology assets list by allowedAssetIds. Superadmin get all the assets.
             for tech in allowedAssets.keys():
                 try:
                     assetsTech = ApiAsset.list(technology=tech)
-                except:
+                except Exception:
                     pass
 
-                if  allowedAssets[tech] == "any":
+                if allowedAssets[tech] == "any":
                     assets.extend(a for a in assetsTech if a not in assets)
                 else:
                     for a in assetsTech:
