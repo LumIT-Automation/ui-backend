@@ -134,7 +134,7 @@ ALTER TABLE `group_role_workflow`
   ADD PRIMARY KEY (`id_group`,`id_role`,`id_workflow`),
   ADD KEY `id_role` (`id_role`),
   ADD KEY `id_workflow` (`id_workflow`),
-  ADD KEY `id` (`id`);
+  ADD UNIQUE KEY `id` (`id`);
 
 --
 -- Indici per le tabelle `identity_group`

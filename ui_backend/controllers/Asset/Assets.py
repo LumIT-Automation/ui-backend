@@ -16,7 +16,7 @@ from ui_backend.helpers.Log import Log
 
 class ApiAssetsController(CustomController):
     @staticmethod
-    def get(request: Request) -> Response:
+    def get(request: Request, workflow: str) -> Response:
         data = {
             "data": dict()
         }
@@ -34,8 +34,8 @@ class ApiAssetsController(CustomController):
             for tech in techs:
                 try:
                     Log.actionLog("Asset list (filtered by permissions): " + tech + ": ", user)
-                    allowedData["items"].extend(Permission.filterAssetsListByPermission(groups=user["groups"], technology=tech))
-                except:
+                    allowedData["items"].extend(Permission.filterAssetsListByPermission(groups=user["groups"], workflow=workflow, technology=tech))
+                except Exception:
                     pass
 
             serializer = Serializer(data=allowedData)

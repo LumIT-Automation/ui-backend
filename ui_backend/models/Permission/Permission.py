@@ -1,3 +1,5 @@
+import json
+
 from ui_backend.models.Permission.Role import Role
 from ui_backend.models.Permission.Workflow import Workflow
 from ui_backend.models.Permission.IdentityGroup import IdentityGroup
@@ -114,28 +116,32 @@ class Permission:
 
 
 
-    def filterAssetsListByPermission(groups: list, technology: str) -> list:
+    def filterAssetsListByPermission(groups: list,workflow: str, technology: str,  role: str = "exec") -> list:
         allowedAssetIds = list()
         allowedAssets = list()
 
         try:
-            allPerms = Repository.list()
-            for perm in allPerms:
-                if perm["identity_group_identifier"] in groups:
-                    if "details" in perm and technology in perm["details"]:
-                        allowedAssetIds = perm["details"][technology].get("allowed_asset_ids", [])
-
-            # Filter the technolofy assets list by allowedAssetIds.
-            allAssets = ApiAsset.list(technology=technology)
+            # Filter the technology assets list by allowedAssetIds.
+            try:
+                allAssets = ApiAsset.list(technology=technology)
+            except Exception as e:
+                raise e
 
             # Superadmin's group.
             for gr in groups:
                 if gr.lower() == "automation.local":
                     allowedAssets = allAssets
-                else:
-                    for a in allAssets:
-                        if a["id"] in allowedAssetIds and a not in allowedAssets:
-                            allowedAssets.append(a)
+
+            if not allowedAssets:
+                perm = Repository.getPermissionDetails(identityGroups=groups, role=role, workflow=workflow)
+                if "details" in perm and perm["details"]:
+                    details = json.loads(perm["details"])
+                    if technology in details:
+                        allowedAssetIds = details[technology].get("allowed_asset_ids", [])
+
+                for a in allAssets:
+                    if a["id"] in allowedAssetIds and a not in allowedAssets:
+                        allowedAssets.append(a)
 
             return allowedAssets
         except Exception as e:

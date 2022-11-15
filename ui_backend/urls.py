@@ -21,7 +21,7 @@ urlpatterns = [
     path('backend/workflow/permissions/', Permissions.PermissionsController.as_view()),
     path('backend/workflow/permission/<int:permissionId>/', Permission.PermissionController.as_view()),
 
-    path('backend/assets/', Assets.ApiAssetsController.as_view()),
+    path('backend/workflow/<str:workflow>/assets/', Assets.ApiAssetsController.as_view()),
 
     # Workflows.
     path('backend/workflow/checkpoint/add-host/', CheckPointHosts.CheckPointHostsController.as_view()),
