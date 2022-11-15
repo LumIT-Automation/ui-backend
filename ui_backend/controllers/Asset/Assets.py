@@ -30,11 +30,14 @@ class ApiAssetsController(CustomController):
         try:
             for k in settings.API_BACKEND_BASE_URL.keys():
                 techs.append(k)
-            techs = ["checkpoint"]  # Todo: each api should have the workflow role/user.
-            for tech in techs:
-                Log.actionLog("Asset list (filtered by permissions): " + tech + ": ", user)
 
-                allowedData["items"] = Permission.filterAssetsListByPermission(groups=user["groups"], technology=tech)
+            for tech in techs:
+                try:
+                    Log.actionLog("Asset list (filtered by permissions): " + tech + ": ", user)
+                    allowedData["items"].extend(Permission.filterAssetsListByPermission(groups=user["groups"], technology=tech))
+                except:
+                    pass
+
             serializer = Serializer(data=allowedData)
             if serializer.is_valid():
                 data["data"] = serializer.validated_data
