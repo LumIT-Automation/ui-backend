@@ -17,10 +17,8 @@ from ui_backend.helpers.Log import Log
 class ApiAssetsController(CustomController):
     @staticmethod
     def get(request: Request, workflow: str) -> Response:
-        data = {
-            "data": dict()
-        }
-        allowedData = {
+        data = dict()
+        itemData = {
             "items": list()
         }
         etagCondition = {"responseEtag": ""}
@@ -31,14 +29,9 @@ class ApiAssetsController(CustomController):
             for k in settings.API_BACKEND_BASE_URL.keys():
                 techs.append(k)
 
-            for tech in techs:
-                try:
-                    Log.actionLog("Asset list (filtered by permissions): " + tech + ": ", user)
-                    allowedData["items"].extend(Permission.filterAssetsListByPermission(groups=user["groups"], workflow=workflow, technology=tech))
-                except Exception:
-                    pass
+            itemData["items"] = Permission.filterAssetsListByPermission(groups=user["groups"], workflow=workflow, AssetsTechnologies=techs)
 
-            serializer = Serializer(data=allowedData)
+            serializer = Serializer(data=itemData)
             if serializer.is_valid():
                 data["data"] = serializer.validated_data
                 data["href"] = request.get_full_path()

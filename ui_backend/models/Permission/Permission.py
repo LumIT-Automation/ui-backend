@@ -116,34 +116,40 @@ class Permission:
 
 
 
-    def filterAssetsListByPermission(groups: list,workflow: str, technology: str,  role: str = "exec") -> list:
-        allowedAssetIds = list()
-        allowedAssets = list()
+    def filterAssetsListByPermission(groups: list, workflow: str, AssetsTechnologies: list,  role: str = "exec") -> list:
+        allowedAssets = dict()
+        assets = list()
 
         try:
-            # Filter the technology assets list by allowedAssetIds.
-            try:
-                allAssets = ApiAsset.list(technology=technology)
-            except Exception as e:
-                raise e
-
             # Superadmin's group.
             for gr in groups:
                 if gr.lower() == "automation.local":
-                    allowedAssets = allAssets
+                    for tech in AssetsTechnologies:
+                        allowedAssets[tech] = "any"
 
             if not allowedAssets:
                 perm = Repository.getPermissionDetails(identityGroups=groups, role=role, workflow=workflow)
                 if "details" in perm and perm["details"]:
                     details = json.loads(perm["details"])
-                    if technology in details:
-                        allowedAssetIds = details[technology].get("allowed_asset_ids", [])
+                    for tech in AssetsTechnologies:
+                        if tech in details:
+                            allowedAssets[tech] = details[tech].get("allowed_asset_ids", [])
 
-                for a in allAssets:
-                    if a["id"] in allowedAssetIds and a not in allowedAssets:
-                        allowedAssets.append(a)
+            # Filter the technology assets list by allowedAssetIds. Superadmin get all the assets.
+            for tech in allowedAssets.keys():
+                try:
+                    assetsTech = ApiAsset.list(technology=tech)
+                except:
+                    pass
 
-            return allowedAssets
+                if  allowedAssets[tech] == "any":
+                    assets.extend(a for a in assetsTech if a not in assets)
+                else:
+                    for a in assetsTech:
+                        if a["id"] in allowedAssets[tech] and a not in assets:
+                            assets.append(a)
+
+            return assets
         except Exception as e:
             raise e
 
