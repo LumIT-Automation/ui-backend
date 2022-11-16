@@ -42,7 +42,6 @@ class ApiAsset:
         from ui_backend.models.Permission.Permission import Permission
         allowedAssets = dict()
         assets = list()
-        techs = list()
 
         try:
             # Get the technologies that are relevant for the workflow. Check also if each api tech is registered.
@@ -66,20 +65,24 @@ class ApiAsset:
                         allowedAssets[tech] = details[tech].get("allowed_asset_ids", [])
 
             # Filter the technology assets list by allowedAssetIds. Superadmin get all the assets.
-            for tech in allowedAssets.keys():
-                try:
-                    assetsTech = Repository.getApiAssets(tech)
-                except Exception:
-                    assetsTech = []
-                    pass
+            """ allAssetsTechs Example:  
+                [
+                    {'checkpoint': [{'id': 1, 'address': '172.25.0.100', 'fqdn': ...}, {'id': 3, 'address': '172.25.0.102', 'fqdn': ...}] }, 
+                    {'infoblox': [{'id': 1, 'address': '192.168.22.60', 'fqdn': ...}] }
+                ]
+            """
+            allAssetsTechs = Repository.getApisAssets(techs)
 
-                if allowedAssets[tech] == "any":
-                    assets.extend(a for a in assetsTech if a not in assets)
-                else:
-                    for a in assetsTech:
-                        if a["id"] in allowedAssets[tech] and a not in assets:
-                            assets.append(a)
-
+            for assetsTech in allAssetsTechs:
+                for tech in assetsTech.keys():
+                    if tech in allowedAssets:
+                        if allowedAssets[tech] == "any":
+                            assets.extend(assetsTech[tech])
+                        else:
+                            for id in allowedAssets[tech]:
+                                for asset in assetsTech[tech]:
+                                    if asset["id"] == id:
+                                        assets.append(asset)
             return assets
         except Exception as e:
             raise e

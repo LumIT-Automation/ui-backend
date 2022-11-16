@@ -11,6 +11,7 @@ class Workflow:
 
         self.username = username
         self.workflowId = workflowId
+        self.token = ""
 
         # @todo: track workflowId.
 
@@ -20,14 +21,19 @@ class Workflow:
     # Public methods
     ####################################################################################################################
 
-    def requestFacade(self, method: str, technology: str, urlSegment: str, data: dict = None) -> dict:
+    def requestFacade(self, method: str, technology: str, urlSegment: str, token: str = "", data: dict = None) -> dict:
         data = data or {}
 
         try:
+            if not token:
+                t = self.__getToken()
+            else:
+                t = token
+
             api = ApiSupplicant(
                 endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/" + urlSegment,
                 additionalHeaders={
-                    "Authorization": "Bearer " + Workflow.__getToken(), # "workflow" system user.
+                    "Authorization": "Bearer " + t, # "workflow" system user.
                     "workflowUser": self.username,
                     "workflowId": self.workflowId
                 }
@@ -45,6 +51,17 @@ class Workflow:
             raise e
 
         return data
+
+
+
+    def manyRequests(self, method: str, technology: str, urlSegment: str, data: dict = None) -> dict:
+        try:
+            if not self.token:
+                self.token = self.__getToken()
+
+            return self.requestFacade(method, technology, urlSegment, self.token, data)
+        except Exception as e:
+            raise e
 
 
 

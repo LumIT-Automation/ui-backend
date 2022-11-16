@@ -19,3 +19,24 @@ class ApiAsset:
             return []
         except Exception as e:
             raise e
+
+
+
+    @staticmethod
+    def getApisAssets(technologies: list):
+        assets = []
+
+        try:
+            asset = Workflow(username="", workflowId="")
+            for tech in technologies:
+                try:
+                    assets.append({
+                        tech: asset.manyRequests(method="GET", technology=tech, urlSegment="assets/")["data"]["items"]
+                    })
+                except:
+                    pass
+
+            return assets
+        except Exception as e:
+            raise e
+
