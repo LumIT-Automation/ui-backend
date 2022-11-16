@@ -64,7 +64,7 @@ class ApiAsset:
                     if tech in details:
                         allowedAssets[tech] = details[tech].get("allowed_asset_ids", [])
 
-            # Filter the technology assets list by allowedAssetIds. Superadmin get all the assets.
+            # Filter the technology assets list by allowedAssetIds. Superadmin gets all the assets.
             """ allAssetsTechs Example:  
                 [
                     {'checkpoint': [{'id': 1, 'address': '172.25.0.100', 'fqdn': ...}, {'id': 3, 'address': '172.25.0.102', 'fqdn': ...}] }, 
