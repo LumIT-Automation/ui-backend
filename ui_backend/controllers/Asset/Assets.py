@@ -2,7 +2,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from ui_backend.models.Permission.Permission import Permission
+from ui_backend.models.Asset.ApiAsset import ApiAsset
 
 from ui_backend.serializers.Asset.Assets import ApiAssetsSerializer as Serializer
 
@@ -22,7 +22,7 @@ class ApiAssetsController(CustomController):
         user = CustomController.loggedUser(request)
 
         try:
-            itemData["items"] = Permission.filterAssetsListByPermission(groups=user["groups"], workflow=workflow)
+            itemData["items"] = ApiAsset.listWorkflowAssets(groups=user["groups"], workflow=workflow)
             serializer = Serializer(data=itemData)
             if serializer.is_valid():
                 data["data"] = serializer.validated_data
