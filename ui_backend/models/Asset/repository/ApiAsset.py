@@ -10,15 +10,17 @@ class ApiAsset:
 
     @staticmethod
     def getApiAssets(technology: str) -> list:
-        try:
-            apiAssets = Workflow(username="", workflowId="")
-            data = apiAssets.requestFacade(method="GET", technology=technology, urlSegment="assets/")
+        assets = []
 
-            return data["data"]["items"]
+        try:
+            w = Workflow(username="", workflowId="")
+            assets = w.requestFacade(method="GET", technology=technology, urlSegment="assets/")["data"]["items"]
         except KeyError:
-            return []
+            pass
         except Exception as e:
             raise e
+
+        return assets
 
 
 
@@ -27,16 +29,15 @@ class ApiAsset:
         assets = []
 
         try:
-            asset = Workflow(username="", workflowId="")
+            w = Workflow(username="", workflowId="")
             for tech in technologies:
                 try:
                     assets.append({
-                        tech: asset.manyRequests(method="GET", technology=tech, urlSegment="assets/")["data"]["items"]
+                        tech: w.requestFacade(method="GET", technology=tech, urlSegment="assets/")["data"]["items"]
                     })
-                except:
+                except Exception:
                     pass
 
             return assets
         except Exception as e:
             raise e
-
