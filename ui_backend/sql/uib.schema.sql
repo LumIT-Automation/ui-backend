@@ -120,6 +120,7 @@ CREATE TABLE `role_privilege` (
 CREATE TABLE `workflow` (
   `id` int(11) NOT NULL,
   `name` varchar(64) NOT NULL,
+  `technologies` varchar(255) NOT NULL,
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

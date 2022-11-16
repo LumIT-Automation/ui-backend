@@ -1,6 +1,7 @@
 from django.conf import settings
 
 from ui_backend.models.Asset.repository.ApiAsset import ApiAsset as Repository
+from ui_backend.models.Permission.Workflow import Workflow
 
 from ui_backend.helpers.Log import Log
 
@@ -44,8 +45,12 @@ class ApiAsset:
         techs = list()
 
         try:
-            for k in settings.API_BACKEND_BASE_URL.keys():
-                techs.append(k)
+            # Get the technologies that are relevant for the workflow. Check also if each api tech is registered.
+            w = Workflow(name=workflow)
+            techs = w.technologies.split(',')
+            for t in techs:
+                if t not in settings.API_BACKEND_BASE_URL.keys():
+                    techs.remove(t)
 
             # Superadmin's group.
             for gr in groups:
@@ -54,7 +59,6 @@ class ApiAsset:
                         allowedAssets[tech] = "any"
 
             if not allowedAssets:
-
                 perm = Permission.permissionsDataList(filter={"identityGroups": groups, "role": role, "workflow": workflow})
                 details = perm[0]["details"]
                 for tech in techs:

@@ -10,6 +10,7 @@ class Workflow:
 
     #   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     #   `name` varchar(64) NOT NULL,
+    #   `technologies` varchar(255) NOT NULL,
     #   `description` varchar(255) DEFAULT NULL
     #
     #    UNIQUE KEY `name` (`name`);

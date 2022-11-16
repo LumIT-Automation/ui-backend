@@ -9,6 +9,7 @@ class Workflow:
 
         self.id: int = int(id)
         self.name: str = name
+        self.technologies: str = ""
         self.description: str = ""
 
         self.__load()

@@ -92,6 +92,7 @@ class Permission:
 
     @staticmethod
     def permissionsDataList(filter: dict = None) -> list:
+        filter = filter or {}
 
         # List of permissions as List[dict].
         # Note. Partition information differ a bit from Partition model (historical reasons).

@@ -46,9 +46,9 @@ INSERT INTO `role_privilege` (`id_role`, `id_privilege`) VALUES
 -- Dump dei dati per la tabella `workflow`
 --
 
-INSERT INTO `workflow` (`id`, `name`, `description`) VALUES
-(1, 'checkpoint_remove_host', 'CheckPoint remove host, with Infoblox information fetching'),
-(2, 'checkpoint_add_host', 'CheckPoint add host, with Infoblox information fetching');
+INSERT INTO `workflow` (`id`, `name`, `technologies`, `description`) VALUES
+(1, 'checkpoint_remove_host', 'checkpoint', 'CheckPoint remove host, with Infoblox information fetching'),
+(2, 'checkpoint_add_host', 'checkpoint', 'CheckPoint add host, with Infoblox information fetching');
 
 
 COMMIT;
