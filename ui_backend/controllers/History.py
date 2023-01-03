@@ -25,7 +25,7 @@ class HistoryController(CustomController):
 
         for technology in settings.API_BACKEND_BASE_URL:
             Log.actionLog("History list for technology "+technology, user)
-            endpoint = settings.API_BACKEND_BASE_URL[technology]+"history/"
+            endpoint = settings.API_BACKEND_BASE_URL[technology] + technology + "/history/"
 
             try:
                 if endpoint:
