@@ -26,7 +26,7 @@ class CheckPointRemoveHostController(CustomController):
                 data = serializer.validated_data
 
                 if Permission.hasUserPermission(groups=user["groups"], action="exec", workflowName="checkpoint_remove_host", requestedAssets=data["asset"]) or user["authDisabled"]:
-                    workflowId = Misc.getWorkflowCorrelationId()
+                    workflowId = 'workflow-checkpoint_remove_host-' + Misc.getWorkflowCorrelationId()
 
                     Log.actionLog("Checkpoint host removal", user)
                     Log.actionLog("User data: " + str(request.data), user)
