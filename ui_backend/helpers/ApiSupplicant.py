@@ -308,6 +308,6 @@ class ApiSupplicant:
     def __resourceIdentifier(self) -> str:
         # Returns the identifier of the resource.
 
-        return str(hashlib.md5(
+        return str(hashlib.sha256(
             self.endpoint.encode('utf-8') + str(self.params).encode('utf-8')
         ).hexdigest().strip())
