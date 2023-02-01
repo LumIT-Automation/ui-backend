@@ -1,5 +1,6 @@
 from ui_backend.usecases.Workflow import Workflow
 from ui_backend.usecases.infoblox.Ipv4 import Ipv4
+from ui_backend.models.Asset.ApiAsset import ApiAsset
 
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Log import Log
@@ -51,6 +52,9 @@ class Host(Workflow):
             network = Ipv4(username=self.username, workflowId=self.workflowId, ipv4=self.data["ipv4-address"]).isGateway()
             if not network:
                 assets = self.data["asset"]
+                if assets["checkpoint"] == "*":
+                    assets["checkpoint"] = [ a["id"] for a in ApiAsset.list("checkpoint")]
+
                 for assetId in assets["checkpoint"]:
                     technology = "checkpoint"
                     urlSegment = str(assetId) + "/remove-host/"

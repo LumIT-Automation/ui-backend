@@ -12,8 +12,6 @@ class HostWorkflowAssetSerializer(serializers.Serializer):
 
         self.mandatoryTechs = mandatoryTechs or []
 
-
-
     def to_internal_value(self, data):
         try:
             for technology in self.mandatoryTechs:
@@ -24,10 +22,13 @@ class HostWorkflowAssetSerializer(serializers.Serializer):
                 if technology in data:
                     # data[technology] allowed values: "*" or a list of integers.
                     if isinstance(data[technology], list):
-                        self.fields[technology] = serializers.ListField(child=serializers.IntegerField(required=False), required=False)
+                        if any(not isinstance(val, int) for val in data[technology]) :
+                            raise serializers.ValidationError('Value error. Must be between a list of integers or the \"*\" string.')
                     else:
-                        self.fields[technology] = serializers.CharField(max_length=1, required=False)
+                        if not data[technology] == '*':
+                            raise serializers.ValidationError('Value error. Must be between a list of integers or the \"*\" string.')
 
-            return super().to_internal_value(data)
+            return data
         except Exception as e:
             raise e
+
