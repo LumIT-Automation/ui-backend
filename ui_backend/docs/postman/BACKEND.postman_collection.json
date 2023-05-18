@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "384a580c-0b0e-4700-8a65-57bf5ea59c5c",
+		"_postman_id": "9e2a8e14-0ea4-4efe-b795-7f2d0de966e7",
 		"name": "BACKEND",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -726,6 +726,92 @@
 								"workflow",
 								"checkpoint_add_host",
 								"assets",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Infoblox",
+			"item": [
+				{
+					"name": "assets",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							}
+						],
+						"url": {
+							"raw": "http://10.0.111.12/backend/infoblox/assets/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"infoblox",
+								"assets",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "assign-cloud-network",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "851847cbe30d3d64e74703cac5fa8992",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"provider\": \"AWS\",\n        \"region\": \"aws-eu-west-1\",\n        \"network_data\": {\n            \"network\": \"next-available\",\n            \"comment\": \"Nella vecchia fattoria ia ia oh\",\n            \"extattrs\": {\n                \"Account ID\": {\n                    \"value\": \"Oh Sensei\"\n                },\n                \"Account Name\": {\n                    \"value\": \"Oh Sensei\"\n                },\n                \"Reference\": {\n                    \"value\": \"Oh Sensei\"\n                }\n            }\n        }\n    }\n}"
+						},
+						"url": {
+							"raw": "http://10.0.111.12/backend/infoblox/1/assign-cloud-network/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"infoblox",
+								"1",
+								"assign-cloud-network",
 								""
 							]
 						}
