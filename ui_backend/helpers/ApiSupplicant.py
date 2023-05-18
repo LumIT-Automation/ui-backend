@@ -213,7 +213,7 @@ class ApiSupplicant:
             except Exception:
                 self.responseObject = {}
 
-            if self.responseStatus == 200: # ok.
+            if self.responseStatus == 200 or self.responseStatus == 201: # ok.
                 pass
             else:
                 raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
