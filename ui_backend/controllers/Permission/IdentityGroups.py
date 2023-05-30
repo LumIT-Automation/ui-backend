@@ -20,7 +20,6 @@ class PermissionIdentityGroupsController(CustomController):
             "data": dict()
         }
         itemData = dict()
-        showPrivileges = False
         etagCondition = {"responseEtag": ""}
 
         user = CustomController.loggedUser(request)
@@ -29,13 +28,7 @@ class PermissionIdentityGroupsController(CustomController):
             if Permission.hasUserPermission(groups=user["groups"], action="__only__superadmin__") or user["authDisabled"]:
                 Log.actionLog("Identity group list", user)
 
-                # If asked for, get related privileges.
-                if "related" in request.GET:
-                    rList = request.GET.getlist('related')
-                    if "privileges" in rList:
-                        showPrivileges = True
-
-                itemData["items"] = IdentityGroup.listWithPermissionsPrivileges(showPrivileges)
+                itemData["items"] = IdentityGroup.dataList()
                 serializer = GroupsSerializer(data=itemData)
                 if serializer.is_valid():
                     data["data"] = serializer.validated_data

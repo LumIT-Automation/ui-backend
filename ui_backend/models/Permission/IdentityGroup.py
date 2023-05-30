@@ -1,5 +1,4 @@
 from ui_backend.models.Permission.repository.IdentityGroup import IdentityGroup as Repository
-from ui_backend.models.Permission.repository.PermissionPrivilege import PermissionPrivilege as PermissionPrivilegeRepository
 
 
 class IdentityGroup:
@@ -42,19 +41,6 @@ class IdentityGroup:
     def dataList() -> list:
         try:
             return Repository.list()
-        except Exception as e:
-            raise e
-
-
-
-    @staticmethod
-    def listWithPermissionsPrivileges(showPrivileges: bool = False, filterGroups: list = None) -> list:
-        # List identity groups with related information regarding the associated roles on partitions,
-        # and optionally detailed privileges' descriptions.
-        filterGroups = filterGroups or []
-
-        try:
-            return PermissionPrivilegeRepository.list(filterGroups, showPrivileges)
         except Exception as e:
             raise e
 
