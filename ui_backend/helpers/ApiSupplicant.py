@@ -67,7 +67,11 @@ class ApiSupplicant:
 
             if self.responseStatus == 200: # ok.
                 try:
-                    self.responseObject = r.json()
+                    if "Content-Disposition" in r.headers and r.headers["Content-Disposition"][:11] == "attachment;":
+                        self.responseObject = r
+                    else:
+                        self.responseObject = r.json()
+
                 except Exception:
                     self.responseObject = {}
 

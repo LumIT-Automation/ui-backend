@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.conf import settings
 
 from rest_framework.request import Request
@@ -26,13 +27,17 @@ class Controller(CustomController):
 
             if uri["endpoint"]:
                 Log.actionLog("GET " + str(request.get_full_path())+" with headers " + str(request.headers), user)
-
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
 
                 responseDict = api.get()
-                data["data"] = DataFilter.filter(responseDict, field=request.GET.get("filter_by"), value=request.GET.get("filter_value"))
-
-                httpStatus = status.HTTP_200_OK
+                if hasattr(responseDict, "headers") and "Content-Disposition" in responseDict.headers and responseDict.headers["Content-Disposition"][:11] == "attachment;" and hasattr(responseDict, "content"):
+                    response = HttpResponse(responseDict.content, content_type=responseDict.headers["Content-Type"])
+                    response['Content-Disposition'] = responseDict.headers["Content-Disposition"]
+                else:
+                    data["data"] = DataFilter.filter(responseDict, field=request.GET.get("filter_by"), value=request.GET.get("filter_value"))
+                    response = Response(data, status=status.HTTP_200_OK, headers={
+                        "Cache-Control": "no-cache"
+                    })
             else:
                 data = None
                 httpStatus = status.HTTP_404_NOT_FOUND
@@ -41,9 +46,7 @@ class Controller(CustomController):
             data, httpStatus, headers = CustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
 
-        return Response(data, status=httpStatus, headers={
-            "Cache-Control": "no-cache"
-        })
+        return response
 
 
 
