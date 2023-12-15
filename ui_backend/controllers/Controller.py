@@ -39,8 +39,9 @@ class Controller(CustomController):
                         "Cache-Control": "no-cache"
                     })
             else:
-                data = None
-                httpStatus = status.HTTP_404_NOT_FOUND
+                response = Response(data=None, status=status.HTTP_404_NOT_FOUND, headers={
+                    "Cache-Control": "no-cache"
+                })
 
         except Exception as e:
             data, httpStatus, headers = CustomController.exceptionHandler(e)
