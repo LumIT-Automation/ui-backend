@@ -21,6 +21,8 @@ class Controller(CustomController):
 
         if "Authorization" in request.headers:
             headers["Authorization"] = request.headers["Authorization"]
+        if "X-User-Defined-Remote-API-Token" in request.headers:
+            headers["X-User-Defined-Remote-API-Token"] = request.headers["X-User-Defined-Remote-API-Token"]
 
         try:
             uri = CustomController.resolveUrl(request)
