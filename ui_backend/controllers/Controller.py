@@ -11,7 +11,6 @@ from ui_backend.helpers.Log import Log
 from ui_backend.helpers.DataFilter import DataFilter
 
 
-
 class Controller(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
@@ -21,8 +20,11 @@ class Controller(CustomController):
 
         if "Authorization" in request.headers:
             headers["Authorization"] = request.headers["Authorization"]
-        if "X-User-Defined-Remote-API-Token" in request.headers:
-            headers["X-User-Defined-Remote-API-Token"] = request.headers["X-User-Defined-Remote-API-Token"]
+
+        # Special headers needed by APIs.
+        for h in ("X-User-Defined-Remote-API-Token", "X-User-Defined-Remote-Api-Key", "X-User-Defined-Remote-Api-Password"):
+            if h in request.headers:
+                headers[h] = request.headers[h]
 
         try:
             uri = CustomController.resolveUrl(request)
