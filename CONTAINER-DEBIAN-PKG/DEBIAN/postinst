@@ -69,7 +69,10 @@ if [ "$1" == "configure" ]; then
         if [ "$(podman exec ui-backend mysql --vertical -e "SHOW DATABASES LIKE 'uib';" | tail -1 | awk -F': ' '{print $2}')" == "" ]; then
             # Database not present: create.
             echo "Creating database uib and restoring SQL dump..."
-            podman exec ui-backend mysql -e 'CREATE DATABASE uib DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;' # create database.
+            pkgVer=`dpkg-query --show --showformat='${Version}' automation-interface-ui-backend-container`
+            commit=$(podman exec ui-backend dpkg-query --show --showformat='${Description}' automation-interface-ui-backend | sed -r -e 's/.*commit: (.*)/\1/' -e 's/\)\.//')
+            podman exec ui-backend mysql -e 'CREATE DATABASE `uib` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT ='"'"'pkgVersion='${pkgVer}' commit='${commit}"'"';'
+
             podman exec ui-backend mysql uib -e "source /var/www/ui-backend/ui_backend/sql/uib.schema.sql" # restore database schema.
             podman exec ui-backend mysql uib -e "source /var/www/ui-backend/ui_backend/sql/uib.data.sql" # restore database data.
         fi
