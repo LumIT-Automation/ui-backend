@@ -212,10 +212,15 @@ class ApiSupplicant:
             self.responseStatus = response.status_code
             Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
 
-            try:
-                self.responseObject = response.json()
-            except Exception:
-                self.responseObject = {}
+            if self.responseStatus == 200:  # ok.
+                try:
+                    if "Content-Disposition" in response.headers and response.headers["Content-Disposition"][:11] == "attachment;":
+                        self.responseObject = response
+                    else:
+                        self.responseObject = response.json()
+
+                except Exception:
+                    self.responseObject = {}
 
             if self.responseStatus == 200 or self.responseStatus == 201: # ok.
                 pass
