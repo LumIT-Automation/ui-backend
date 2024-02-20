@@ -138,22 +138,20 @@ class Controller(CustomController):
                 Log.actionLog("PUT " + str(request.get_full_path())+" with headers " + str(request.headers)+" with data: " + str(request.data), user)
 
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
-                data = api.put(request.data)
-
-                httpStatus = status.HTTP_200_OK
+                responseDict = api.put(request.data)
+                if hasattr(responseDict, "headers") and "Content-Disposition" in responseDict.headers and responseDict.headers["Content-Disposition"][:11] == "attachment;" and hasattr(responseDict, "content"):
+                    response = HttpResponse(responseDict.content, content_type=responseDict.headers["Content-Type"])
+                    response['Content-Disposition'] = responseDict.headers["Content-Disposition"]
+                else:
+                    response = Response(responseDict, status=status.HTTP_200_OK, headers={"Cache-Control": "no-cache"})
             else:
-                data = None
-                httpStatus = status.HTTP_404_NOT_FOUND
+                response = Response(None, status=status.HTTP_404_NOT_FOUND, headers={"Cache-Control": "no-cache"})
 
         except Exception as e:
             data, httpStatus, headers = CustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
 
-        if not data:
-            data = None
-        return Response(data, status=httpStatus, headers={
-            "Cache-Control": "no-cache"
-        })
+        return response
 
 
 
