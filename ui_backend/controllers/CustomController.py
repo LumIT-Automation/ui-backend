@@ -97,6 +97,8 @@ class CustomController(BaseCustomController):
             del queryParams["filter_value"]
 
         matches = re.search(r"(?<=\/backend\/)([^\/]*)/(.*\/)$", request.path)
+        if not matches:
+            matches = re.search(r"(?<=\/backend\/)([^\/]*)(/doc/.*(txt|yaml|json))$", request.path) # raw txt file.
         if matches:
             technology = str(matches.group(1)).strip()
             url = str(technology+"/"+matches.group(2)).strip()
