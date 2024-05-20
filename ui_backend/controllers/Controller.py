@@ -170,10 +170,10 @@ class Controller(CustomController):
             uri = CustomController.resolveUrl(request)
 
             if uri["endpoint"]:
-                Log.actionLog("DELETE " + str(request.get_full_path())+" with headers " + str(request.headers), user)
+                Log.actionLog("DELETE " + str(request.get_full_path())+" with headers " + str(request.headers)+" with data: " + str(request.data), user)
 
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
-                api.delete()
+                api.delete(request.data)
 
                 httpStatus = status.HTTP_200_OK
             else:

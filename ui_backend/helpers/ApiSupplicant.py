@@ -233,21 +233,29 @@ class ApiSupplicant:
 
 
 
-    def delete(self) -> dict:
+    def delete(self, data: object = None) -> dict:
         # In the event of a network problem (e.g. DNS failure, refused connection, etc), Requests will raise a ConnectionError exception.
         # If a request times out, a Timeout exception is raised.
         # If a request exceeds the configured number of maximum redirections, a TooManyRedirects exception is raised.
 
         # On KO status codes, a CustomException is raised, with response status and body.
+        headers = {
+            "Content-Type": "application/json"
+        }
+        headers.update(self.additionalHeaders)
 
         try:
             Log.actionLog("To remote: DELETE " + str(self.endpoint)+" with query params: " + str(self.params))
+            request = {
+                "url": self.endpoint,
+                "params": self.params,
+                "headers": headers,
+                "timeout": settings.API_SUPPLICANT_NETWORK_TIMEOUT
+            }
+            if data:
+                request["data"] = json.dumps(data)
 
-            response = requests.delete(self.endpoint,
-                params=self.params,
-                headers=self.additionalHeaders,
-                timeout=settings.API_SUPPLICANT_NETWORK_TIMEOUT
-            )
+            response = requests.delete(**request)
 
             self.responseStatus = response.status_code
             Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))
