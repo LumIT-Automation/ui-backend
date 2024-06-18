@@ -18,10 +18,14 @@ class WorkflowFlowTest1Controller(CustomController):
     @staticmethod
     def put(request: Request) -> Response:
         response = None
+        headers = dict()
         user = CustomController.loggedUser(request)
         workflowId = 'workflow-flow_test1-' + Misc.getWorkflowCorrelationId()
 
         try:
+            if "Authorization" in request.headers:
+                headers["Authorization"] = request.headers["Authorization"]
+
             #serializer = Serializer(data=request.data["data"])
             #if serializer.is_valid():
             #    data = serializer.validated_data
@@ -31,12 +35,14 @@ class WorkflowFlowTest1Controller(CustomController):
                     Log.actionLog("Test 1 workflow", user)
                     Log.actionLog("User data: " + str(request.data), user)
                     Log.actionLog("Workflow id: "+workflowId, user)
-                    technologies = Workflow(name="flow_test1").technologies
+                    workflow = Workflow(name="flow_test1")
+                    technologies = workflow.technologies
                     Log.log(technologies, 'LLLLLLLLLLLLLLLLL')
                     privileges = dict()
                     for t in technologies:
-                        privileges[t] = w
+                        privileges[t] = workflow.tecnologiesPrivileges(username= user['username'], workflowId=workflowId, headers=headers)
 
+                    Log.log(privileges, 'PPPPPPPPPPPPPPPP')
                     httpStatus = status.HTTP_200_OK
                     #CheckPointHost(data=data, username=user.get("username", ""), workflowId=workflowId).remove()
 

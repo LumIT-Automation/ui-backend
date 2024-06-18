@@ -20,13 +20,13 @@ class Workflow:
     # Public methods
     ####################################################################################################################
 
-    def tecnologiesPrivileges(self):
+    def tecnologiesPrivileges(self, username: str, workflowId: str, headers: dict):
         p = list()
 
         try:
             for t in self.technologies:
                 p.append(
-                    backend.technologyPrivileges(workflow=self.name, username="", workflowId="", technology=t)
+                    backend.technologyPrivileges(workflow=self.name, username=username, workflowId=workflowId, technology=t, headers=headers)
                 )
 
             return p

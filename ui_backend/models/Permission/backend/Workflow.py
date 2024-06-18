@@ -12,14 +12,16 @@ class Workflow:
     ####################################################################################################################
 
     @staticmethod
-    def technologyPrivileges(workflow: str, username: str, workflowId: str, technology: str) -> dict:
+    def technologyPrivileges(workflow: str, username: str, workflowId: str, technology: str, headers: dict) -> dict:
         try:
-            api = ApiSupplicant(
-                endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/workflows-privileges/?fby=workflow&fval=" + workflow,
-                additionalHeaders={
+            headers.update({
                     "workflowUser": username,
                     "workflowId": workflowId
-                }
+            })
+
+            api = ApiSupplicant(
+                endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/workflows-privileges/?workflow=" + workflow,
+                additionalHeaders=headers
             )
 
             data = api.get()
