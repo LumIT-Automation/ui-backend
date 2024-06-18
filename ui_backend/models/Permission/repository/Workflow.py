@@ -27,11 +27,14 @@ class Workflow:
 
         try:
             if id:
-                c.execute("SELECT * FROM `workflow` WHERE id = %s", [id])
+                c.execute("SELECT `name`, `technologies`, `description` FROM `workflow` WHERE id = %s", [id])
             if name:
-                c.execute("SELECT * FROM `workflow` WHERE `name` = %s", [name])
+                c.execute("SELECT `name`, `technologies`, `description` FROM `workflow` WHERE `name` = %s", [name])
 
-            return DBHelper.asDict(c)[0]
+            d = DBHelper.asDict(c)[0]
+            d["technologies"] = d["technologies"].split(",")
+
+            return d
         except IndexError:
             raise CustomException(status=404, payload={"database": "non existent workflow"})
         except Exception as e:
@@ -46,8 +49,12 @@ class Workflow:
         c = connection.cursor()
 
         try:
-            c.execute("SELECT * FROM workflow")
-            return DBHelper.asDict(c)
+            c.execute("SELECT `name`, `technologies`, `description` FROM workflow")
+            l = DBHelper.asDict(c)
+            for d in l:
+                d["technologies"] = d["technologies"].split(",")
+
+            return l
         except Exception as e:
             raise CustomException(status=400, payload={"database": e.__str__()})
         finally:

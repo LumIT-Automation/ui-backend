@@ -1,7 +1,7 @@
 from typing import List
 
 from ui_backend.models.Permission.repository.Workflow import Workflow as Repository
-
+from ui_backend.models.Permission.backend.Workflow import Workflow as backend
 
 class Workflow:
     def __init__(self, id: int = 0, name: str = "", *args, **kwargs):
@@ -9,10 +9,29 @@ class Workflow:
 
         self.id: int = int(id)
         self.name: str = name
-        self.technologies: str = ""
+        self.technologies: list = []
         self.description: str = ""
 
         self.__load()
+
+
+
+    ####################################################################################################################
+    # Public methods
+    ####################################################################################################################
+
+    def tecnologiesPrivileges(self):
+        p = list()
+
+        try:
+            for t in self.technologies:
+                p.append(
+                    backend.technologyPrivileges(workflow=self.name, username="", workflowId="", technology=t)
+                )
+
+            return p
+        except Exception as e:
+            raise e
 
 
 

@@ -22,33 +22,11 @@ SET time_zone = "+00:00";
 --
 
 --
--- Dump dei dati per la tabella `privilege`
---
-
-INSERT INTO `privilege` (`id`, `privilege`, `description`) VALUES
-(1, 'exec', 'Can execute workflow');
-
---
--- Dump dei dati per la tabella `role`
---
-
-INSERT INTO `role` (`id`, `role`, `description`) VALUES
-(1, 'exec', '');
-
---
--- Dump dei dati per la tabella `role_privilege`
---
-
-INSERT INTO `role_privilege` (`id_role`, `id_privilege`) VALUES
-(1, 1);
-
---
 -- Dump dei dati per la tabella `workflow`
 --
 
 INSERT INTO `workflow` (`id`, `name`, `technologies`, `description`) VALUES
-(1, 'checkpoint_remove_host', 'checkpoint', 'CheckPoint remove host, with Infoblox information fetching'),
-(2, 'checkpoint_add_host', 'checkpoint', 'CheckPoint add host, with Infoblox information fetching');
+(1, 'flow_test1', 'f5,infoblox', 'test workflow');
 
 
 COMMIT;
