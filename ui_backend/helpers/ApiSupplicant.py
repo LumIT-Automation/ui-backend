@@ -89,6 +89,9 @@ class ApiSupplicant:
                         if self.responseLastModified or self.responseETag:
                             ApiSupplicant.__cacheResource(self)
 
+            elif self.responseStatus == 204:
+                self.responseObject = {}
+
             elif self.responseStatus == 304: # not modified.
                 # Resource already in cache, load from it.
                 self.responseObject = cachedResource['response']
@@ -104,7 +107,6 @@ class ApiSupplicant:
             raise e
 
         return self.responseObject
-
 
 
 
