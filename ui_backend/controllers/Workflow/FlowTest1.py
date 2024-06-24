@@ -43,6 +43,12 @@ class WorkflowFlowTest1Controller(CustomController):
                     #    privileges[t] = workflowPermission.tecnologiesPrivileges(username= user['username'], workflowId=headers["workflowId"], headers=headers)
                     reqs = [
                         {
+                            "technology": "infoblox",
+                            "method": "GET",
+                            "headers": headers,
+                            "urlSegment": "1/vlans/"
+                        },
+                        {
                             "technology": "f5",
                             "method": "GET",
                             "headers": headers,
@@ -53,12 +59,6 @@ class WorkflowFlowTest1Controller(CustomController):
                             "method": "GET",
                             "headers": headers,
                             "urlSegment": "2/Common/pool/PETTODIPOLLO/members/"
-                        },
-                        {
-                            "technology": "f5",
-                            "method": "GET",
-                            "headers": headers,
-                            "urlSegment": "2/Common/pool/PETTODIPOLLO/member/NODE:80/"
                         }
                     ]
 
@@ -76,7 +76,8 @@ class WorkflowFlowTest1Controller(CustomController):
                     for req in reqs:
                         r, s = w.requestFacade(method=req["method"], technology=req["technology"], headers=req["headers"], urlSegment=req["urlSegment"], data=None)
                         Log.log(r, 'RRRRRRRRRRRRRRRRRR')
-
+                        response = r
+                    httpStatus = status.HTTP_200_OK
             else:
                 httpStatus = status.HTTP_400_BAD_REQUEST
                 response = {
