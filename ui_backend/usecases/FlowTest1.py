@@ -42,8 +42,6 @@ class FlowTest1(Workflow):
 
             # Don't know the address for the f5 request at this moment, usethe first from the infoblox network.
             self.f5Call["data"]["address"] = self.infobloxCall["data"]["network"].split("/")[0]
-            Log.log(self.f5Call["data"]["address"], 'IIIIIIIIIIIIIIII')
-
 
             # Pre-check workflow permissions.
             for call in [self.infobloxCall, self.f5Call]:

@@ -6,7 +6,7 @@ from ui_backend.usecases.FlowTest1 import FlowTest1
 
 from ui_backend.models.Permission.Workflow import Workflow as WorkflowPermission
 
-#from ui_backend.serializers.usecases.checkpoint.RemoveHost import CheckPointRemoveHostSerializer as Serializer
+from ui_backend.serializers.usecases.FlowTest1 import FlowTest1Serializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
 
@@ -27,52 +27,55 @@ class WorkflowFlowTest1Controller(CustomController):
             if "Authorization" in request.headers:
                 headers["Authorization"] = request.headers["Authorization"]
 
-            #serializer = Serializer(data=request.data["data"])
-            #if serializer.is_valid():
-            #    data = serializer.validated_data
-            if True:
-                    Log.actionLog("Test 1 workflow", user)
-                    Log.actionLog("User data: " + str(request.data), user)
-                    Log.actionLog("Workflow id: "+workflowId, user)
+            serializer = Serializer(data=request.data["data"])
+            if serializer.is_valid():
+                data = serializer.validated_data
+                Log.actionLog("Test 1 workflow", user)
+                Log.actionLog("User data: " + str(request.data), user)
+                Log.actionLog("Workflow id: "+workflowId, user)
 
-                    workflowPermission = WorkflowPermission(name="flow_test1")
-                    technologies = workflowPermission.technologies
-                    Log.log(technologies, 'LLLLLLLLLLLLLLLLL')
+                workflowPermission = WorkflowPermission(name="flow_test1")
+                technologies = workflowPermission.technologies
+                Log.log(technologies, 'LLLLLLLLLLLLLLLLL')
 
-
-                    data = {
-                        "asset": {
-                            "infoblox": 1,
-                            "f5": 2
-                        },
-                        "infobloxData":  {
-                            "network": "192.168.100.0",
-                                "number": 1,
-                                "mac": [
-                                    "00:00:00:00:00:00"
-                                ],
-                                "extattrs": [
-                                    {
-                                        "Name Server": {
-                                            "value": "Server"
-                                        },
-                                        "Reference": {
-                                            "value": "LumIT S.p.A."
-                                        }
+                """
+                data = {
+                    "asset": {
+                        "infoblox": 1,
+                        "f5": 2
+                    },
+                    "infobloxData":  {
+                        "network": "192.168.100.0",
+                            "number": 1,
+                            "mac": [
+                                "00:00:00:00:00:00"
+                            ],
+                            "extattrs": [
+                                {
+                                    "Name Server": {
+                                        "value": "Server"
+                                    },
+                                    "Reference": {
+                                        "value": "LumIT S.p.A."
                                     }
-                                ]
-                        },
-                        "f5Data": {
-                            "name": "provooo",
-                            "address": "askInfoblox",
-                            "state": "Enabled"
-                        }
+                                }
+                            ]
+                    },
+                    "f5Data": {
+                        "name": "provooo",
+                        "address": "askInfoblox",
+                        "state": "Enabled"
                     }
+                }
+                """
 
-                    f = FlowTest1(username=user['username'], workflowId=workflowId, data=data, headers=headers)
-                    if f.preCheckPermissions():
-                        response = f.getIpv4()
-                        httpStatus = status.HTTP_200_OK
+                f = FlowTest1(username=user['username'], workflowId=workflowId, data=data, headers=headers)
+                if f.preCheckPermissions():
+                    response = f.getIpv4()
+                    httpStatus = status.HTTP_200_OK
+                else:
+                    httpStatus = status.HTTP_403_FORBIDDEN
+                    response = None
             else:
                 httpStatus = status.HTTP_400_BAD_REQUEST
                 response = {
