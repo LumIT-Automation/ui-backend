@@ -2,7 +2,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from ui_backend.usecases.checkpoint.Host import Host as CheckPointHost
+from ui_backend.usecases.FlowTest1 import FlowTest1
 
 from ui_backend.models.Permission.Workflow import Workflow as WorkflowPermission
 
@@ -38,46 +38,41 @@ class WorkflowFlowTest1Controller(CustomController):
                     workflowPermission = WorkflowPermission(name="flow_test1")
                     technologies = workflowPermission.technologies
                     Log.log(technologies, 'LLLLLLLLLLLLLLLLL')
-                    #privileges = dict()
-                    #for t in technologies:
-                    #    privileges[t] = workflowPermission.tecnologiesPrivileges(username= user['username'], workflowId=headers["workflowId"], headers=headers)
-                    reqs = [
-                        {
-                            "technology": "infoblox",
-                            "method": "GET",
-                            "headers": headers,
-                            "urlSegment": "1/vlans/"
+
+
+                    data = {
+                        "asset": {
+                            "infoblox": 1,
+                            "f5": 2
                         },
-                        {
-                            "technology": "f5",
-                            "method": "GET",
-                            "headers": headers,
-                            "urlSegment": "2/Common/pools/"
+                        "infobloxData":  {
+                            "network": "192.168.100.0",
+                                "number": 1,
+                                "mac": [
+                                    "00:00:00:00:00:00"
+                                ],
+                                "extattrs": [
+                                    {
+                                        "Name Server": {
+                                            "value": "Server"
+                                        },
+                                        "Reference": {
+                                            "value": "LumIT S.p.A."
+                                        }
+                                    }
+                                ]
                         },
-                        {
-                            "technology": "f5",
-                            "method": "GET",
-                            "headers": headers,
-                            "urlSegment": "2/Common/pool/PETTODIPOLLO/members/"
+                        "f5Data": {
+                            "name": "provooo",
+                            "address": "askInfoblox",
+                            "state": "Enabled"
                         }
-                    ]
+                    }
 
-                    headers.update({
-                            "checkWorkflowPermission": "yes"
-                    })
-                    w = Workflow(username=user["username"], workflowId=workflowId)
-
-                    # Pre-check workflow permissions.
-                    for req in reqs:
-                        w.requestFacade(method=req["method"], technology=req["technology"], headers=req["headers"], urlSegment=req["urlSegment"], data=None)
-
-                    # Run workflow.
-                    del headers["checkWorkflowPermission"]
-                    for req in reqs:
-                        r, s = w.requestFacade(method=req["method"], technology=req["technology"], headers=req["headers"], urlSegment=req["urlSegment"], data=None)
-                        Log.log(r, 'RRRRRRRRRRRRRRRRRR')
-                        response = r
-                    httpStatus = status.HTTP_200_OK
+                    f = FlowTest1(username=user['username'], workflowId=workflowId, data=data, headers=headers)
+                    if f.preCheckPermissions():
+                        response = f.getIpv4()
+                        httpStatus = status.HTTP_200_OK
             else:
                 httpStatus = status.HTTP_400_BAD_REQUEST
                 response = {

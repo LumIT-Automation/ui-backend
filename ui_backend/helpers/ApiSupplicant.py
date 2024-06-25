@@ -141,6 +141,8 @@ class ApiSupplicant:
 
             if self.responseStatus == 201 or self.responseStatus == 200:
                 pass
+            elif self.responseStatus == 204:
+                self.responseObject = {}
             else:
                 raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
         except Exception as e:
@@ -181,6 +183,8 @@ class ApiSupplicant:
 
             if self.responseStatus == 200: # ok.
                 pass
+            elif self.responseStatus == 204:
+                self.responseObject = {}
             else:
                 raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
         except Exception as e:
@@ -226,6 +230,8 @@ class ApiSupplicant:
 
             if self.responseStatus == 200 or self.responseStatus == 201: # ok.
                 pass
+            elif self.responseStatus == 204:
+                self.responseObject = {}
             else:
                 raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
         except Exception as e:
@@ -269,6 +275,8 @@ class ApiSupplicant:
 
             if self.responseStatus == 200: # ok.
                 pass
+            elif self.responseStatus == 204:
+                self.responseObject = {}
             else:
                 raise CustomException(status=self.responseStatus, payload={"API": self.responseObject})
         except Exception as e:
