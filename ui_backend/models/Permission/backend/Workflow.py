@@ -20,7 +20,7 @@ class Workflow:
             })
 
             api = ApiSupplicant(
-                endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/workflows-privileges/?workflow=" + workflow,
+                endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/workflows/?workflow=" + workflow,
                 additionalHeaders=headers
             )
 
