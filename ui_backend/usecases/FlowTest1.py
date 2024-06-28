@@ -43,6 +43,7 @@ class FlowTest1(Workflow):
                 "checkWorkflowPermission": "yes"
             })
 
+            # The user must have the authorization to run just this workflow, not only all the needed workflow privileges.
             workflowPermission = WorkflowPermission(name=self.workflowName)
             technologies = workflowPermission.technologies
             for tech in technologies:
