@@ -11,7 +11,6 @@ from ui_backend.serializers.usecases.FlowTest1 import FlowTest1Serializer as Ser
 from ui_backend.controllers.CustomController import CustomController
 
 from ui_backend.helpers.Misc import Misc
-from ui_backend.helpers.Workflow import Workflow
 from ui_backend.helpers.Log import Log
 
 
@@ -33,41 +32,6 @@ class WorkflowFlowTest1Controller(CustomController):
                 Log.actionLog("Test 1 workflow", user)
                 Log.actionLog("User data: " + str(request.data), user)
                 Log.actionLog("Workflow id: "+workflowId, user)
-
-                workflowPermission = WorkflowPermission(name="flow_test1")
-                technologies = workflowPermission.technologies
-                Log.log(technologies, 'LLLLLLLLLLLLLLLLL')
-
-                """
-                data = {
-                    "asset": {
-                        "infoblox": 1,
-                        "f5": 2
-                    },
-                    "infobloxData":  {
-                        "network": "192.168.100.0",
-                            "number": 1,
-                            "mac": [
-                                "00:00:00:00:00:00"
-                            ],
-                            "extattrs": [
-                                {
-                                    "Name Server": {
-                                        "value": "Server"
-                                    },
-                                    "Reference": {
-                                        "value": "LumIT S.p.A."
-                                    }
-                                }
-                            ]
-                    },
-                    "f5Data": {
-                        "name": "provooo",
-                        "address": "askInfoblox",
-                        "state": "Enabled"
-                    }
-                }
-                """
 
                 f = FlowTest1(username=user['username'], workflowId=workflowId, data=data, headers=headers)
                 if f.preCheckPermissions():

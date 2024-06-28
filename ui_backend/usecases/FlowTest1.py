@@ -1,6 +1,8 @@
 import re
 
-from ui_backend.helpers.Workflow import Workflow
+from ui_backend.models.Permission.Workflow import Workflow as WorkflowPermission
+from ui_backend.models.Workflow.Workflow import Workflow
+
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Log import Log
 
@@ -10,6 +12,7 @@ class FlowTest1(Workflow):
     def __init__(self, username: str, workflowId: str, data: dict = None, headers: dict = None, *args, **kwargs):
         super().__init__(username, workflowId, *args, **kwargs)
 
+        self.workflowName = "flow_test1"
         self.username = username
         self.workflowId = workflowId
         self.data = data or {}
@@ -39,6 +42,24 @@ class FlowTest1(Workflow):
             headers.update({
                 "checkWorkflowPermission": "yes"
             })
+
+            workflowPermission = WorkflowPermission(name=self.workflowName)
+            technologies = workflowPermission.technologies
+            for tech in technologies:
+                response, status = self.requestFacade(
+                    method="GET",
+                    technology=tech,
+                    headers=headers,
+                    urlSegment="/workflow-authorizations/",
+                    data=None
+                )
+
+                if status != 200 and status != 304:
+                    raise CustomException(status=403, payload={"API": "Can't get the workflow authorizations for the user on api: "+tech+"." })
+                else:
+                    workflows = response.get("data", {}).get("items", {}).keys()
+                    if "any" not in workflows and self.workflowName not in workflows:
+                        raise CustomException(status=403, payload={"API": "This user does't have the authorization to run this workflow on api: "+tech+"." })
 
             # Don't know the address for the f5 request at this moment, usethe first from the infoblox network.
             self.f5Call["data"]["address"] = self.infobloxCall["data"]["network"].split("/")[0]
