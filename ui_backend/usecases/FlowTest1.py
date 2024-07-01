@@ -30,14 +30,20 @@ class FlowTest1(Workflow):
             "urlSegment": str(data.get("f5", {}).get("asset", 0)) + "/" + data.get("f5", {}).get("urlParams", {}).get("partition", "") + "/nodes/",
             "data": data.get("f5", {}).get("data", {})
         }
-        self.checkpointCall = {
+        self.checkpointHostPostCall = {
             "technology": "checkpoint",
             "method": "POST",
-            "urlSegment": str(data.get("checkpoint", {}).get("asset", 0)) + "/" + data.get("checkpoint", {}).get("urlParams", {}).get("domain", "") + "/hosts/",
-            "data": data.get("checkpoint", {}).get("data", {})
+            "urlSegment": str(data.get("checkpoint_hosts_post", {}).get("asset", 0)) + "/" + data.get("checkpoint_hosts_post", {}).get("urlParams", {}).get("domain", "") + "/hosts/",
+            "data": data.get("checkpoint_hosts_post", {}).get("data", {})
         }
-
-
+        self.checkpointGroupHostsPutCall = {
+            "technology": "checkpoint",
+            "method": "PUT",
+            "urlSegment": str(data.get("checkpoint_groupHosts_put", {}).get("asset", 0)) + "/" + data.get(
+                "checkpoint_groupHosts_put", {}).get("urlParams", {}).get("domain", "") + "/group-hosts/" + data.get(
+                "checkpoint_groupHosts_put", {}).get("urlParams", {}).get("groupUid", "") + "/",
+            "data": data.get("checkpoint_groupHosts_put", {}).get("data", {})
+        }
 
     ####################################################################################################################
     # Public methods
@@ -69,12 +75,13 @@ class FlowTest1(Workflow):
                 "checkWorkflowPermission": "yes"
             })
 
-            # Don't know the address for the f5 request at this moment, usethe first from the infoblox network.
+            # Don't know the address for the f5/checkpoint requests at this moment, use the first from the infoblox network.
             self.f5Call["data"]["address"] = self.infobloxCall["data"]["network"].split("/")[0]
-            self.checkpointCall["data"]["ipv4-address"] = self.infobloxCall["data"]["network"].split("/")[0]
+            self.checkpointHostPostCall["data"]["ipv4-address"] = self.infobloxCall["data"]["network"].split("/")[0]
+            self.checkpointGroupHostsPutCall["data"]["host-list"] = [ self.infobloxCall["data"]["network"].split("/")[0] ]
 
             # Pre-check workflow permissions.
-            for call in [self.infobloxCall, self.f5Call, self.checkpointCall]:
+            for call in [self.infobloxCall, self.f5Call, self.checkpointHostPostCall, self.checkpointGroupHostsPutCall]:
                 response, status = self.requestFacade(
                     method=call["method"],
                     technology=call["technology"],
@@ -97,24 +104,50 @@ class FlowTest1(Workflow):
                 **self.infobloxCall,
                 headers=self.headers,
             )
-
             Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
             Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
-            if status == 201:
-                ipv4 = re.findall(r'[0-9]+(?:\.[0-9]+){3}', response.get("data", [{}])[0].get("result", ""))[0]
-                if ipv4:
-                    self.f5Call["data"]["address"] = ipv4
 
-                    response, status = self.requestFacade(
-                        **self.f5Call,
-                        headers=self.headers,
-                    )
-                    if status == 201:
-                        return response
-                else:
-                    raise CustomException(status=500, payload={"Infoblox": response})
-            else:
+            if not status == 201:
                 raise CustomException(status=status, payload={"Infoblox": response})
 
+            ipv4 = re.findall(r'[0-9]+(?:\.[0-9]+){3}', response.get("data", [{}])[0].get("result", ""))[0]
+            if not ipv4:
+                raise CustomException(status=500, payload={"Infoblox": response})
+
+
+            self.f5Call["data"]["address"] = ipv4
+            response, status = self.requestFacade(
+                **self.f5Call,
+                headers=self.headers,
+            )
+            Log.log("[WORKFLOW] " + self.workflowId + " - F5 response status: " + str(status))
+            Log.log("[WORKFLOW] " + self.workflowId + " - F5 response: " + str(response))
+
+            if not status == 201:
+                raise CustomException(status=status, payload={"F5": response})
+
+
+            self.checkpointHostPostCall["data"]["ipv4-address"] = ipv4
+            response, status = self.requestFacade(
+                **self.checkpointHostPostCall,
+                headers=self.headers,
+            )
+            Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
+            Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
+
+            if not status == 201:
+                raise CustomException(status=status, payload={"Checkpoint": response})
+
+            hostUid = response.get("data", {}).get("uid", "")
+            self.checkpointGroupHostsPutCall["data"]["host-list"] = [ hostUid ]
+            response, status = self.requestFacade(
+                **self.checkpointGroupHostsPutCall,
+                headers=self.headers,
+            )
+
+            if not status == 200:
+                raise CustomException(status=status, payload={"Checkpoint": response})
+
+            return response
         except Exception as e:
             raise e

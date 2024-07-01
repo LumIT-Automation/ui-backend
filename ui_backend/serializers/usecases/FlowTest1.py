@@ -49,7 +49,7 @@ class FlowTest1Serializer(serializers.Serializer):
         urlParams = FlowTest1F5UrlParamsSerializer(required=True)
 
 
-    class FlowTest1CheckpointSerializer(serializers.Serializer):
+    class FlowTest1CheckpointHostPostSerializer(serializers.Serializer):
         class FlowTest1CheckpointUrlParamsSerializer(serializers.Serializer):
             domain = serializers.CharField(max_length=64, required=True)
         class FlowTest1CheckpointDataSerializer(serializers.Serializer):
@@ -63,8 +63,30 @@ class FlowTest1Serializer(serializers.Serializer):
         data = FlowTest1CheckpointDataSerializer(required=True)
         urlParams = FlowTest1CheckpointUrlParamsSerializer(required=True)
 
+
+    class FlowTest1CheckpointGroupHostsPutSerializer(serializers.Serializer):
+        class FlowTest1CheckpointGroupHostsPutUrlParamsSerializer(serializers.Serializer):
+            domain = serializers.CharField(max_length=64, required=True)
+            groupUid = serializers.CharField(max_length=255, required=True)
+
+        class FlowTest1CheckpointGroupHostsPutDataSerializer(serializers.Serializer):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+                self.fields["host-list"] = serializers.ListField(
+                    child=serializers.CharField(max_length=64, required=True),
+                    allow_empty=False
+                )
+                self.fields["change-request-id"] = serializers.RegexField(regex='^ITIO-[0-9]{6,18}+$', required=True)
+
+        asset = serializers.IntegerField(required=True)
+        data = FlowTest1CheckpointGroupHostsPutDataSerializer(required=True)
+        urlParams = FlowTest1CheckpointGroupHostsPutUrlParamsSerializer(required=True)
+
+
     f5 = FlowTest1F5Serializer(required=True)
     infoblox = FlowTest1InfobloxSerializer(required=True)
-    checkpoint = FlowTest1CheckpointSerializer(required=True)
+    checkpoint_hosts_post = FlowTest1CheckpointHostPostSerializer(required=True)
+    checkpoint_groupHosts_put = FlowTest1CheckpointGroupHostsPutSerializer(required=True)
 
 
