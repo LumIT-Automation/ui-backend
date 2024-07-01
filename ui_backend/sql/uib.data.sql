@@ -26,7 +26,7 @@ SET time_zone = "+00:00";
 --
 
 INSERT INTO `workflow` (`id`, `name`, `technologies`, `description`) VALUES
-(1, 'flow_test1', 'f5', 'test workflow'),
+(1, 'flow_test1', 'f5,infoblox,checkpoint', 'test workflow'),
 (2, 'flow_test2', 'f5,infoblox', 'test workflow');
 
 

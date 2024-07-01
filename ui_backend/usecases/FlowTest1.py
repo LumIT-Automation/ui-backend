@@ -17,17 +17,24 @@ class FlowTest1(Workflow):
         self.workflowId = workflowId
         self.data = data or {}
         self.headers = headers or ()
+
         self.infobloxCall = {
             "technology": "infoblox",
             "method": "POST",
-            "urlSegment": str(data.get("asset", {}).get("infoblox", 0)) + "/ipv4s/?next-available&rep=1",
-            "data": data.get("infobloxData", {})
+            "urlSegment": str(data.get("infoblox", {}).get("asset", 0)) + "/ipv4s/?next-available&rep=1",
+            "data": data.get("infoblox", {}).get("data", {})
         }
         self.f5Call = {
             "technology": "f5",
             "method": "POST",
-            "urlSegment": str(data.get("asset", {}).get("f5", 0)) + "/Common/nodes/",
-            "data": data.get("f5Data", {})
+            "urlSegment": str(data.get("f5", {}).get("asset", 0)) + "/" + data.get("f5", {}).get("urlParams", {}).get("partition", "") + "/nodes/",
+            "data": data.get("f5", {}).get("data", {})
+        }
+        self.checkpointCall = {
+            "technology": "checkpoint",
+            "method": "POST",
+            "urlSegment": str(data.get("checkpoint", {}).get("asset", 0)) + "/" + data.get("checkpoint", {}).get("urlParams", {}).get("domain", "") + "/hosts/",
+            "data": data.get("checkpoint", {}).get("data", {})
         }
 
 
@@ -38,11 +45,6 @@ class FlowTest1(Workflow):
 
     def preCheckPermissions(self) -> bool:
         try:
-            headers = self.headers.copy()
-            headers.update({
-                "checkWorkflowPermission": "yes"
-            })
-
             # The user must have the authorization to run just this workflow, not only all the needed workflow privileges.
             workflowPermission = WorkflowPermission(name=self.workflowName)
             technologies = workflowPermission.technologies
@@ -50,8 +52,8 @@ class FlowTest1(Workflow):
                 response, status = self.requestFacade(
                     method="GET",
                     technology=tech,
-                    headers=headers,
-                    urlSegment="/workflow-authorizations/",
+                    headers=self.headers,
+                    urlSegment="workflow-authorizations/",
                     data=None
                 )
 
@@ -62,11 +64,17 @@ class FlowTest1(Workflow):
                     if "any" not in workflows and self.workflowName not in workflows:
                         raise CustomException(status=403, payload={"API": "This user does't have the authorization to run this workflow on api: "+tech+"." })
 
+            headers = self.headers.copy()
+            headers.update({
+                "checkWorkflowPermission": "yes"
+            })
+
             # Don't know the address for the f5 request at this moment, usethe first from the infoblox network.
             self.f5Call["data"]["address"] = self.infobloxCall["data"]["network"].split("/")[0]
+            self.checkpointCall["data"]["ipv4-address"] = self.infobloxCall["data"]["network"].split("/")[0]
 
             # Pre-check workflow permissions.
-            for call in [self.infobloxCall, self.f5Call]:
+            for call in [self.infobloxCall, self.f5Call, self.checkpointCall]:
                 response, status = self.requestFacade(
                     method=call["method"],
                     technology=call["technology"],
