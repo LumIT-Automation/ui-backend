@@ -2,9 +2,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from ui_backend.usecases.CheckpointAddHost import CheckPointAddHost
+from ui_backend.usecases.CheckPointAddHost import CheckPointAddHost
 
-from ui_backend.serializers.usecases.CheckpointAddHost import CheckPointAddHostSerializer as Serializer
+from ui_backend.serializers.usecases.CheckPointAddHost import CheckPointAddHostSerializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
 
@@ -17,7 +17,7 @@ class WorkflowFlowCheckPointAddHostController(CustomController):
     def put(request: Request) -> Response:
         headers = dict()
         user = CustomController.loggedUser(request)
-        workflowId = 'workflow-flow_test1-' + Misc.getWorkflowCorrelationId()
+        workflowId = 'checkpoint_add_host-' + Misc.getWorkflowCorrelationId()
 
         try:
             if "Authorization" in request.headers:
