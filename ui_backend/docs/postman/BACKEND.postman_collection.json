@@ -673,6 +673,54 @@
 						],
 						"body": {
 							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"checkpoint_hosts_post\": {\n            \"asset\": 1,\n            \"data\": {\n                \"name\": \"ipi\",\n                \"ipv4-address\": \"10.8.1.6\"\n            },\n            \"urlParams\": {\n                \"domain\": \"POLAND\"\n            }\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow/checkpoint-add-host/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow",
+								"checkpoint-add-host",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CheckPoint add host.old",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
 							"raw": "{\n    \"data\": {\n        \"asset\": {\n            \"checkpoint\": [\n                1\n            ]\n        },\n        \"name\": \"ipì\",\n        \"ipv4-address\": \"10.8.1.66\",\n        \"domain\": \"POLAND\"\n    }\n}",
 							"options": {
 								"raw": {
