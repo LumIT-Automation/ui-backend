@@ -2,9 +2,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from ui_backend.usecases.FlowTest1 import FlowTest1
+from ui_backend.usecases.CheckpointAddHost import CheckPointAddHost
 
-from ui_backend.serializers.usecases.FlowTest1 import FlowTest1Serializer as Serializer
+from ui_backend.serializers.usecases.CheckpointAddHost import CheckPointAddHostSerializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
 
@@ -12,7 +12,7 @@ from ui_backend.helpers.Misc import Misc
 from ui_backend.helpers.Log import Log
 
 
-class WorkflowFlowTest1Controller(CustomController):
+class WorkflowFlowCheckPointAddHostController(CustomController):
     @staticmethod
     def put(request: Request) -> Response:
         headers = dict()
@@ -26,13 +26,13 @@ class WorkflowFlowTest1Controller(CustomController):
             serializer = Serializer(data=request.data["data"])
             if serializer.is_valid():
                 data = serializer.validated_data
-                Log.actionLog("Test 1 workflow", user)
+                Log.actionLog("Checkpoint add host", user)
                 Log.actionLog("User data: " + str(request.data), user)
-                Log.actionLog("Workflow id: "+workflowId, user)
+                Log.actionLog("Workflow id: " + workflowId, user)
 
-                f = FlowTest1(username=user['username'], workflowId=workflowId, data=data, headers=headers)
-                if f.preCheckPermissions():
-                    response = f.getIpv4()
+                c = CheckPointAddHost(username=user['username'], workflowId=workflowId, data=data, headers=headers)
+                if c.preCheckPermissions():
+                    response = c.addHost()
                     httpStatus = status.HTTP_200_OK
                 else:
                     httpStatus = status.HTTP_403_FORBIDDEN
