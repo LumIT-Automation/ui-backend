@@ -88,7 +88,7 @@ class CheckPointRemoveHost(Workflow):
                 Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
                 Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
 
-                if status == 200:
+                if status == 200 or status == 304:
                     if self.ipv4 == response.get("data", {}).get("extattrs", {}).get("Gateway", {}).get("value", ""):
                         return response.get("data", {}).get("network", "unknown")
                 else:
