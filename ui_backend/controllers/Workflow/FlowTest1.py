@@ -17,7 +17,7 @@ class WorkflowFlowTest1Controller(CustomController):
     def put(request: Request) -> Response:
         headers = dict()
         user = CustomController.loggedUser(request)
-        workflowId = 'flow_test1-' + Misc.getWorkflowCorrelationId()
+        workflowId = 'workflow-flow_test1-' + Misc.getWorkflowCorrelationId()
 
         try:
             if "Authorization" in request.headers:

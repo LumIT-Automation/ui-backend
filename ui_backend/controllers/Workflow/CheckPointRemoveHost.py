@@ -17,7 +17,7 @@ class WorkflowCheckPointRemoveHostController(CustomController):
     def put(request: Request) -> Response:
         headers = dict()
         user = CustomController.loggedUser(request)
-        workflowId = 'checkpoint_remove_host-' + Misc.getWorkflowCorrelationId()
+        workflowId = 'workflow-checkpoint_remove_host-' + Misc.getWorkflowCorrelationId()
 
         try:
             if "Authorization" in request.headers:
