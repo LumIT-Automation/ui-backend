@@ -21,14 +21,27 @@ class CheckPointRemoveHost(Workflow):
                 "urlSegment": "assets/",
                 "data": {}
             },
+            "infobloxUnlock": {
+                "technology": "infoblox",
+                "method": "DELETE",
+                "urlSegment": "locks/",
+                "data": None
+            },
             "checkpointRemoveHost" : {
                 "technology": "checkpoint",
                 "method": "PUT",
                 "urlSegment": str(data.get("checkpoint_remove_host", {}).get("asset", 0)) + "/remove-host/",
                 "data": data.get("checkpoint_remove_host", {}).get("data", {})
-            }
+            },
+            "checkpointUnlock": {
+                "technology": "checkpoint",
+                "method": "DELETE",
+                "urlSegment": "locks/",
+                "data": None
+            },
         }
-        self.infobloxInfoCalls = dict() # Need to list the infoblox assets first.
+        # Add the infoblox calls with getInfobloxInfoCalls(), need to list the infoblox assets first.
+        self.infobloxInfoCalls = dict()
 
 
 
@@ -122,6 +135,25 @@ class CheckPointRemoveHost(Workflow):
 
             if status != 200:
                 raise CustomException(status=status, payload={"Checkpoint": response})
+
+            # Release locks.
+            r, s = self.requestFacade(
+                **self.calls["infobloxUnlock"],
+                headers=self.headers,
+            )
+            if s == 200:
+                Log.log("Unlocked infoblox entries.")
+            else:
+                Log.log("Unlock failed on infoblox api: "+str(r))
+
+            r, s = self.requestFacade(
+                **self.calls["checkpointUnlock"],
+                headers=self.headers,
+            )
+            if s == 200:
+                Log.log("Unlocked checkpoint entries.")
+            else:
+                Log.log("Unlock failed on checkpoint api: "+str(r))
 
             return response
         except Exception as e:

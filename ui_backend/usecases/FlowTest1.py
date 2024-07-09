@@ -142,7 +142,7 @@ class FlowTest1(Workflow):
             if s == 200:
                 Log.log("Unlocked infoblox entries.")
             else:
-                Log.log("Unlock failed on infoblox: "+str(r))
+                Log.log("Unlock failed on infoblox api: "+str(r))
 
             r, s = self.requestFacade(
                 **self.calls["f5Unlock"],
@@ -151,7 +151,7 @@ class FlowTest1(Workflow):
             if s == 200:
                 Log.log("Unlocked f5 entries.")
             else:
-                Log.log("Unlock failed on f5: "+str(r))
+                Log.log("Unlock failed on f5 api: "+str(r))
 
             r, s = self.requestFacade(
                 **self.calls["checkpointUnlock"],
@@ -160,7 +160,7 @@ class FlowTest1(Workflow):
             if s == 200:
                 Log.log("Unlocked checkpoint entries.")
             else:
-                Log.log("Unlock failed on checkpoint: "+str(r))
+                Log.log("Unlock failed on checkpoint api: "+str(r))
 
             return response
         except Exception as e:
