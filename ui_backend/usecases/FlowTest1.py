@@ -22,11 +22,23 @@ class FlowTest1(Workflow):
                 "urlSegment": str(data.get("infoblox", {}).get("asset", 0)) + "/ipv4s/?next-available&rep=1",
                 "data": data.get("infoblox", {}).get("data", {})
             },
+            "infobloxUnlock": {
+                "technology": "infoblox",
+                "method": "DELETE",
+                "urlSegment": "locks/",
+                "data": None
+            },
             "f5" : {
                 "technology": "f5",
                 "method": "POST",
                 "urlSegment": str(data.get("f5", {}).get("asset", 0)) + "/" + data.get("f5", {}).get("urlParams", {}).get("partition", "") + "/nodes/",
                 "data": data.get("f5", {}).get("data", {})
+            },
+            "f5Unlock": {
+                "technology": "f5",
+                "method": "DELETE",
+                "urlSegment": "locks/",
+                "data": None
             },
             "checkpointHostPost" : {
                 "technology": "checkpoint",
@@ -41,7 +53,13 @@ class FlowTest1(Workflow):
                     "checkpoint_groupHosts_put", {}).get("urlParams", {}).get("domain", "") + "/group-hosts/" + data.get(
                     "checkpoint_groupHosts_put", {}).get("urlParams", {}).get("groupUid", "") + "/",
                 "data": data.get("checkpoint_groupHosts_put", {}).get("data", {})
-            }
+            },
+            "checkpointUnlock": {
+                "technology": "checkpoint",
+                "method": "DELETE",
+                "urlSegment": "locks/",
+                "data": None
+            },
         }
 
 
@@ -76,7 +94,7 @@ class FlowTest1(Workflow):
             Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
             Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
 
-            if not status == 201:
+            if status != 201:
                 raise CustomException(status=status, payload={"Infoblox": response})
 
             ipv4 = re.findall(r'[0-9]+(?:\.[0-9]+){3}', response.get("data", [{}])[0].get("result", ""))[0]
@@ -92,9 +110,8 @@ class FlowTest1(Workflow):
             Log.log("[WORKFLOW] " + self.workflowId + " - F5 response status: " + str(status))
             Log.log("[WORKFLOW] " + self.workflowId + " - F5 response: " + str(response))
 
-            if not status == 201:
+            if status != 201:
                 raise CustomException(status=status, payload={"F5": response})
-
 
             self.calls["checkpointHostPost"]["data"]["ipv4-address"] = ipv4
             response, status = self.requestFacade(
@@ -104,7 +121,7 @@ class FlowTest1(Workflow):
             Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
             Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
 
-            if not status == 201:
+            if status != 201:
                 raise CustomException(status=status, payload={"Checkpoint": response})
 
             hostUid = response.get("data", {}).get("uid", "")
@@ -114,8 +131,36 @@ class FlowTest1(Workflow):
                 headers=self.headers,
             )
 
-            if not status == 200:
+            if status != 200:
                 raise CustomException(status=status, payload={"Checkpoint": response})
+
+            # Release locks.
+            r, s = self.requestFacade(
+                **self.calls["infobloxUnlock"],
+                headers=self.headers,
+            )
+            if s == 200:
+                Log.log("Unlocked infoblox entries.")
+            else:
+                Log.log("Unlock failed on infoblox: "+str(r))
+
+            r, s = self.requestFacade(
+                **self.calls["f5Unlock"],
+                headers=self.headers,
+            )
+            if s == 200:
+                Log.log("Unlocked f5 entries.")
+            else:
+                Log.log("Unlock failed on f5: "+str(r))
+
+            r, s = self.requestFacade(
+                **self.calls["checkpointUnlock"],
+                headers=self.headers,
+            )
+            if s == 200:
+                Log.log("Unlocked checkpoint entries.")
+            else:
+                Log.log("Unlock failed on checkpoint: "+str(r))
 
             return response
         except Exception as e:
