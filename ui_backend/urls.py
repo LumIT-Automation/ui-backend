@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 
-from .controllers import Root, Controller, History, UiConfiguration  #Authorizations,
+from .controllers import Root, Controller, History, UiConfiguration, Authorizations
 #from .controllers.Permission import Roles, IdentityGroup, IdentityGroups, Permission, Permissions, Workflows, Authorizations as OwnAuthorizations
 #from .controllers.Asset import Assets
 #from .controllers.Workflow.checkpoint import Host as CheckPointHost, Hosts as CheckPointHosts
@@ -9,7 +9,7 @@ from .controllers.Workflow import FlowTest1, CheckPointAddHost, CheckPointRemove
 urlpatterns = [
     path('backend/', Root.RootController.as_view()),
 
-    #path('backend/authorizations/', Authorizations.AuthorizationsController.as_view()),
+    path('backend/authorizations/', Authorizations.AuthorizationsController.as_view()),
     path('backend/history/', History.HistoryController.as_view()),
     path('backend/ui-config/', UiConfiguration.UiConfigurationController.as_view()),
 
