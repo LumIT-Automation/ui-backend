@@ -4,7 +4,7 @@ from .controllers import Root, Controller, History, UiConfiguration, Authorizati
 #from .controllers.Permission import Roles, IdentityGroup, IdentityGroups, Permission, Permissions, Workflows, Authorizations as OwnAuthorizations
 #from .controllers.Asset import Assets
 #from .controllers.Workflow.checkpoint import Host as CheckPointHost, Hosts as CheckPointHosts
-from .controllers.Workflow import FlowTest1, CheckPointAddHost, CheckPointRemoveHost
+from .controllers.Workflow import Workflows, FlowTest1, CheckPointAddHost, CheckPointRemoveHost
 
 urlpatterns = [
     path('backend/', Root.RootController.as_view()),
@@ -27,6 +27,9 @@ urlpatterns = [
     # Workflows.
     #path('backend/workflow/checkpoint/add-host/', CheckPointHosts.CheckPointHostsController.as_view()),
     #path('backend/workflow/checkpoint/remove-host/', CheckPointHost.CheckPointRemoveHostController.as_view()),
+
+
+    path('backend/workflows/', Workflows.WorkflowsController.as_view()),
     path('backend/workflow/flow-test1/', FlowTest1.WorkflowFlowTest1Controller.as_view()),
     path('backend/workflow/checkpoint-add-host/', CheckPointAddHost.WorkflowFlowCheckPointAddHostController.as_view()),
     path('backend/workflow/checkpoint-remove-host/', CheckPointRemoveHost.WorkflowCheckPointRemoveHostController.as_view()),

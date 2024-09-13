@@ -1,7 +1,7 @@
 from typing import List
 
 from ui_backend.models.Permission.repository.Workflow import Workflow as Repository
-from ui_backend.models.Permission.backend.Workflow import Workflow as backend
+from ui_backend.models.Permission.backend.WorkflowTechnology import WorkflowTechnology
 
 class Workflow:
     def __init__(self, id: int = 0, name: str = "", *args, **kwargs):
@@ -26,7 +26,7 @@ class Workflow:
         try:
             for t in self.technologies:
                 p.append(
-                    backend.technologyPrivileges(workflow=self.name, username=username, workflowId=workflowId, technology=t, headers=headers)
+                    WorkflowTechnology.technologyPrivileges(workflow=self.name, username=username, workflowId=workflowId, technology=t, headers=headers)
                 )
 
             return p

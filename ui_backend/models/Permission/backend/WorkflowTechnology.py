@@ -2,10 +2,9 @@ from django.conf import settings
 
 from ui_backend.helpers.ApiSupplicant import ApiSupplicant
 from ui_backend.helpers.Exception import CustomException
-from ui_backend.helpers.Log import Log
 
 
-class Workflow:
+class WorkflowTechnology:
 
     ####################################################################################################################
     # Public static methods

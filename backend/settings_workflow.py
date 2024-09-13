@@ -1,2 +1,2 @@
-WORKFLOW_USER = "workflow@automation.local"
-WORKFLOW_SECRET = "password"
+#WORKFLOW_USER = "workflow@automation.local"
+#WORKFLOW_SECRET = "password"

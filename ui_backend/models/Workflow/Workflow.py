@@ -107,3 +107,16 @@ class Workflow:
             raise e
 
         return [ r, api.responseStatus ]
+
+
+
+    ####################################################################################################################
+    # Public static methods
+    ####################################################################################################################
+
+    @staticmethod
+    def list() -> list:
+        try:
+            return WorkflowPermission.dataList()
+        except Exception as e:
+            raise e
