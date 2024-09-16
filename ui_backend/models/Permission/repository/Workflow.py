@@ -49,7 +49,7 @@ class Workflow:
         c = connection.cursor()
 
         try:
-            c.execute("SELECT `name`, `technologies`, `description` FROM workflow")
+            c.execute("SELECT * FROM workflow")
             l = DBHelper.asDict(c)
             for d in l:
                 d["technologies"] = d["technologies"].split(",")
