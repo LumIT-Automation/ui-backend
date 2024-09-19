@@ -70,7 +70,7 @@ class CheckPointAddHost(Workflow):
         try:
             self.checkAuthorizations()
             self.getInfobloxInfoCalls()
-            self.checkWorkflowPrivileges()
+            self.checkWorkflowPrivileges(calls=self.calls)
 
             return True
         except Exception as e:

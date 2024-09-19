@@ -51,7 +51,7 @@ class Workflow:
 
 
 
-    def checkWorkflowPrivileges(self) -> None:
+    def checkWorkflowPrivileges(self, calls: dict) -> None:
         try:
             headers = self.headers.copy()
             headers.update({
@@ -59,7 +59,7 @@ class Workflow:
             })
 
             # Pre-check workflow permissions.
-            for call in self.calls.keys():
+            for call in calls.keys():
                 response, status = self.requestFacade(
                     method=self.calls[call]["method"],
                     technology=self.calls[call]["technology"],

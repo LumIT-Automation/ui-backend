@@ -77,7 +77,7 @@ class FlowTest1(Workflow):
             self.calls["checkpointHostPost"]["data"]["ipv4-address"] = self.calls["infoblox"]["data"]["network"].split("/")[0]
             self.calls["checkpointGroupHostsPut"]["data"]["host-list"] = self.calls["infoblox"]["data"]["network"].split("/")[0]
 
-            self.checkWorkflowPrivileges()
+            self.checkWorkflowPrivileges(calls=self.calls)
 
             return True
         except Exception as e:
