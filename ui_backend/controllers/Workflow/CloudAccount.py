@@ -14,7 +14,7 @@ from ui_backend.helpers.Log import Log
 
 class WorkflowCloudAccountController(CustomController):
     @staticmethod
-    def put(request: Request) -> Response:
+    def put(request: Request, workflowAction: str="assign" ) -> Response:
         headers = dict()
         user = CustomController.loggedUser(request)
         workflowId = 'workflow-cloud_account-' + Misc.getWorkflowCorrelationId()
@@ -30,9 +30,9 @@ class WorkflowCloudAccountController(CustomController):
                 Log.actionLog("User data: " + str(request.data), user)
                 Log.actionLog("Workflow id: "+workflowId, user)
 
-                f = CloudAccount(username=user['username'], workflowId=workflowId, data=data, headers=headers)
-                if f.preCheckPermissions():
-                    response = f.getIpv4()
+                c = CloudAccount(username=user['username'], workflowId=workflowId, workflowAction="assign", data=data, headers=headers)
+                if c.preCheckPermissions():
+                    response = c.run()
                     httpStatus = status.HTTP_200_OK
                 else:
                     httpStatus = status.HTTP_403_FORBIDDEN
