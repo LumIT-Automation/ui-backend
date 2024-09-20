@@ -14,7 +14,7 @@ from ui_backend.helpers.Log import Log
 
 class WorkflowCloudAccountController(CustomController):
     @staticmethod
-    def put(request: Request, workflowAction: str="assign" ) -> Response:
+    def put(request: Request, workflowAction: str) -> Response:
         headers = dict()
         user = CustomController.loggedUser(request)
         workflowId = 'workflow-cloud_account-' + Misc.getWorkflowCorrelationId()
@@ -23,14 +23,17 @@ class WorkflowCloudAccountController(CustomController):
             if "Authorization" in request.headers:
                 headers["Authorization"] = request.headers["Authorization"]
 
-            serializer = Serializer(data=request.data["data"])
-            if serializer.is_valid():
-                data = serializer.validated_data
+            #serializer = Serializer(data=request.data["data"])
+            #if serializer.is_valid():
+                #data = serializer.validated_data
+
+            if True:
+                data = request.data["data"]
                 Log.actionLog("Cloud account workflow", user)
                 Log.actionLog("User data: " + str(request.data), user)
                 Log.actionLog("Workflow id: "+workflowId, user)
 
-                c = CloudAccount(username=user['username'], workflowId=workflowId, workflowAction="assign", data=data, headers=headers)
+                c = CloudAccount(username=user['username'], workflowId=workflowId, workflowAction=workflowAction, data=data, headers=headers)
                 if c.preCheckPermissions():
                     response = c.run()
                     httpStatus = status.HTTP_200_OK

@@ -22,7 +22,7 @@ class CloudAccount(Workflow):
                     "technology": "infoblox",
                     "method": "PUT",
                     "urlSegment": str(data.get("infoblox_assign_cloud_network", {}).get("asset", 0)) + "/assign-cloud-network/",
-                    "data": data.get("infoblox_assign_cloud_network", {}).get("data", {})
+                    "data": self.data.get("infoblox_assign_cloud_network", {})
                 },
                 "infobloxUnlock": {
                     "technology": "infoblox",
@@ -32,9 +32,9 @@ class CloudAccount(Workflow):
                 },
                 "checkpointDatacenterAccountPut" : {
                     "technology": "checkpoint",
-                    "method": "POST",
+                    "method": "PUT",
                     "urlSegment": str(data.get("checkpoint_datacenter_account_put", {}).get("asset", 0)) + "/datacenter-account/",
-                    "data": data.get("checkpoint_datacenter_account_put", {}).get("data", {})
+                    "data": self.data.get("checkpoint_datacenter_account_put", {})
                 },
                 "checkpointUnlock": {
                     "technology": "checkpoint",
@@ -124,7 +124,7 @@ class CloudAccount(Workflow):
         "Account ID": "555555555555",                                          "network_data": {                                              "Account Name": "bombolo",
         "provider": "AWS",                                                         "network": "next-available",                               "Account ID": "123456789011",
         "region": "us-east-1",                                                     "subnetMaskCidr": 24,                                      "regions": [
-        "infoblox_assign_cloud_network": {                                         "comment": "Nella vecchia fattoria ia ia oh",                  "us-east-2",
+        "infoblox_assign_cloud_network": {                                        "comment": "Nella vecchia fattoria ia ia oh",                  "us-east-2",
             "comment": "Nella vecchia fattoria ia ia oh",                          "extattrs": {                                                  "us-east-3"
             "subnetMaskCidr": 24,                                                      "Account ID": {                                        ],
             "Reference": "qqq"                                                             "value": "555555555555"                            "tags": [
@@ -149,11 +149,11 @@ class CloudAccount(Workflow):
                     formattedData["infoblox_assign_cloud_network"] = {"provider": data.get("provider", "")}
                     formattedData["infoblox_assign_cloud_network"]["region"] = data.get("provider", "").lower() + "-" + data.get("region", "")
                     formattedData["infoblox_assign_cloud_network"]["network_data"] = {"network": "next-available"}
-                    formattedData["infoblox_assign_cloud_network"]["network_data"]["subnetMaskCidr"] = data.get(["infoblox_assign_cloud_network"], {}).get("subnetMaskCidr", 24)
-                    formattedData["infoblox_assign_cloud_network"]["network_data"]["comment"] = data.get(["infoblox_assign_cloud_network"], {}).get("comment", "")
-                    formattedData["infoblox_assign_cloud_network"]["network_data"]["extattrs"] = { "Reference": { "value": data.get(["infoblox_assign_cloud_network"], {}).get("Reference", "")} }
-                    formattedData["infoblox_assign_cloud_network"]["network_data"]["extattrs"]["Account Name"] = { "Reference": { "value": data.get("Account Name", "")} }
-                    formattedData["infoblox_assign_cloud_network"]["network_data"]["extattrs"]["Account ID"] = { "Reference": { "value": data.get("Account ID", "")} }
+                    formattedData["infoblox_assign_cloud_network"]["network_data"]["subnetMaskCidr"] = data.get("infoblox_assign_cloud_network", {}).get("subnetMaskCidr", 24)
+                    formattedData["infoblox_assign_cloud_network"]["network_data"]["comment"] = data.get("infoblox_assign_cloud_network", {}).get("comment", "")
+                    formattedData["infoblox_assign_cloud_network"]["network_data"]["extattrs"] = { "Reference": { "value": data.get("infoblox_assign_cloud_network", {}).get("Reference", "")} }
+                    formattedData["infoblox_assign_cloud_network"]["network_data"]["extattrs"]["Account Name"] = { "value": data.get("Account Name", "") }
+                    formattedData["infoblox_assign_cloud_network"]["network_data"]["extattrs"]["Account ID"] = { "value": data.get("Account ID", "") }
 
                     formattedData["checkpoint_datacenter_account_put"] = {"change-request-id": data.get("change-request-id", "")}
                     formattedData["checkpoint_datacenter_account_put"]["Account Name"] = data.get("Account Name", "")

@@ -57,15 +57,14 @@ class Workflow:
             headers.update({
                 "checkWorkflowPermission": "yes"
             })
-
             # Pre-check workflow permissions.
             for call in calls.keys():
                 response, status = self.requestFacade(
-                    method=self.calls[call]["method"],
-                    technology=self.calls[call]["technology"],
+                    method=calls[call]["method"],
+                    technology=calls[call]["technology"],
                     headers=headers,
-                    urlSegment=self.calls[call]["urlSegment"],
-                    data=self.calls[call]["data"]
+                    urlSegment=calls[call]["urlSegment"],
+                    data=calls[call]["data"]
                 )
                 if status != 204:
                     raise CustomException(status=status, payload={"API": response})
