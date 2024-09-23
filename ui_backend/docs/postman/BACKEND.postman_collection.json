@@ -672,7 +672,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account Name\": \"provolaprova\",\n        \"Account ID\": \"123456789012\",\n        \"provider\": \"AWS\",\n        \"region\": \"us-east-1\",\n        \"infoblox_assign_cloud_network\": {\n            \"asset\": 1,\n            \"comment\": \"Nella vecchia fattoria ia ia oh\",\n            \"subnetMaskCidr\": 24,\n            \"Reference\": \"quello la\"\n        },\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"testone\"\n            ]\n        }\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account Name\": \"diplodoco\",\n        \"Account ID\": \"112345678901\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AWS\",\n        \"infoblox_assign_cloud_network\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"us-east-1\"\n            },\n            {\n                \"asset\": 1,\n                \"comment\": \"Sono le tagliatelle di nonna Pina\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"eu-south-1\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"testone\"\n            ]\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"

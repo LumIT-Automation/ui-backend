@@ -16,14 +16,9 @@ class CloudAccount(Workflow):
         self.workflowAction = workflowAction
         self.data = self.__dataformat(data)
         self.headers = headers or ()
+
         self.calls = {
             "assign": {
-                "infobloxAssignCloudNetwork" : {
-                    "technology": "infoblox",
-                    "method": "PUT",
-                    "urlSegment": str(data.get("infoblox_assign_cloud_network", {}).get("asset", 0)) + "/assign-cloud-network/",
-                    "data": self.data.get("infoblox_assign_cloud_network", {})
-                },
                 "infobloxUnlock": {
                     "technology": "infoblox",
                     "method": "DELETE",
@@ -44,6 +39,45 @@ class CloudAccount(Workflow):
                 },
             }
         }
+        # Each added infoblox network is a different call.
+        n = 0
+        for data in self.data.get("infoblox_assign_cloud_network", []):
+            self.calls["assign"]["infobloxAssignCloudNetwork-"+str(n)] = {
+                "technology": "infoblox",
+                "method": "PUT",
+                "urlSegment": str(data.get("asset", 0)) + "/assign-cloud-network/",
+                "data": data
+            }
+            n += 1
+
+    """
+    "data": {                                             
+        "change-request-id": "ITIO-777777777",            
+        "Account Name": "pppp",                           
+        "Account ID": "555555555555",                     
+        "provider": "AWS",  
+        "Reference": "tizio",            
+        "infoblox_assign_cloud_network": [
+            {
+                "asset": 1,
+                "comment": "Nella vecchia fattoria ia ia oh",
+                "subnetMaskCidr": 24,
+                "region": "us-east-1"
+            },
+            {
+                "asset": 1,
+                "comment": "Sono le tagliatelle di nonna Pina",
+                "subnetMaskCidr": 24,
+                "region": "us-east-2"
+            }
+        ],                                        
+        "checkpoint_datacenter_account_put": {            
+            "tags": [                                     
+                    "testone"                                 
+                ]                                             
+            }                                                 
+    }
+    """
 
 
 
@@ -64,20 +98,21 @@ class CloudAccount(Workflow):
 
     def run(self) -> dict:
         response = None
+        calls = self.calls[self.workflowAction]
 
         try:
-            calls = self.calls[self.workflowAction]
-
             if self.workflowAction == "assign":
-                response, status = self.requestFacade(
-                    **calls["infobloxAssignCloudNetwork"],
-                    headers=self.headers,
-                )
-                Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
-                Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
+                for k in calls.keys():
+                    if k.startswith("infobloxAssignCloudNetwork"):
+                        response, status = self.requestFacade(
+                            **calls[k],
+                            headers=self.headers,
+                        )
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
 
-                if status != 201:
-                    raise CustomException(status=status, payload={"Infoblox": response})
+                        if status != 201:
+                            raise CustomException(status=status, payload={"Infoblox": response})
 
                 response, status = self.requestFacade(
                     **calls["checkpointDatacenterAccountPut"],
@@ -89,77 +124,63 @@ class CloudAccount(Workflow):
                 if status != 200:
                     raise CustomException(status=status, payload={"Checkpoint": response})
 
-                # Release locks.
-                r, s = self.requestFacade(
-                    **calls["infobloxUnlock"],
-                    headers=self.headers,
-                )
-                if s == 200:
-                    Log.log("Unlocked infoblox entries.")
-                else:
-                    Log.log("Unlock failed on infoblox api: "+str(r))
-    
-                r, s = self.requestFacade(
-                    **calls["checkpointUnlock"],
-                    headers=self.headers,
-                )
-                if s == 200:
-                    Log.log("Unlocked checkpoint entries.")
-                else:
-                    Log.log("Unlock failed on checkpoint api: "+str(r))
-
             return response
         except Exception as e:
             raise e
+        finally:
+            # Release locks.
+            r, s = self.requestFacade(
+                **calls["infobloxUnlock"],
+                headers=self.headers,
+            )
+            if s == 200:
+                Log.log("Unlocked infoblox entries.")
+            else:
+                Log.log("Unlock failed on infoblox api: " + str(r))
+
+            r, s = self.requestFacade(
+                **calls["checkpointUnlock"],
+                headers=self.headers,
+            )
+            if s == 200:
+                Log.log("Unlocked checkpoint entries.")
+            else:
+                Log.log("Unlock failed on checkpoint api: " + str(r))
 
 
 
     ####################################################################################################################
     # Private methods
     ####################################################################################################################
-    """
-    "data": {                                                              "data": {                                                      {                                         
-        "change-request-id": "ITIO-777777777",                                 "provider": "AWS",                                         "data": {
-        "Account Name": "pppp",                                                "region": "aws-eu-west-1",                                     "change-request-id": "ITIO-777777778",
-        "Account ID": "555555555555",                                          "network_data": {                                              "Account Name": "bombolo",
-        "provider": "AWS",                                                         "network": "next-available",                               "Account ID": "123456789011",
-        "region": "us-east-1",                                                     "subnetMaskCidr": 24,                                      "regions": [
-        "infoblox_assign_cloud_network": {                                        "comment": "Nella vecchia fattoria ia ia oh",                  "us-east-2",
-            "comment": "Nella vecchia fattoria ia ia oh",                          "extattrs": {                                                  "us-east-3"
-            "subnetMaskCidr": 24,                                                      "Account ID": {                                        ],
-            "Reference": "qqq"                                                             "value": "555555555555"                            "tags": [
-        },                                                                             },                                                         "testone"
-        "checkpoint_datacenter_account_put": {                                         "Account Name": {                                      ]
-            "tags": [                                                                      "value": "ppp"                                 }                                         
-                "testone"                                                              },
-            ]                                                                          "Reference": {
-        }                                                                                  "value": "qqq"
-    }                                                                                  }
-}                                                                                  }
-                                                                               }
-                                                                           }
-                                                                       }                                                              
-    """
+
     def __dataformat(self, data: dict):
-        formattedData = {}
+        formattedData = {"infoblox_assign_cloud_network": [], "checkpoint_datacenter_account_put": {}}
 
         try:
             if data:
                 if self.workflowAction == "assign":
-                    formattedData["infoblox_assign_cloud_network"] = {"provider": data.get("provider", "")}
-                    formattedData["infoblox_assign_cloud_network"]["region"] = data.get("provider", "").lower() + "-" + data.get("region", "")
-                    formattedData["infoblox_assign_cloud_network"]["network_data"] = {"network": "next-available"}
-                    formattedData["infoblox_assign_cloud_network"]["network_data"]["subnetMaskCidr"] = data.get("infoblox_assign_cloud_network", {}).get("subnetMaskCidr", 24)
-                    formattedData["infoblox_assign_cloud_network"]["network_data"]["comment"] = data.get("infoblox_assign_cloud_network", {}).get("comment", "")
-                    formattedData["infoblox_assign_cloud_network"]["network_data"]["extattrs"] = { "Reference": { "value": data.get("infoblox_assign_cloud_network", {}).get("Reference", "")} }
-                    formattedData["infoblox_assign_cloud_network"]["network_data"]["extattrs"]["Account Name"] = { "value": data.get("Account Name", "") }
-                    formattedData["infoblox_assign_cloud_network"]["network_data"]["extattrs"]["Account ID"] = { "value": data.get("Account ID", "") }
+                    checkpointRegions = list()
+                    for network in data.get("infoblox_assign_cloud_network", []):
+                        checkpointRegions.append(network.get("region", ""))
+
+                        dataItem = {"network_data": {}}
+                        dataItem["asset"] = network.get("asset", 0)
+                        dataItem["region"] = data.get("provider", "").lower() + "-" + network.get("region", "")
+                        dataItem["provider"] = data.get("provider", "")
+                        dataItem["network_data"] = {"network": "next-available"}
+                        dataItem["network_data"]["subnetMaskCidr"] = network.get("subnetMaskCidr", 24)
+                        dataItem["network_data"]["comment"] = network.get("comment", "")
+                        dataItem["network_data"]["extattrs"] = { "Reference": { "value": data.get("Reference", "")} }
+                        dataItem["network_data"]["extattrs"]["Account Name"] = { "value": data.get("Account Name", "") }
+                        dataItem["network_data"]["extattrs"]["Account ID"] = { "value": data.get("Account ID", "") }
+                        formattedData["infoblox_assign_cloud_network"].append(dataItem)
 
                     formattedData["checkpoint_datacenter_account_put"] = {"change-request-id": data.get("change-request-id", "")}
                     formattedData["checkpoint_datacenter_account_put"]["Account Name"] = data.get("Account Name", "")
                     formattedData["checkpoint_datacenter_account_put"]["Account ID"] = data.get("Account ID", "")
-                    formattedData["checkpoint_datacenter_account_put"]["regions"] = [ data.get("region", "") ]
                     formattedData["checkpoint_datacenter_account_put"]["tags"] = data.get("checkpoint_datacenter_account_put", {}).get("tags", [])
+                    formattedData["checkpoint_datacenter_account_put"]["regions"] = checkpointRegions
+
             return formattedData
         except Exception as e:
             raise e
