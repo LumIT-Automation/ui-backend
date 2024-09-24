@@ -113,6 +113,9 @@ class CloudAccount(Workflow):
 
                         if status != 201:
                             raise CustomException(status=status, payload={"Infoblox": response})
+                        else:
+                            # Add the region in checkpoint data.
+                            calls["checkpointDatacenterAccountPut"]["data"]["regions"].append( calls[k]["data"]["region"].lstrip(calls[k]["data"]["provider"].lower() + '-') )
 
                 response, status = self.requestFacade(
                     **calls["checkpointDatacenterAccountPut"],
@@ -159,10 +162,7 @@ class CloudAccount(Workflow):
         try:
             if data:
                 if self.workflowAction == "assign":
-                    checkpointRegions = list()
                     for network in data.get("infoblox_assign_cloud_network", []):
-                        checkpointRegions.append(network.get("region", ""))
-
                         dataItem = {"network_data": {}}
                         dataItem["asset"] = network.get("asset", 0)
                         dataItem["region"] = data.get("provider", "").lower() + "-" + network.get("region", "")
@@ -179,7 +179,7 @@ class CloudAccount(Workflow):
                     formattedData["checkpoint_datacenter_account_put"]["Account Name"] = data.get("Account Name", "")
                     formattedData["checkpoint_datacenter_account_put"]["Account ID"] = data.get("Account ID", "")
                     formattedData["checkpoint_datacenter_account_put"]["tags"] = data.get("checkpoint_datacenter_account_put", {}).get("tags", [])
-                    formattedData["checkpoint_datacenter_account_put"]["regions"] = checkpointRegions
+                    formattedData["checkpoint_datacenter_account_put"]["regions"] = [] # add each region in checkpoint data after the corresponding network is created in infoblox.
 
             return formattedData
         except Exception as e:
