@@ -672,7 +672,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account Name\": \"diplodoco2\",\n        \"Account ID\": \"112345678903\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"us-east-1\"\n            },\n            {\n                \"asset\": 1,\n                \"comment\": \"Sono le tagliatelle di nonna Pina\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"us-east-2\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"testone\"\n            ]\n        }\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account Name\": \"diplodoco2\",\n        \"Account ID\": \"112345678903\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"us-east-1\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"testone\"\n            ]\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -721,7 +721,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account Name\": \"diplodoco\",\n        \"infoblox_cloud_network_delete\": [\n            {\n                \"asset\": 1,\n                \"network\": \"172.16.2.0\"\n            },\n            {\n                \"asset\": 1,\n                \"network\": \"172.16.3.0\"\n            }\n        ],\n        \"checkpoint_datacenter_account_delete\": {\n            \"asset\": 1\n        }\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account Name\": \"diplodoco2\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_delete\": [\n            {\n                \"asset\": 1,\n                \"network\": \"172.16.28.0\"\n            }\n        ],\n        \"checkpoint_datacenter_account_delete\": {\n            \"asset\": 1\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"

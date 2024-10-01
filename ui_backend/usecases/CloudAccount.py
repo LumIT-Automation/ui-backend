@@ -132,8 +132,6 @@ class CloudAccount(Workflow):
 
     def preCheckPermissions(self) -> bool:
         try:
-            Log.log(self.data, 'DDDDDDDDDDDDDD')
-            Log.log(self.calls, 'CCCCCCCCCCCCCCCCC')
             self.checkAuthorizations()
             self.checkWorkflowPrivileges(calls=self.calls)
 
@@ -177,7 +175,7 @@ class CloudAccount(Workflow):
                 # Remove the infoblox networks.
                 m = max( [ int(k.lstrip('infobloxAccountNetworksGet-')) for k in self.calls.keys() if k.startswith("infobloxAccountNetworksGet") ] )
                 i = 0
-                while i <= m:
+                while i < m:
                     response, status = self.requestFacade(
                         **self.calls["infobloxDeleteCloudNetwork-" + str(i)],
                         headers=self.headers,
@@ -187,6 +185,8 @@ class CloudAccount(Workflow):
 
                     if status != 200:
                         raise CustomException(status=status, payload={"Checkpoint": response})
+
+                    i += 1
 
                 # Now list the remaining regions.
                 regions = list()
@@ -199,17 +199,17 @@ class CloudAccount(Workflow):
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
 
-                        if status != 200:
-                            raise CustomException(status=status, payload={"Checkpoint": response})
+                        if status != 200 and status != 304:
+                            raise CustomException(status=status, payload={"Infoblox": response})
                         else:
-                            for net in response:
+                            for net in response.get("data", []):
                                 regions.append( net.get("extattrs", {}).get("City", {}).get("value", "").lstrip( self.data.get("provider", "").lower() + "-") )
 
                 self.data["checkpoint_datacenter_account_delete"]["regions"] =  regions
 
                 response, status = self.requestFacade(
                     **self.calls["checkpointDatacenterAccountDelete"],
-                    headers=self.headers,
+                    headers=self.headers
                 )
                 Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
                 Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))

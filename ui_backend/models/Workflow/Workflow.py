@@ -74,7 +74,7 @@ class Workflow:
 
 
 
-    def requestFacade(self, method: str, technology: str, headers: dict, urlSegment: str, data: dict = None) -> list:
+    def requestFacade(self, method: str, technology: str, headers: dict, urlSegment: str, data: dict = None, logPayload: bool = False ) -> list:
         data = data or {}
         r = dict() # response.
         s = 0 # http status.
@@ -93,13 +93,14 @@ class Workflow:
             if method == "GET":
                 r = api.get()
             if method == "PUT":
-                r = api.put({"data": data})
+                r = api.put(data={"data": data}, logPayload=logPayload)
             if method == "POST":
-                r = api.post({"data": data})
+                r = api.post(data={"data": data}, logPayload=logPayload)
             if method == "DELETE":
-                r = api.delete()
+                data = {"data": data} if data else None
+                r = api.delete(data=data, logPayload=logPayload)
             if method == "PATCH":
-                r = api.patch({"data": data})
+                r = api.patch(data={"data": data}, logPayload=logPayload)
         except KeyError:
             raise CustomException(status=503, payload={"UI-BACKEND": str(technology)+" API not resolved, try again later."})
         except Exception as e:

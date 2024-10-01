@@ -110,7 +110,7 @@ class ApiSupplicant:
 
 
 
-    def post(self, data: object) -> dict:
+    def post(self, data: object, logPayload: bool = False) -> dict:
         # In the event of a network problem (e.g. DNS failure, refused connection, etc), Requests will raise a ConnectionError exception.
         # If a request times out, a Timeout exception is raised.
         # If a request exceeds the configured number of maximum redirections, a TooManyRedirects exception is raised.
@@ -123,6 +123,8 @@ class ApiSupplicant:
 
         try:
             Log.actionLog("To remote: POST " + str(self.endpoint)+" with query params: " + str(self.params))
+            if logPayload:
+                Log.actionLog("Payload: " + str(data))
 
             response = requests.post(self.endpoint,
                 params=self.params,
@@ -152,7 +154,7 @@ class ApiSupplicant:
 
 
 
-    def patch(self, data: object) -> dict:
+    def patch(self, data: object, logPayload: bool = False) -> dict:
         # In the event of a network problem (e.g. DNS failure, refused connection, etc), Requests will raise a ConnectionError exception.
         # If a request times out, a Timeout exception is raised.
         # If a request exceeds the configured number of maximum redirections, a TooManyRedirects exception is raised.
@@ -165,6 +167,8 @@ class ApiSupplicant:
 
         try:
             Log.actionLog("To remote: PATCH " + str(self.endpoint)+" with query params: " + str(self.params))
+            if logPayload:
+                Log.actionLog("Payload: " + str(data))
 
             response = requests.patch(self.endpoint,
                 params=self.params,
@@ -194,7 +198,7 @@ class ApiSupplicant:
 
 
 
-    def put(self, data: object) -> dict:
+    def put(self, data: object, logPayload: bool = False) -> dict:
         # In the event of a network problem (e.g. DNS failure, refused connection, etc), Requests will raise a ConnectionError exception.
         # If a request times out, a Timeout exception is raised.
         # If a request exceeds the configured number of maximum redirections, a TooManyRedirects exception is raised.
@@ -207,6 +211,8 @@ class ApiSupplicant:
 
         try:
             Log.actionLog("To remote: PUT " + str(self.endpoint)+" with query params: " + str(self.params))
+            if logPayload:
+                Log.actionLog("Payload: " + str(data))
 
             response = requests.put(self.endpoint,
                 params=self.params,
@@ -241,7 +247,7 @@ class ApiSupplicant:
 
 
 
-    def delete(self, data: object = None) -> dict:
+    def delete(self, data: object = None, logPayload: bool = False) -> dict:
         # In the event of a network problem (e.g. DNS failure, refused connection, etc), Requests will raise a ConnectionError exception.
         # If a request times out, a Timeout exception is raised.
         # If a request exceeds the configured number of maximum redirections, a TooManyRedirects exception is raised.
@@ -254,6 +260,9 @@ class ApiSupplicant:
 
         try:
             Log.actionLog("To remote: DELETE " + str(self.endpoint)+" with query params: " + str(self.params))
+            if logPayload:
+                Log.actionLog("Payload: " + str(data))
+
             request = {
                 "url": self.endpoint,
                 "params": self.params,
