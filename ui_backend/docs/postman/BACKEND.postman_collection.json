@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "d633ddbb-06c8-4396-b315-8eb722264715",
+		"_postman_id": "994d1139-47c9-4448-aedb-2dfeecd729b1",
 		"name": "BACKEND",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -576,7 +576,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"checkpoint_host_remove\": {\n            \"asset\": 1,\n            \"data\": {\n                \"ipv4-address\": \"192.168.100.22\"\n\n            }\n        }\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"checkpoint_remove_host\": {\n            \"asset\": 1,\n            \"data\": {\n                \"ipv4-address\": \"192.168.100.22\"\n\n            }\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -672,7 +672,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account Name\": \"diplodoco\",\n        \"Account ID\": \"112345678901\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AWS\",\n        \"infoblox_assign_cloud_network\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"us-east-1\"\n            },\n            {\n                \"asset\": 1,\n                \"comment\": \"Sono le tagliatelle di nonna Pina\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"eu-south-1\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"testone\"\n            ]\n        }\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account Name\": \"diplodoco2\",\n        \"Account ID\": \"112345678903\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"us-east-1\"\n            },\n            {\n                \"asset\": 1,\n                \"comment\": \"Sono le tagliatelle di nonna Pina\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"us-east-2\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"testone\"\n            ]\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -693,6 +693,55 @@
 								"workflow",
 								"cloud-account",
 								"assign",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cloud account (remove)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account Name\": \"diplodoco\",\n        \"infoblox_cloud_network_delete\": [\n            {\n                \"asset\": 1,\n                \"network\": \"172.16.2.0\"\n            },\n            {\n                \"asset\": 1,\n                \"network\": \"172.16.3.0\"\n            }\n        ],\n        \"checkpoint_datacenter_account_delete\": {\n            \"asset\": 1\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/remove/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow",
+								"cloud-account",
+								"remove",
 								""
 							]
 						}
