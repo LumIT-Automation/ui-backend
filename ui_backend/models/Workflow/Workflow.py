@@ -74,7 +74,7 @@ class Workflow:
 
 
 
-    def requestFacade(self, method: str, technology: str, headers: dict, urlSegment: str, data: dict = None, logPayload: bool = False ) -> list:
+    def requestFacade(self, method: str, technology: str, headers: dict, urlSegment: str, data: dict = None, escalate: bool = False, logPayload: bool = False ) -> list:
         data = data or {}
         r = dict() # response.
         s = 0 # http status.
@@ -91,7 +91,7 @@ class Workflow:
             )
 
             if method == "GET":
-                r = api.get()
+                r = api.get(escalate)
             if method == "PUT":
                 r = api.put(data={"data": data}, logPayload=logPayload)
             if method == "POST":

@@ -195,6 +195,7 @@ class CloudAccount(Workflow):
                         response, status = self.requestFacade(
                             **self.calls[k],
                             headers=self.headers,
+                            escalate=True
                         )
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))

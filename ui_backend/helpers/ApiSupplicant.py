@@ -33,7 +33,7 @@ class ApiSupplicant:
     # Public methods
     ####################################################################################################################
 
-    def get(self) -> dict:
+    def get(self, escalate: bool = False) -> dict:
         # Fetches the resource from the HTTP REST API endpoint specified honoring the caching HTTP headers.
 
         # In the event of a network problem (e.g. DNS failure, refused connection, etc), Requests will raise a ConnectionError exception.
@@ -52,6 +52,10 @@ class ApiSupplicant:
                 "Prefer": "respond-sync",
             }
             headers.update(self.additionalHeaders)
+
+            # There are few api get (lists) in which the output is filtered based on permissions. A workflow could need the full output.
+            if escalate:
+                headers.update({"escalatedByWorkflow": "escalate"})
 
             # Fetch the remote resource from the API backend.
             Log.actionLog("Fetching remote: GET " + str(self.endpoint)+" with query params: " + str(self.params)+" with headers: " + str(headers))
