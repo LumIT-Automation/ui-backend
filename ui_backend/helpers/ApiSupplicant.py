@@ -33,7 +33,7 @@ class ApiSupplicant:
     # Public methods
     ####################################################################################################################
 
-    def get(self, escalate: bool = False) -> dict:
+    def get(self, data: object = None, escalate: bool = False, logPayload: bool = False) -> dict:
         # Fetches the resource from the HTTP REST API endpoint specified honoring the caching HTTP headers.
 
         # In the event of a network problem (e.g. DNS failure, refused connection, etc), Requests will raise a ConnectionError exception.
@@ -59,12 +59,20 @@ class ApiSupplicant:
 
             # Fetch the remote resource from the API backend.
             Log.actionLog("Fetching remote: GET " + str(self.endpoint)+" with query params: " + str(self.params)+" with headers: " + str(headers))
+            if logPayload:
+                Log.actionLog("Payload: " + str(data))
 
-            r = requests.get(self.endpoint,
-                params=self.params,
-                headers=headers,
-                timeout=settings.API_SUPPLICANT_NETWORK_TIMEOUT
-            )
+            request = {
+                "url": self.endpoint,
+                "params": self.params,
+                "headers": headers,
+                "timeout": settings.API_SUPPLICANT_NETWORK_TIMEOUT
+            }
+            if data:
+                headers.update({"Content-Type": "application/json"})
+                request["data"] = json.dumps(data)
+
+            r = requests.get(**request)
 
             self.responseStatus = r.status_code
             Log.actionLog("Api Supplicant: remote response status: " + str(self.responseStatus))

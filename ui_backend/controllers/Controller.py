@@ -1,5 +1,4 @@
 from django.http import HttpResponse
-from django.conf import settings
 
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -30,10 +29,14 @@ class Controller(CustomController):
             uri = CustomController.resolveUrl(request)
 
             if uri["endpoint"]:
-                Log.actionLog("GET " + str(request.get_full_path())+" with headers " + str(request.headers), user)
-                api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
+                log = "GET " + str(request.get_full_path()) + " with headers " + str(request.headers)
+                if hasattr(request, "data"):
+                    log += " with data: " + str(request.data)
+                Log.actionLog(log, user)
 
-                responseDict = api.get()
+                api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
+                responseDict = api.get(data=request.data, logPayload=True)
+
                 if hasattr(responseDict, "headers") and "Content-Disposition" in responseDict.headers and responseDict.headers["Content-Disposition"][:11] == "attachment;" and hasattr(responseDict, "content"):
                     response = HttpResponse(responseDict.content, content_type=responseDict.headers["Content-Type"])
                     response['Content-Disposition'] = responseDict.headers["Content-Disposition"]
@@ -170,7 +173,10 @@ class Controller(CustomController):
             uri = CustomController.resolveUrl(request)
 
             if uri["endpoint"]:
-                Log.actionLog("DELETE " + str(request.get_full_path())+" with headers " + str(request.headers)+" with data: " + str(request.data), user)
+                log = "DELETE " + str(request.get_full_path())+" with headers " + str(request.headers)
+                if hasattr(request, "data"):
+                    log += " with data: " + str(request.data)
+                Log.actionLog(log, user)
 
                 api = ApiSupplicant(uri["endpoint"], uri["params"], headers)
                 api.delete(request.data)
