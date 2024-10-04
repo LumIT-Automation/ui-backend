@@ -31,7 +31,8 @@ INSERT INTO `workflow` (`id`, `name`, `technologies`, `description`) VALUES
 (3, 'checkpoint_add_host', 'infoblox,checkpoint', 'add checkpoint host workflow'),
 (4, 'checkpoint_remove_host', 'infoblox,checkpoint', 'remove checkpoint host workflow'),
 (5, 'cloud_account-assign', 'infoblox,checkpoint', 'cloud account workflow'),
-(6, 'cloud_account-remove', 'infoblox,checkpoint', 'cloud account workflow');
+(6, 'cloud_account-remove', 'infoblox,checkpoint', 'cloud account workflow'),
+(7, 'cloud_account-info', 'infoblox', 'cloud account workflow');
 
 
 COMMIT;

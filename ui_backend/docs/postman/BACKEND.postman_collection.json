@@ -651,6 +651,58 @@
 					"response": []
 				},
 				{
+					"name": "cloud account (info)",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"Account Name\": \"diplodoco2\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/info/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow",
+								"cloud-account",
+								"info",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "cloud account (assign)",
 					"request": {
 						"auth": {

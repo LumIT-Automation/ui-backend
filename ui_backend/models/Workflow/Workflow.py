@@ -110,6 +110,31 @@ class Workflow:
 
 
 
+    # Still need the privilege "assets_get" for each needed technology.
+    def listAssets(self, technology) -> list:
+        try:
+            call = {
+                "technology": technology,
+                "method": "GET",
+                "urlSegment": "assets/",
+                "data": None
+            }
+
+            response, status = self.requestFacade(
+                **call,
+                headers=self.headers
+            )
+            Log.log("[WORKFLOW] " + self.workflowId + " - " + technology + " response status: " + str(status))
+            Log.log("[WORKFLOW] " + self.workflowId + " - " + technology + " response: " + str(response))
+
+            if status != 200:
+                raise CustomException(status=status, payload={technology: response})
+
+            return response.get("data", {}).get("items", [])
+        except Exception as e:
+            raise e
+
+
     ####################################################################################################################
     # Public static methods
     ####################################################################################################################

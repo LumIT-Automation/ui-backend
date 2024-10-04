@@ -1,5 +1,3 @@
-import re
-
 from ui_backend.models.Workflow.Workflow import Workflow
 
 from ui_backend.helpers.Exception import CustomException
@@ -17,7 +15,30 @@ class CloudAccount(Workflow):
         self.data = self.__dataformat(data)
         self.headers = headers or ()
 
-        if workflowAction == "assign":
+
+
+        if workflowAction == "info":
+            self.calls = {
+                "infobloxUnlock": {
+                    "technology": "infoblox",
+                    "method": "DELETE",
+                    "urlSegment": "locks/",
+                    "data": None
+                }
+            }
+
+            infobloxAssetIds  = [ a["id"] for a in self.listAssets(technology="infoblox") ]
+            for id in infobloxAssetIds:
+                if id:
+                    # Get info about the infoblox networks of the account on this asset.
+                    self.calls["infobloxAccountNetworksGet-" + str(id)] = {
+                        "technology": "infoblox",
+                        "method": "GET",
+                        "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + self.data.get("Account Name", "") + "&fby=*Environment&fval=Cloud",
+                        "data": self.data
+                    }
+
+        elif workflowAction == "assign":
             self.calls = {
                 "infobloxUnlock": {
                     "technology": "infoblox",
@@ -70,7 +91,7 @@ class CloudAccount(Workflow):
                     "data": None
                 }
             }
-            # Each added infoblox network is a different call.
+            # Each deleted infoblox network is a different call.
             i = 0
             assetIds = []
             for infobloxNetworkData in self.data.get("infoblox_cloud_network_delete", []):
@@ -95,36 +116,6 @@ class CloudAccount(Workflow):
                     }
 
 
-    """
-    "data": {                                             
-        "change-request-id": "ITIO-777777777",            
-        "Account Name": "pppp",                           
-        "Account ID": "555555555555",                     
-        "provider": "AWS",  
-        "Reference": "tizio",            
-        "infoblox_cloud_network_assign": [
-            {
-                "asset": 1,
-                "comment": "Nella vecchia fattoria ia ia oh",
-                "subnetMaskCidr": 24,
-                "region": "us-east-1"
-            },
-            {
-                "asset": 1,
-                "comment": "Sono le tagliatelle di nonna Pina",
-                "subnetMaskCidr": 24,
-                "region": "us-east-2"
-            }
-        ],                                        
-        "checkpoint_datacenter_account_put": {            
-            "tags": [                                     
-                    "testone"                                 
-                ]                                             
-            }                                                 
-    }
-    """
-
-
 
     ####################################################################################################################
     # Public methods
@@ -145,7 +136,24 @@ class CloudAccount(Workflow):
         response = None
 
         try:
-            if self.workflowAction == "assign":
+            if self.workflowAction == "info":
+                response = { "data": [] }
+                for k in self.calls.keys():
+                    if k.startswith("infobloxAccountNetworksGet"):
+                        data, status = self.requestFacade(
+                            **self.calls[k],
+                            headers=self.headers,
+                        )
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(data))
+
+                        if status != 200 and status != 304:
+                            raise CustomException(status=status, payload={"Infoblox": data})
+
+                        if data:
+                            response["data"].extend(data.get("data", []))
+
+            elif self.workflowAction == "assign":
                 for k in self.calls.keys():
                     if k.startswith("infobloxAssignCloudNetwork"):
                         response, status = self.requestFacade(
@@ -232,14 +240,15 @@ class CloudAccount(Workflow):
             else:
                 Log.log("Unlock failed on infoblox api: " + str(r))
 
-            r, s = self.requestFacade(
-                **self.calls["checkpointUnlock"],
-                headers=self.headers,
-            )
-            if s == 200:
-                Log.log("Unlocked checkpoint entries.")
-            else:
-                Log.log("Unlock failed on checkpoint api: " + str(r))
+            if "checkpointUnlock" in self.calls:
+                r, s = self.requestFacade(
+                    **self.calls["checkpointUnlock"],
+                    headers=self.headers,
+                )
+                if s == 200:
+                    Log.log("Unlocked checkpoint entries.")
+                else:
+                    Log.log("Unlock failed on checkpoint api: " + str(r))
 
 
 
@@ -252,7 +261,9 @@ class CloudAccount(Workflow):
 
         try:
             if data:
-                if self.workflowAction == "assign":
+                if self.workflowAction == "info":
+                    formattedData = data
+                elif self.workflowAction == "assign":
                     formattedData = {"infoblox_cloud_network_assign": [], "checkpoint_datacenter_account_put": {}}
                     for network in data.get("infoblox_cloud_network_assign", []):
                         dataItem = {"network_data": {}}
