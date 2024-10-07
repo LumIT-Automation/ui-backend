@@ -16,7 +16,6 @@ urlpatterns = [
     path('backend/workflow/flow-test1/', FlowTest1.WorkflowFlowTest1Controller.as_view()),
     path('backend/workflow/checkpoint-add-host/', CheckPointAddHost.WorkflowFlowCheckPointAddHostController.as_view()),
     path('backend/workflow/checkpoint-remove-host/', CheckPointRemoveHost.WorkflowCheckPointRemoveHostController.as_view()),
-    #path('backend/workflow/cloud-account/<str:workflowAction>/', CloudAccount.WorkflowCloudAccountController.as_view()),
     path('backend/workflow/cloud-account/<str:accountName>/', CloudAccount.WorkflowCloudAccountController.as_view()),
     path('backend/workflow/cloud-accounts/', CloudAccounts.WorkflowCloudAccountsController.as_view()),
 
