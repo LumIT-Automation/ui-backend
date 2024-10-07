@@ -52,5 +52,30 @@ class FlowCloudAccountSerializer(serializers.Serializer):
         else:
             raise CustomException(status=400, payload={"Ui-backend": "Bad workflow action."})
 
+class FlowCloudAccountExtattrsValueSerializer(serializers.Serializer):
+    value = serializers.CharField(max_length=255, required=False)
 
 
+class FlowCloudAccountExtattrsAccountIdValueSerializer(serializers.Serializer):
+    value = IntegerStringRegexSerializer(required=True)
+
+
+class FlowCloudAccountNetworkInfoSerializer(serializers.Serializer):
+    class FlowCloudAccountExtattrsSerializer(serializers.Serializer):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+            self.fields["Environment"] = FlowCloudAccountExtattrsValueSerializer(required=True)
+            self.fields["Country"] =FlowCloudAccountExtattrsValueSerializer(required=True)
+            self.fields["City"] = FlowCloudAccountExtattrsValueSerializer(required=True)
+            self.fields["Account ID"] = FlowCloudAccountExtattrsAccountIdValueSerializer(required=True)
+            self.fields["Account Name"] = FlowCloudAccountExtattrsValueSerializer(required=True)
+            self.fields["Reference"] =FlowCloudAccountExtattrsValueSerializer(required=True)
+
+    asset_id = serializers.IntegerField(required=True)
+    network = serializers.CharField(max_length=64, required=True)
+    network_container = serializers.CharField(max_length=64, required=False)
+    extattrs = FlowCloudAccountExtattrsSerializer(required=True)
+
+class FlowCloudAccountInfoSerializer(serializers.Serializer):
+    data = FlowCloudAccountNetworkInfoSerializer(many=True)

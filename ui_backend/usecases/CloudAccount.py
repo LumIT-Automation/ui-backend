@@ -38,6 +38,27 @@ class CloudAccount(Workflow):
                         "data": self.data
                     }
 
+        elif workflowAction == "list":
+            self.calls = {
+                "infobloxUnlock": {
+                    "technology": "infoblox",
+                    "method": "DELETE",
+                    "urlSegment": "locks/",
+                    "data": None
+                }
+            }
+
+            infobloxAssetIds  = [ a["id"] for a in self.listAssets(technology="infoblox") ]
+            for id in infobloxAssetIds:
+                if id:
+                    # Get info about the infoblox networks of the account on this asset.
+                    self.calls["infobloxAccountsGet-" + str(id)] = {
+                        "technology": "infoblox",
+                        "method": "GET",
+                        "urlSegment": str(id) + "/list-cloud-extattrs/account+provider/",
+                        "data": None
+                    }
+
         elif workflowAction == "assign":
             self.calls = {
                 "infobloxUnlock": {
@@ -153,6 +174,24 @@ class CloudAccount(Workflow):
                         if data:
                             response["data"].extend(data.get("data", []))
 
+            elif self.workflowAction == "list":
+                allData = list()
+                for k in self.calls.keys():
+                    if k.startswith("infobloxAccountsGet"):
+                        data, status = self.requestFacade(
+                            **self.calls[k],
+                            headers=self.headers,
+                        )
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(data))
+
+                        if status != 200 and status != 304:
+                            raise CustomException(status=status, payload={"Infoblox": data})
+
+                        if data.get("data", []):
+                            allData.extend([d for d in data.get("data", []) if d not in allData])
+                response = { "data": allData }
+
             elif self.workflowAction == "assign":
                 for k in self.calls.keys():
                     if k.startswith("infobloxAssignCloudNetwork"):
@@ -263,6 +302,8 @@ class CloudAccount(Workflow):
             if data:
                 if self.workflowAction == "info":
                     formattedData = data
+                elif self.workflowAction == "list":
+                    formattedData = None
                 elif self.workflowAction == "assign":
                     formattedData = {"infoblox_cloud_network_assign": [], "checkpoint_datacenter_account_put": {}}
                     for network in data.get("infoblox_cloud_network_assign", []):

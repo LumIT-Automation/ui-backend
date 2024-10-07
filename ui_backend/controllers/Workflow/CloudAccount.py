@@ -4,7 +4,7 @@ from rest_framework import status
 
 from ui_backend.usecases.CloudAccount import CloudAccount
 
-from ui_backend.serializers.usecases.CloudAccount import FlowCloudAccountSerializer as Serializer
+from ui_backend.serializers.usecases.CloudAccount import FlowCloudAccountInfoSerializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
 
@@ -14,39 +14,43 @@ from ui_backend.helpers.Log import Log
 
 class WorkflowCloudAccountController(CustomController):
     @staticmethod
-    def get(request: Request, workflowAction: str) -> Response:
+    def get(request: Request, accountName: str) -> Response:
         headers = dict()
         user = CustomController.loggedUser(request)
         workflowId = 'workflow-cloud_account-' + Misc.getWorkflowCorrelationId()
+        workflowAction = "info"
 
         try:
             if "Authorization" in request.headers:
                 headers["Authorization"] = request.headers["Authorization"]
+            data = {
+                "Account Name": accountName
+            }
 
-            serializer = Serializer(data=request.data["data"], action=workflowAction)
-            if serializer.is_valid():
-                data = serializer.validated_data
+            Log.actionLog("Cloud account workflow, action: "+workflowAction, user)
+            Log.actionLog("User data: " + str(request.data), user)
+            Log.actionLog("Workflow id: "+workflowId, user)
 
-                Log.actionLog("Cloud account workflow, action: "+workflowAction, user)
-                Log.actionLog("User data: " + str(request.data), user)
-                Log.actionLog("Workflow id: "+workflowId, user)
+            c = CloudAccount(username=user['username'], workflowId=workflowId, workflowAction=workflowAction, data=data, headers=headers)
+            if c.preCheckPermissions():
+                data = c.run()
 
-                c = CloudAccount(username=user['username'], workflowId=workflowId, workflowAction=workflowAction, data=data, headers=headers)
-                if c.preCheckPermissions():
-                    response = c.run()
+                serializer = Serializer(data=data)
+                if serializer.is_valid():
+                    response = serializer.validated_data
                     httpStatus = status.HTTP_200_OK
                 else:
-                    httpStatus = status.HTTP_403_FORBIDDEN
-                    response = None
-            else:
-                httpStatus = status.HTTP_400_BAD_REQUEST
-                response = {
-                    "ui_backend": {
-                        "error": str(serializer.errors)
+                    httpStatus = status.HTTP_500_INTERNAL_SERVER_ERROR
+                    response = {
+                        "ui_backend": {
+                            "error": str(serializer.errors)
+                        }
                     }
-                }
+                    Log.actionLog("Upstream data incorrect: " + str(response), user)
+            else:
+                httpStatus = status.HTTP_403_FORBIDDEN
+                response = None
 
-                Log.actionLog("User data incorrect: " + str(response), user)
         except Exception as e:
             data, httpStatus, headers = CustomController.exceptionHandler(e)
             return Response(data, status=httpStatus, headers=headers)
