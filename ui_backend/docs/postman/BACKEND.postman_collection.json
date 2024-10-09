@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "994d1139-47c9-4448-aedb-2dfeecd729b1",
+		"_postman_id": "68509303-1600-48c7-9c3e-b086fb563978",
 		"name": "BACKEND",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -555,54 +555,6 @@
 			"name": "Workflows",
 			"item": [
 				{
-					"name": "CheckPoint rm host",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"type": "text",
-								"value": "Bearer {{jwttoken}}"
-							},
-							{
-								"key": "If-None-Match",
-								"value": "c485212f298abe5f8b867ca42617292a",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"checkpoint_remove_host\": {\n            \"asset\": 1,\n            \"data\": {\n                \"ipv4-address\": \"192.168.100.22\"\n\n            }\n        }\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/checkpoint-remove-host/",
-							"protocol": "http",
-							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
-							],
-							"path": [
-								"backend",
-								"workflow",
-								"checkpoint-remove-host",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "flow test 1",
 					"request": {
 						"auth": {
@@ -651,156 +603,6 @@
 					"response": []
 				},
 				{
-					"name": "cloud account (info)",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"type": "text",
-								"value": "Bearer {{jwttoken}}"
-							},
-							{
-								"key": "If-None-Match",
-								"value": "c485212f298abe5f8b867ca42617292a",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"Account Name\": \"diplodoco2\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/info/",
-							"protocol": "http",
-							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
-							],
-							"path": [
-								"backend",
-								"workflow",
-								"cloud-account",
-								"info",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "cloud account (assign)",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"type": "text",
-								"value": "Bearer {{jwttoken}}"
-							},
-							{
-								"key": "If-None-Match",
-								"value": "c485212f298abe5f8b867ca42617292a",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account Name\": \"diplodoco2\",\n        \"Account ID\": \"112345678903\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"us-east-1\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"testone\"\n            ]\n        }\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/assign/",
-							"protocol": "http",
-							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
-							],
-							"path": [
-								"backend",
-								"workflow",
-								"cloud-account",
-								"assign",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "cloud account (remove)",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"type": "text",
-								"value": "Bearer {{jwttoken}}"
-							},
-							{
-								"key": "If-None-Match",
-								"value": "c485212f298abe5f8b867ca42617292a",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account Name\": \"diplodoco2\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_delete\": [\n            {\n                \"asset\": 1,\n                \"network\": \"172.16.28.0\"\n            }\n        ],\n        \"checkpoint_datacenter_account_delete\": {\n            \"asset\": 1\n        }\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/remove/",
-							"protocol": "http",
-							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
-							],
-							"path": [
-								"backend",
-								"workflow",
-								"cloud-account",
-								"remove",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "CheckPoint add host",
 					"request": {
 						"auth": {
@@ -842,6 +644,243 @@
 								"backend",
 								"workflow",
 								"checkpoint-add-host",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CheckPoint rm host",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"checkpoint_remove_host\": {\n            \"asset\": 1,\n            \"data\": {\n                \"ipv4-address\": \"192.168.100.22\"\n\n            }\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow/checkpoint-remove-host/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow",
+								"checkpoint-remove-host",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cloud accounts",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"Account Name\": \"diplodoco2\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow/cloud-accounts/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow",
+								"cloud-accounts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cloud account",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/diplodoco/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow",
+								"cloud-account",
+								"diplodoco",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cloud account assign",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account ID\": \"112345678903\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"us-east-1\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"testone\"\n            ]\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/diplodoco/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow",
+								"cloud-account",
+								"diplodoco",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cloud account (remove)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_delete\": [\n            {\n                \"asset\": 1,\n                \"network\": \"172.16.28.0\"\n            }\n        ],\n        \"checkpoint_datacenter_account_delete\": {\n            \"asset\": 1\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/diplodoco/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow",
+								"cloud-account",
+								"diplodoco",
 								""
 							]
 						}
