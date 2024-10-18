@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "af4860fd-b593-4cc9-a463-86162658acd4",
+		"_postman_id": "ec1cd6c5-f112-40eb-b674-b0549d571078",
 		"name": "BACKEND",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -197,9 +197,6 @@
 				},
 				{
 					"name": "cloud accounts",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -218,15 +215,6 @@
 								"disabled": true
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"Account Name\": \"diplodoco2\"\n    }\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "http://10.0.111.12/backend/workflow/cloud-accounts/",
 							"protocol": "http",
@@ -267,7 +255,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/diplodoco/",
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/CRIF-diplodoco/",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -279,7 +267,7 @@
 								"backend",
 								"workflow",
 								"cloud-account",
-								"diplodoco",
+								"CRIF-diplodoco",
 								""
 							]
 						}
@@ -316,7 +304,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/diplodoco/",
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/CRIF-diplodoco/",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -328,7 +316,7 @@
 								"backend",
 								"workflow",
 								"cloud-account",
-								"diplodoco",
+								"CRIF-diplodoco",
 								""
 							]
 						}
@@ -365,7 +353,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/diplodoco/",
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/CRIF-diplodoco/",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -377,7 +365,7 @@
 								"backend",
 								"workflow",
 								"cloud-account",
-								"diplodoco",
+								"CRIF-diplodoco",
 								""
 							]
 						}
