@@ -16,7 +16,7 @@ class Workflow:
 
         self.workflowName = "base_flow"
         self.data = data or {}
-        self.headers = headers or ()
+        self.headers = headers or {}
         self.calls = {}
 
 

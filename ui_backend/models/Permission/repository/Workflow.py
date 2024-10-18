@@ -59,3 +59,24 @@ class Workflow:
             raise CustomException(status=400, payload={"database": e.__str__()})
         finally:
             c.close()
+
+
+
+    @staticmethod
+    def listTechnologies() -> list:
+        technologies = list()
+        c = connection.cursor()
+
+        try:
+            c.execute("SELECT technologies FROM workflow")
+            l = DBHelper.asDict(c)
+            for d in l:
+                for tech in d["technologies"].split(","):
+                    if tech not in technologies:
+                        technologies.append(tech)
+
+            return technologies
+        except Exception as e:
+            raise CustomException(status=400, payload={"database": e.__str__()})
+        finally:
+            c.close()

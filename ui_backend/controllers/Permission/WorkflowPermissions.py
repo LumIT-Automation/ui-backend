@@ -2,15 +2,16 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from ui_backend.models.Workflow.Workflow import Workflow
+from ui_backend.models.Permission.PermissionWorkflow import PermissionWorkflow
 
 from ui_backend.controllers.CustomController import CustomController
 from ui_backend.helpers.Log import Log
 
 
-class WorkflowsController(CustomController):
+class WorkflowPermissionsController(CustomController):
     @staticmethod
     def get(request: Request) -> Response:
+        headers = dict()
         data = {
             "data": {
                 "items": []
@@ -18,9 +19,12 @@ class WorkflowsController(CustomController):
         }
 
         try:
+            if "Authorization" in request.headers:
+                headers["Authorization"] = request.headers["Authorization"]
+
             user = CustomController.loggedUser(request)
             if [ gr for gr in user["groups"] if gr.lower() == "automation.local" ]: # superadmin's group only.
-                data["data"]["items"] = Workflow.list()
+                data["data"]["items"] = PermissionWorkflow.list(username=user["username"], headers=headers)
                 data["href"] = request.get_full_path()
                 httpStatus = status.HTTP_200_OK
             else:
