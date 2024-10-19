@@ -77,14 +77,15 @@ class PermissionWorkflow:
                     workflow = technologyPermissions.get("workflow", "")
                     idg = technologyPermissions.get("identity_group_identifier", "")
 
+                    # Todo: can be more than one
                     permissionWorkflow = next(iter([ wp for wp in workflowsPermissions if wp.get("workflow", "") == workflow and wp.get("identity_group_identifier", "") == idg ]), {})
                     if permissionWorkflow:
-                        permissionWorkflow[technology] = technologyPermissions
+                        permissionWorkflow[technology].append(technologyPermissions)
                     else:
                         workflowsPermissions.append({
                             "workflow": workflow,
                             "identity_group_identifier": idg,
-                            technology: technologyPermissions
+                            technology: [ technologyPermissions ]
                         })
 
             return workflowsPermissions
