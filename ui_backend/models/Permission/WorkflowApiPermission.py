@@ -1,8 +1,8 @@
 from ui_backend.models.Permission.Workflow import Workflow
-from ui_backend.models.Permission.backend.PermissionWorkflow import PermissionWorkflow as Backend
+from ui_backend.models.Permission.backend.WorkflowApiPermission import WorkflowApiPermission as Backend
 
 
-class PermissionWorkflow:
+class WorkflowApiPermission:
     def __init__(self, username: str, workflow: str, identityGroup: str, headers: dict = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

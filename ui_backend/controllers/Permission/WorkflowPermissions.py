@@ -2,7 +2,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from ui_backend.models.Permission.PermissionWorkflow import PermissionWorkflow
+from ui_backend.models.Permission.WorkflowApiPermission import WorkflowApiPermission
 
 from ui_backend.controllers.CustomController import CustomController
 from ui_backend.helpers.Log import Log
@@ -24,7 +24,7 @@ class WorkflowPermissionsController(CustomController):
 
             user = CustomController.loggedUser(request)
             if [ gr for gr in user["groups"] if gr.lower() == "automation.local" ]: # superadmin's group only.
-                data["data"]["items"] = PermissionWorkflow.list(username=user["username"], headers=headers)
+                data["data"]["items"] = WorkflowApiPermission.list(username=user["username"], headers=headers)
                 data["href"] = request.get_full_path()
                 httpStatus = status.HTTP_200_OK
             else:

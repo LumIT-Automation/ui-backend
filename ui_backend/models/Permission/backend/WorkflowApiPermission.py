@@ -6,7 +6,7 @@ from ui_backend.helpers.ApiSupplicant import ApiSupplicant
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Log import Log
 
-class PermissionWorkflow:
+class WorkflowApiPermission:
 
     ####################################################################################################################
     # Public static methods
@@ -51,6 +51,22 @@ class PermissionWorkflow:
     ]
     """
     @staticmethod
+    def __checkForMissingTechnologyinPermission(workflowsPermissions: list):
+        try:
+            for workflow in Workflow.list():
+                workflowPermissions = [ wp for wp in workflowsPermissions if wp.get("workflow", "") == workflow.get("name", "") ]
+                for workflowPermission in workflowPermissions:
+                    for technology in workflow.get("technologies", ""):
+                        if technology not in workflowPermission.keys():
+                            workflowPermission[technology] = {"missing": "true"}
+
+            return workflowsPermissions
+        except Exception as e:
+            raise e
+
+
+
+    @staticmethod
     def list(username: str, headers: dict = None) -> list:
         data = dict()
         headers = headers or {}
@@ -92,6 +108,7 @@ class PermissionWorkflow:
                             technology: [ technologyPermission ]
                         })
 
-            return workflowsPermissions
+            return WorkflowApiPermission.__checkForMissingTechnologyinPermission(workflowsPermissions)
+            #return workflowsPermissions
         except Exception as e:
             raise e
