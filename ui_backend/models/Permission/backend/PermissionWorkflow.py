@@ -72,20 +72,24 @@ class PermissionWorkflow:
                     raise CustomException(status=503, payload={"UI-BACKEND": str(technology)+" API not resolved, try again later."})
 
             for technology in data.keys():
-                permissionTechnologyList = data.get(technology, {}).get("data", {}).get("items", [])
-                for technologyPermissions in permissionTechnologyList:
-                    workflow = technologyPermissions.get("workflow", "")
-                    idg = technologyPermissions.get("identity_group_identifier", "")
+                permissionsTechnologyList = data.get(technology, {}).get("data", {}).get("items", [])
 
-                    # Todo: can be more than one
-                    permissionWorkflow = next(iter([ wp for wp in workflowsPermissions if wp.get("workflow", "") == workflow and wp.get("identity_group_identifier", "") == idg ]), {})
-                    if permissionWorkflow:
-                        permissionWorkflow[technology].append(technologyPermissions)
+                for technologyPermission in permissionsTechnologyList:
+                    workflow = technologyPermission.get("workflow", "")
+                    idg = technologyPermission.get("identity_group_identifier", "")
+
+                    # Stored permissions in workflowsPermissions for this workflow, this technology, this identity group.
+                    storedPermissionsThisWorkflow = next(iter([ wp for wp in workflowsPermissions if wp.get("workflow", "") == workflow and wp.get("identity_group_identifier", "") == idg ]), {})
+                    if storedPermissionsThisWorkflow:
+                        if technology in storedPermissionsThisWorkflow:
+                            storedPermissionsThisWorkflow[technology].append(technologyPermission)
+                        else:
+                            storedPermissionsThisWorkflow[technology] = [ technologyPermission ]
                     else:
                         workflowsPermissions.append({
                             "workflow": workflow,
                             "identity_group_identifier": idg,
-                            technology: [ technologyPermissions ]
+                            technology: [ technologyPermission ]
                         })
 
             return workflowsPermissions
