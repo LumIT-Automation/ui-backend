@@ -109,6 +109,5 @@ class WorkflowApiPermission:
                         })
 
             return WorkflowApiPermission.__checkForMissingTechnologyinPermission(workflowsPermissions)
-            #return workflowsPermissions
         except Exception as e:
             raise e
