@@ -63,7 +63,7 @@ class Workflow:
 
 
     @staticmethod
-    def listTechnologies() -> list:
+    def listAllTechnologies() -> list:
         technologies = list()
         c = connection.cursor()
 

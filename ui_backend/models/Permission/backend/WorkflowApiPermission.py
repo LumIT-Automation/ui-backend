@@ -50,21 +50,6 @@ class WorkflowApiPermission:
         }
     ]
     """
-    @staticmethod
-    def __checkForMissingTechnologyinPermission(workflowsPermissions: list):
-        try:
-            for workflow in Workflow.list():
-                workflowPermissions = [ wp for wp in workflowsPermissions if wp.get("workflow", "") == workflow.get("name", "") ]
-                for workflowPermission in workflowPermissions:
-                    for technology in workflow.get("technologies", ""):
-                        if technology not in workflowPermission.keys():
-                            workflowPermission[technology] = {"missing": "true"}
-
-            return workflowsPermissions
-        except Exception as e:
-            raise e
-
-
 
     @staticmethod
     def list(username: str, headers: dict = None) -> list:
@@ -77,7 +62,7 @@ class WorkflowApiPermission:
                     "workflowUser": username,
             })
 
-            for technology in Workflow.listTechnologies():
+            for technology in Workflow.listAllTechnologies():
                 try:
                     api = ApiSupplicant(
                         endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/permissions-workflow/",
@@ -115,7 +100,38 @@ class WorkflowApiPermission:
 
 
     @staticmethod
-    def add(username: str, headers: dict = None, data: dict = None) -> list:
+    def remove(username: str, workflow: str, identityGroup: str, technologies: list = None, headers: dict = None) -> list:
+        technologies = technologies or []
+        headers = headers or {}
+        response = dict()
+
+        try:
+            headers.update({
+                "workflowUser": username,
+            })
+
+            for technology in technologies:
+                try:
+                    api = ApiSupplicant(
+                        endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/permission-workflow/" + workflow + "/" + identityGroup + "/",
+                        additionalHeaders=headers
+                    )
+                    response.update({
+                        technology: api.delete()
+                    })
+
+                except KeyError:
+                    raise CustomException(status=503, payload={"UI-BACKEND": str(technology) + " API not resolved, try again later."})
+
+            return response
+        except Exception as e:
+            raise e
+
+
+
+    @staticmethod
+    def add(username: str, technologies: list = None, headers: dict = None, data: dict = None) -> dict:
+        technologies = technologies or []
         headers = headers or {}
         data = data or {}
         response = dict()
@@ -125,11 +141,10 @@ class WorkflowApiPermission:
                     "workflowUser": username,
             })
 
-            for technology in Workflow.listTechnologies():
+            for technology in technologies:
                 try:
-                    technologyDatas = data[technology]
-                    for technologyData in technologyDatas:
-
+                    technologyDataList = data[technology]
+                    for technologyData in technologyDataList:
                         technologyData["workflow"] = data["workflow"]
                         technologyData["identity_group_identifier"] = data["identity_group_identifier"]
 
@@ -145,5 +160,25 @@ class WorkflowApiPermission:
                     raise CustomException(status=503, payload={"UI-BACKEND": str(technology)+" API not resolved, try again later."})
 
             return response
+        except Exception as e:
+            raise e
+
+
+
+    ####################################################################################################################
+    # Private static methods
+    ####################################################################################################################
+
+    @staticmethod
+    def __checkForMissingTechnologyinPermission(workflowsPermissions: list):
+        try:
+            for workflow in Workflow.list():
+                workflowPermissions = [ wp for wp in workflowsPermissions if wp.get("workflow", "") == workflow.get("name", "") ]
+                for workflowPermission in workflowPermissions:
+                    for technology in workflow.get("technologies", ""):
+                        if technology not in workflowPermission.keys():
+                            workflowPermission[technology] = {"missing": "true"}
+
+            return workflowsPermissions
         except Exception as e:
             raise e

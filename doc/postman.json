@@ -9,44 +9,6 @@
 			"name": "Permissions",
 			"item": [
 				{
-					"name": "workflows",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"type": "text",
-								"value": "Bearer {{jwttoken}}"
-							},
-							{
-								"key": "If-None-Match",
-								"value": "c485212f298abe5f8b867ca42617292a",
-								"type": "text",
-								"disabled": true
-							}
-						],
-						"url": {
-							"raw": "http://10.0.111.12/backend/workflows/",
-							"protocol": "http",
-							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
-							],
-							"path": [
-								"backend",
-								"workflows",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "workflow permissions",
 					"request": {
 						"auth": {
@@ -125,6 +87,46 @@
 							"path": [
 								"backend",
 								"workflow-permissions",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "workflow permission",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow-permission/flow_test1/cn=groupAdmin,cn=users,dc=lab,dc=local/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow-permission",
+								"flow_test1",
+								"cn=groupAdmin,cn=users,dc=lab,dc=local",
 								""
 							]
 						}
@@ -451,6 +453,44 @@
 								"workflow",
 								"cloud-account",
 								"CRIF-diplodoco",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "workflows",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflows/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflows",
 								""
 							]
 						}

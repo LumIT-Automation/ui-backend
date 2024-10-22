@@ -2,7 +2,7 @@ from django.conf import settings
 
 from rest_framework.request import Request
 
-from ui_backend.models.Workflow.Workflow import Workflow
+from ui_backend.models.Workflow.BaseWorkflow import BaseWorkflow
 from ui_backend.models.Permission.Workflow import Workflow as PermissionWorkflow
 
 from ui_backend.helpers.ApiSupplicant import ApiSupplicant
@@ -62,7 +62,7 @@ class Authorization:
                 data["workflow"]["data"]["items"].update({ "any": [ { "workflow_id": 0, "workflow_name": "any" } ] })
             else:
                 workflowApiAuthorizations = dict()
-                workflows = Workflow.list()
+                workflows = BaseWorkflow.list()
                 for technology, url in services.items():
                     try:
                         workflowEndpoint = url + technology + "/workflow-authorizations/"

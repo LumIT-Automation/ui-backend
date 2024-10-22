@@ -32,7 +32,7 @@ class Workflow:
     @staticmethod
     def listTechnologies() -> List[dict]:
         try:
-            return Repository.listTechnologies()
+            return Repository.listAllTechnologies()
         except Exception as e:
             raise e
 

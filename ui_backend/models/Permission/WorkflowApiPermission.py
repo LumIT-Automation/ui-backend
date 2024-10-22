@@ -20,17 +20,23 @@ class WorkflowApiPermission:
     # Public methods
     ####################################################################################################################
 
-    def add(self, data: dict) -> list:
+    def remove(self) -> list:
+        try:
+            return Backend.remove(self.username, self.workflow, self.identityGroup, self.technologies, self.headers)
+        except Exception as e:
+            raise e
+
+
+
+    def add(self, data: dict) -> dict:
         try:
             for technology in self.technologies:
                 if technology not in data.keys():
                     raise CustomException(status=400, payload={"UI-BACKEND": "Add permission data: missing technology "+str(technology)+"."})
 
-            return Backend.add(self.username, self.headers, data)
+            return Backend.add(self.username, self.technologies, self.headers, data)
         except Exception as e:
             raise e
-
-
 
 
 

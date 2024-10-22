@@ -1,10 +1,10 @@
-from ui_backend.models.Workflow.Workflow import Workflow
+from ui_backend.models.Workflow.BaseWorkflow import BaseWorkflow
 
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Log import Log
 
 
-class CloudAccount(Workflow):
+class CloudAccount(BaseWorkflow):
     def __init__(self, username: str, workflowId: str, workflowAction: str, data: dict = None, headers: dict = None, *args, **kwargs):
         super().__init__(username, workflowId, *args, **kwargs)
 
