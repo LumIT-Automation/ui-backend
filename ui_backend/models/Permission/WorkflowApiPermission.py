@@ -1,6 +1,8 @@
 from ui_backend.models.Permission.Workflow import Workflow
 from ui_backend.models.Permission.backend.WorkflowApiPermission import WorkflowApiPermission as Backend
 
+from ui_backend.helpers.Exception import CustomException
+
 
 class WorkflowApiPermission:
     def __init__(self, username: str, workflow: str, identityGroup: str, headers: dict = None, *args, **kwargs):
@@ -11,6 +13,25 @@ class WorkflowApiPermission:
         self.identityGroup = identityGroup
         self.technologies = Workflow(name = self.workflow).technologies
         self.headers = headers or {}
+
+
+
+    ####################################################################################################################
+    # Public methods
+    ####################################################################################################################
+
+    def add(self, data: dict) -> list:
+        try:
+            for technology in self.technologies:
+                if technology not in data.keys():
+                    raise CustomException(status=400, payload={"UI-BACKEND": "Add permission data: missing technology "+str(technology)+"."})
+
+            return Backend.add(self.username, self.headers, data)
+        except Exception as e:
+            raise e
+
+
+
 
 
     ####################################################################################################################

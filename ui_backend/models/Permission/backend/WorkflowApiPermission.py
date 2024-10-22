@@ -111,3 +111,39 @@ class WorkflowApiPermission:
             return WorkflowApiPermission.__checkForMissingTechnologyinPermission(workflowsPermissions)
         except Exception as e:
             raise e
+
+
+
+    @staticmethod
+    def add(username: str, headers: dict = None, data: dict = None) -> list:
+        headers = headers or {}
+        data = data or {}
+        response = dict()
+
+        try:
+            headers.update({
+                    "workflowUser": username,
+            })
+
+            for technology in Workflow.listTechnologies():
+                try:
+                    technologyDatas = data[technology]
+                    for technologyData in technologyDatas:
+
+                        technologyData["workflow"] = data["workflow"]
+                        technologyData["identity_group_identifier"] = data["identity_group_identifier"]
+
+                        api = ApiSupplicant(
+                            endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/permissions-workflow/",
+                            additionalHeaders=headers
+                        )
+                        response.update({
+                            technology: api.post({"data": technologyData})
+                        })
+
+                except KeyError:
+                    raise CustomException(status=503, payload={"UI-BACKEND": str(technology)+" API not resolved, try again later."})
+
+            return response
+        except Exception as e:
+            raise e

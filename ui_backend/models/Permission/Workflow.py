@@ -2,6 +2,7 @@ from typing import List
 
 from ui_backend.models.Permission.repository.Workflow import Workflow as Repository
 
+
 class Workflow:
     def __init__(self, id: int = 0, name: str = "", *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -25,6 +26,16 @@ class Workflow:
             return Repository.list()
         except Exception as e:
             raise e
+
+
+
+    @staticmethod
+    def listTechnologies() -> List[dict]:
+        try:
+            return Repository.listTechnologies()
+        except Exception as e:
+            raise e
+
 
 
 

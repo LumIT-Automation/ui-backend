@@ -3,6 +3,7 @@ from django.conf import settings
 from rest_framework.request import Request
 
 from ui_backend.models.Workflow.Workflow import Workflow
+from ui_backend.models.Permission.Workflow import Workflow as PermissionWorkflow
 
 from ui_backend.helpers.ApiSupplicant import ApiSupplicant
 from ui_backend.helpers.Log import Log
@@ -81,6 +82,12 @@ class Authorization:
                         if not data["workflow"]["data"]["items"]:
                             data["workflow"]["data"]["items"].update({"any": [] })
                         data["workflow"]["data"]["items"]["any"].append({ "workflow_id": w["id"], "workflow_name":  w["name"] })
+
+            #cleanup
+            technologies = PermissionWorkflow.listTechnologies()
+            for k in technologies:
+                if k in data.keys():
+                    del data[k]
 
             return data
         except Exception as e:
