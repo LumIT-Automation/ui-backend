@@ -54,7 +54,7 @@ class WorkflowPermissionsController(CustomController):
 
             user = CustomController.loggedUser(request)
             if [ gr for gr in user["groups"] if gr.lower() == "automation.local" ]: # superadmin's group only.
-                Log.actionLog("Permission addition", user)
+                Log.actionLog("Workflow permission addition", user)
                 Log.actionLog("User data: "+str(request.data), user)
 
                 serializer = Serializer(data=request.data["data"])

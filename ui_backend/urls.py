@@ -2,7 +2,7 @@ from django.urls import path, re_path
 
 from .controllers import Root, Controller, History, UiConfiguration, Authorizations
 from .controllers.Workflow import Workflows, FlowTest1, CheckPointAddHost, CheckPointRemoveHost, CloudAccount, CloudAccounts
-from .controllers.Permission import WorkflowPermissions
+from .controllers.Permission import WorkflowPermissions, WorkflowPermission
 
 urlpatterns = [
     path('backend/', Root.RootController.as_view()),
@@ -11,8 +11,8 @@ urlpatterns = [
     path('backend/history/', History.HistoryController.as_view()),
     path('backend/ui-config/', UiConfiguration.UiConfigurationController.as_view()),
 
-     path('backend/workflow-permissions/', WorkflowPermissions.WorkflowPermissionsController.as_view()),
-
+    path('backend/workflow-permissions/', WorkflowPermissions.WorkflowPermissionsController.as_view()),
+    path('backend/workflow-permission/<str:workflow>/<str:identityGroup>/', WorkflowPermission.WorkflowPermissionController.as_view()),
 
     path('backend/workflows/', Workflows.WorkflowsController.as_view()),
     path('backend/workflow/flow-test1/', FlowTest1.WorkflowFlowTest1Controller.as_view()),
