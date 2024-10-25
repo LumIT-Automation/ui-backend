@@ -83,12 +83,6 @@ class Authorization:
                             data["workflow"]["data"]["items"].update({"any": [] })
                         data["workflow"]["data"]["items"]["any"].append({ "workflow_id": w["id"], "workflow_name":  w["name"] })
 
-            #cleanup
-            technologies = PermissionWorkflow.listTechnologies()
-            for k in technologies:
-                if k in data.keys():
-                    del data[k]
-
             return data
         except Exception as e:
             raise e
