@@ -20,6 +20,13 @@ class WorkflowApiPermission:
     # Public methods
     ####################################################################################################################
 
+    def modify(self, data: dict) -> dict:
+        try:
+            return Backend.modify(self.username, self.workflow, self.identityGroup, data, self.headers)
+        except Exception as e:
+            raise e
+
+
     def remove(self) -> list:
         try:
             return Backend.remove(self.username, self.workflow, self.identityGroup, self.technologies, self.headers)

@@ -80,7 +80,7 @@ class WorkflowApiPermission:
                     idg = technologyPermission.get("identity_group_identifier", "")
 
                     # Stored permissions in workflowsPermissions for this workflow, this technology, this identity group.
-                    storedPermissionsThisWorkflow = next(iter([ wp for wp in workflowsPermissions if wp.get("workflow", "") == workflow and wp.get("identity_group_identifier", "") == idg ]), {})
+                    storedPermissionsThisWorkflow = next(iter([ wp for wp in workflowsPermissions if wp.get("workflow", "") == workflow and wp.get("identity_group_identifier", "").lower() == idg.lower() ]), {})
                     if storedPermissionsThisWorkflow:
                         if technology in storedPermissionsThisWorkflow:
                             storedPermissionsThisWorkflow[technology].append(technologyPermission)
@@ -94,6 +94,102 @@ class WorkflowApiPermission:
                         })
 
             return WorkflowApiPermission.__checkForMissingTechnologyinPermission(workflowsPermissions)
+        except Exception as e:
+            raise e
+
+
+
+    @staticmethod
+    def modify(username: str, workflow: str, identityGroup: str, data: dict, headers: dict = None) -> dict:
+        headers = headers or {}
+        response = dict()
+        currentPermissions = dict()
+
+        def matchAllDictKeys(smallerDict: dict, largerDict: dict) -> bool:
+            r = True
+
+            try:
+                for item in smallerDict.items():
+                    if item not in largerDict.items():
+                        r = False
+                return r
+            except Exception as e:
+                raise e
+
+        try:
+            headers.update({
+                "workflowUser": username,
+            })
+
+            if workflow and identityGroup:
+                for technology in data.keys():
+                    try:
+                        apiGet = ApiSupplicant(
+                            endpoint=settings.API_BACKEND_BASE_URL[
+                                         technology] + technology + f"/permissions-workflow/?fby=identity_group_identifier&fval={identityGroup}&fby=workflow&fval={workflow}",
+                            additionalHeaders=headers
+                        )
+                        currentPermissions[technology] = [ perm for perm in apiGet.get().get("data", {}).get("items", []) \
+                            if perm["workflow"] == workflow and perm["identity_group_identifier"].lower() == identityGroup.lower() ]
+
+                    except KeyError:
+                        raise CustomException(status=503, payload={"UI-BACKEND": str(technology) + " API not resolved, try again later."})
+
+                for technology in data.keys():
+                    # If a new permission is the same of an old one, remove these permissions from both the lists (so leave the permission unchanged).
+                    for newTechnologyPermission in reversed(data[technology]):
+                        for currentTechnologyPermission in reversed(currentPermissions[technology]):
+                            if matchAllDictKeys(newTechnologyPermission, currentTechnologyPermission):
+                                Log.log("This permission is ok already: "+str(newTechnologyPermission))
+                                data[technology].remove(newTechnologyPermission)
+                                currentPermissions[technology].remove(currentTechnologyPermission)
+
+                    # If still there are some old permissions, modify them as the remaining new ones).
+                    for newTechnologyPermission in reversed(data[technology]):
+                        if not currentPermissions[technology]:
+                            break
+                        else:
+                            # Get the last old permission of the list.
+                            oldPermId = currentPermissions[technology][-1].get("id")
+                            newTechnologyPermission.update({
+                                "workflow": workflow,
+                                "identity_group_identifier": identityGroup
+                            })
+                            Log.log("This permission is modified: old: " + str(currentPermissions[technology][-1]) + " - new: " + str(newTechnologyPermission))
+                            response.update(
+                                    ApiSupplicant(
+                                    endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + f"/permission-workflow/{oldPermId}/",
+                                    additionalHeaders=headers,
+                                ).patch({"data": newTechnologyPermission})
+                            )
+                            currentPermissions[technology].pop(-1)
+                            data[technology].remove(newTechnologyPermission)
+
+                    # Now, if still there are some new permissions, add them. If still there are some old permissions, delete them.
+                    for newTechnologyPermission in data[technology]:
+                        newTechnologyPermission.update({
+                            "workflow": workflow,
+                            "identity_group_identifier": identityGroup
+                        })
+                        Log.log("This permission is added " + str(newTechnologyPermission))
+                        response.update(
+                                ApiSupplicant(
+                                endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + f"/permissions-workflow/",
+                                additionalHeaders=headers,
+                            ).post({"data": newTechnologyPermission})
+                        )
+
+                    for oldPerm in currentPermissions[technology]:
+                        oldPermId = oldPerm.get("id")
+                        Log.log("This old permission is deleted " + str(oldPerm))
+                        response.update(
+                                ApiSupplicant(
+                                endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + f"/permission-workflow/{oldPermId}/",
+                                additionalHeaders=headers,
+                            ).delete()
+                        )
+
+            return response
         except Exception as e:
             raise e
 
@@ -118,7 +214,7 @@ class WorkflowApiPermission:
                             additionalHeaders=headers
                         )
                         currentTechnologyPermissions = apiGet.get().get("data", {}).get("items", [])
-                        Log.log(currentTechnologyPermissions, 'CCCCCCCCCCCCCCCCC')
+
                         for permission in currentTechnologyPermissions:
                             permissionId = permission.get("id", 0)
                             if permissionId:
