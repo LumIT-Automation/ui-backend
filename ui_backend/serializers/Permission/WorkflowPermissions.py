@@ -24,7 +24,7 @@ class WorkflowPermissionsSerializer(serializers.Serializer):
             name = serializers.CharField(max_length=255, required=True)
 
         domain = WorkflowPermissionsCheckPointDomainSerializer(required=True)
-        tag = serializers.CharField(max_length=255, required=False)
+        tag = serializers.CharField(max_length=255, required=True)
 
 
     class WorkflowPermissionsVmwareSerializer(serializers.Serializer):

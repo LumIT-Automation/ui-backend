@@ -110,18 +110,27 @@ class WorkflowApiPermission:
                 "workflowUser": username,
             })
 
-            for technology in technologies:
-                try:
-                    api = ApiSupplicant(
-                        endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/permission-workflow/" + workflow + "/" + identityGroup + "/",
-                        additionalHeaders=headers
-                    )
-                    response.update({
-                        technology: api.delete()
-                    })
+            if workflow and identityGroup:
+                for technology in technologies:
+                    try:
+                        apiGet = ApiSupplicant(
+                            endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + f"/permissions-workflow/?fby=identity_group_identifier&fval={identityGroup}&fby=workflow&fval={workflow}",
+                            additionalHeaders=headers
+                        )
+                        currentTechnologyPermissions = apiGet.get().get("data", {}).get("items", [])
+                        Log.log(currentTechnologyPermissions, 'CCCCCCCCCCCCCCCCC')
+                        for permission in currentTechnologyPermissions:
+                            permissionId = permission.get("id", 0)
+                            if permissionId:
+                                response.update(ApiSupplicant(
+                                endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + f"/permission-workflow/{permissionId}/",
+                                additionalHeaders=headers
+                            ).delete())
+                            else:
+                                Log.log(technology + ': Permission not deleted, id is missing: '+str(permission), 'Error on modifying a workflow permission.')
 
-                except KeyError:
-                    raise CustomException(status=503, payload={"UI-BACKEND": str(technology) + " API not resolved, try again later."})
+                    except KeyError:
+                        raise CustomException(status=503, payload={"UI-BACKEND": str(technology) + " API not resolved, try again later."})
 
             return response
         except Exception as e:
