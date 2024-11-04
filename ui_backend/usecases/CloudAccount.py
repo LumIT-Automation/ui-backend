@@ -219,6 +219,25 @@ class CloudAccount(BaseWorkflow):
                     raise CustomException(status=status, payload={"Checkpoint": response})
 
             elif self.workflowAction == "remove":
+                # List the regions before the deletion.
+                regionsBefore = list()
+                for k in self.calls.keys():
+                    if k.startswith("infobloxAccountNetworksGet"):
+                        response, status = self.requestFacade(
+                            **self.calls[k],
+                            headers=self.headers,
+                            escalate=True
+                        )
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
+
+                        if status != 200 and status != 304:
+                            raise CustomException(status=status, payload={"Infoblox": response})
+                        else:
+                            for net in response.get("data", []):
+                                regionsBefore.append(net.get("extattrs", {}).get("City", {}).get("value", "").lstrip(
+                                    self.data.get("provider", "").lower() + "-"))
+
                 # Remove the infoblox networks.
                 m = max( [ int(k.lstrip('infobloxAccountNetworksGet-')) for k in self.calls.keys() if k.startswith("infobloxAccountNetworksGet") ] )
                 i = 0
@@ -236,7 +255,7 @@ class CloudAccount(BaseWorkflow):
                     i += 1
 
                 # Now list the remaining regions.
-                regions = list()
+                regionsAfter = list()
                 for k in self.calls.keys():
                     if k.startswith("infobloxAccountNetworksGet"):
                         response, status = self.requestFacade(
@@ -251,9 +270,10 @@ class CloudAccount(BaseWorkflow):
                             raise CustomException(status=status, payload={"Infoblox": response})
                         else:
                             for net in response.get("data", []):
-                                regions.append( net.get("extattrs", {}).get("City", {}).get("value", "").lstrip( self.data.get("provider", "").lower() + "-") )
+                                regionsAfter.append( net.get("extattrs", {}).get("City", {}).get("value", "").lstrip( self.data.get("provider", "").lower() + "-") )
 
-                self.data["checkpoint_datacenter_account_delete"]["regions"] =  regions
+                # Delete the checkpoint datacenter servers if the region is not used anymore.
+                self.data["checkpoint_datacenter_account_delete"]["regions"] = [ region for region in regionsBefore if region not in regionsAfter ]
 
                 response, status = self.requestFacade(
                     **self.calls["checkpointDatacenterAccountDelete"],
