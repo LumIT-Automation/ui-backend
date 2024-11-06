@@ -1,8 +1,11 @@
 from rest_framework import serializers
 
-from ui_backend.serializers.Permission.ApiIdentityGroup import ApiIdentityGroupSerializer
-
 
 class ApiIdentityGroupsSerializer(serializers.Serializer):
-    items = ApiIdentityGroupSerializer(many=True)
+    class ApiIdentityGroupsTechnologiesSerializer(serializers.Serializer):
+        technology = serializers.CharField(max_length=64, required=True)
+        id = serializers.IntegerField(required=True)
+
+    identity_group_identifier = serializers.CharField(max_length=255, required=True)
+    technologies = ApiIdentityGroupsTechnologiesSerializer(many=True)
 

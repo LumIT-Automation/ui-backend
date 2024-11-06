@@ -27,7 +27,17 @@ class ApiIdentityGroup:
                         additionalHeaders=headers
                     )
                     data.update({technology: api.get()})
-
+            """
+            data = {
+                     'checkpoint': {'data': {'items': 
+                        [{'id': 1, 'name': 'groupAdmin', 'identity_group_identifier': 'cn=groupadmin,cn=users,dc=lab,dc=local'}, 
+                        {'id': 2, 'name': 'groupStaff', 'identity_group_identifier': 'cn=groupstaff,cn=users,dc=lab,dc=local'}, 
+                        {'id': 3, 'name': 'groupReadOnly', 'identity_group_identifier': 'cn=groupreadonly,cn=users,dc=lab,dc=local'}]}, 
+                        'href': '/api/v1/checkpoint/identity-groups/'}, 
+                    'f5': {'data': {'items': 
+                        ...
+                }   
+            """
             for technology in data.keys():
                 for idg in data[technology].get("data", {}).get("items", []):
                     if not idg["identity_group_identifier"].lower() in [ idGroup["identity_group_identifier"].lower() for idGroup in identityGroups ]:
@@ -47,51 +57,10 @@ class ApiIdentityGroup:
             raise e
 
 
-    """
 
     @staticmethod
-    def remove(username: str, workflow: str, identityGroup: str, technologies: list = None, headers: dict = None) -> list:
-        technologies = technologies or []
+    def add(username: str, data: dict, headers: dict = None) -> dict:
         headers = headers or {}
-        response = dict()
-
-        try:
-            headers.update({
-                "workflowUser": username,
-            })
-
-            if workflow and identityGroup:
-                for technology in technologies:
-                    try:
-                        apiGet = ApiSupplicant(
-                            endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + f"/permissions-workflow/?fby=identity_group_identifier&fval={identityGroup}&fby=workflow&fval={workflow}",
-                            additionalHeaders=headers
-                        )
-                        currentTechnologyPermissions = apiGet.get().get("data", {}).get("items", [])
-
-                        for permission in currentTechnologyPermissions:
-                            permissionId = permission.get("id", 0)
-                            if permissionId:
-                                response.update(ApiSupplicant(
-                                endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + f"/permission-workflow/{permissionId}/",
-                                additionalHeaders=headers
-                            ).delete())
-                            else:
-                                Log.log(technology + ': Permission not deleted, id is missing: '+str(permission), 'Error on modifying a workflow permission.')
-
-                    except KeyError:
-                        raise CustomException(status=503, payload={"UI-BACKEND": str(technology) + " API not resolved, try again later."})
-
-            return response
-        except Exception as e:
-            raise e
-
-
-    @staticmethod
-    def add(username: str, technologies: list = None, headers: dict = None, data: dict = None) -> dict:
-        technologies = technologies or []
-        headers = headers or {}
-        data = data or {}
         response = dict()
 
         try:
@@ -99,27 +68,26 @@ class ApiIdentityGroup:
                     "workflowUser": username,
             })
 
-            for technology in technologies:
-                try:
-                    technologyDataList = data[technology]
-                    for technologyData in technologyDataList:
-                        technologyData["workflow"] = data["workflow"]
-                        technologyData["identity_group_identifier"] = data["identity_group_identifier"]
-
-                        api = ApiSupplicant(
-                            endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/permissions-workflow/",
-                            additionalHeaders=headers
-                        )
-                        response.update({
-                            technology: api.post({"data": technologyData})
-                        })
-
-                except KeyError:
-                    raise CustomException(status=503, payload={"UI-BACKEND": str(technology)+" API not resolved, try again later."})
+            # For each technology, first check if the groups already existsy.
+            for technology in settings.API_BACKEND_BASE_URL.keys():
+                    api = ApiSupplicant(
+                        endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/identity-groups/",
+                        additionalHeaders=headers
+                    )
+                    data.update({technology: api.get()})
+                
+            for technology in data.keys():
+                if not data["identity_group_identifier"].lower() not in [ idg["identity_group_identifier"] for idg in data[technology].get("data", {}).get("items", []) ]:
+                    api = ApiSupplicant(
+                        endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/identity-groups/",
+                        additionalHeaders=headers
+                    )
+                    response.update({
+                        technology: api.post({"data": data}) # Same data on each technology.
+                    })
 
             return response
         except Exception as e:
             raise e
-    """
 
 

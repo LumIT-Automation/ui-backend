@@ -6,7 +6,8 @@ from ui_backend.models.Permission.ApiIdentityGroup import ApiIdentityGroup
 
 from ui_backend.controllers.CustomController import CustomController
 
-from ui_backend.serializers.Permission.ApiIdentityGroups import ApiIdentityGroupsSerializer as Serializer
+from ui_backend.serializers.Permission.ApiIdentityGroups import ApiIdentityGroupsSerializer as GroupsSerializer
+from ui_backend.serializers.Permission.ApiIdentityGroup import ApiIdentityGroupSerializer as GroupSerializer
 from ui_backend.helpers.Log import Log
 
 
@@ -28,7 +29,7 @@ class ApiIdentityGroupsController(CustomController):
             if [ gr for gr in user["groups"] if gr.lower() == "automation.local" ]: # superadmin's group only.
                 if True:
                     data["data"]["items"] = ApiIdentityGroup.list(username=user["username"], headers=headers)
-                #serializer = Serializer(data=ApiIdentityGroup.list(username=user["username"], headers=headers))
+                #serializer = GroupsSerializer(data=ApiIdentityGroup.list(username=user["username"], headers=headers))
                 #if serializer.is_valid():
                 #    data["data"]["items"] = serializer.validated_data
                     data["href"] = request.get_full_path()
@@ -54,7 +55,7 @@ class ApiIdentityGroupsController(CustomController):
         })
 
 
-    """
+
     @staticmethod
     def post(request: Request) -> Response:
         headers = dict()
@@ -69,16 +70,15 @@ class ApiIdentityGroupsController(CustomController):
                 Log.actionLog("Workflow permission addition", user)
                 Log.actionLog("User data: "+str(request.data), user)
 
-                serializer = Serializer(data=request.data["data"])
+                serializer = GroupSerializer(data=request.data["data"])
                 if serializer.is_valid():
                     data = serializer.validated_data
 
-                    response = WorkflowApiPermission(
+                    response = ApiIdentityGroup.add(
                         username=user["username"],
-                        workflow=data["workflow"],
-                        identityGroup=data["identity_group_identifier"],
+                        data=data,
                         headers=headers
-                    ).add(data=data)
+                    )
                     httpStatus = status.HTTP_201_CREATED
                 else:
                     httpStatus = status.HTTP_400_BAD_REQUEST
@@ -97,4 +97,3 @@ class ApiIdentityGroupsController(CustomController):
         return Response(response, status=httpStatus, headers={
             "Cache-Control": "no-cache"
         })
-    """

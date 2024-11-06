@@ -53,7 +53,7 @@ class WorkflowApiPermission:
 
     @staticmethod
     def list(username: str, headers: dict = None) -> list:
-        headers = headers or ()
+        headers = headers or {}
 
         # List of permissions as List[dict].
         # Note. Partition information differ a bit from Partition model (historical reasons).
