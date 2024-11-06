@@ -74,12 +74,15 @@ class ApiIdentityGroupsController(CustomController):
                 if serializer.is_valid():
                     data = serializer.validated_data
 
-                    response = ApiIdentityGroup.add(
+                    response  = ApiIdentityGroup.add(
                         username=user["username"],
                         data=data,
                         headers=headers
                     )
-                    httpStatus = status.HTTP_201_CREATED
+                    if "created." in [response[t] for t in response.keys()]:
+                        httpStatus = status.HTTP_201_CREATED
+                    else:
+                        httpStatus = status.HTTP_200_OK
                 else:
                     httpStatus = status.HTTP_400_BAD_REQUEST
                     response = {

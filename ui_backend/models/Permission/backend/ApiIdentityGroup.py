@@ -1,7 +1,6 @@
 from django.conf import settings
 
 from ui_backend.helpers.ApiSupplicant import ApiSupplicant
-from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Log import Log
 
 class ApiIdentityGroup:
@@ -61,6 +60,7 @@ class ApiIdentityGroup:
     @staticmethod
     def add(username: str, data: dict, headers: dict = None) -> dict:
         headers = headers or {}
+        apiStatus = dict()
         response = dict()
 
         try:
@@ -74,17 +74,24 @@ class ApiIdentityGroup:
                         endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/identity-groups/",
                         additionalHeaders=headers
                     )
-                    data.update({technology: api.get()})
-                
-            for technology in data.keys():
-                if not data["identity_group_identifier"].lower() not in [ idg["identity_group_identifier"] for idg in data[technology].get("data", {}).get("items", []) ]:
-                    api = ApiSupplicant(
+                    apiStatus.update({technology: api.get()})
+
+            for technology in apiStatus.keys():
+                if not data["identity_group_identifier"].lower() in [ idg["identity_group_identifier"].lower() for idg in apiStatus[technology].get("data", {}).get("items", []) ]:
+                    ApiSupplicant(
                         endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/identity-groups/",
                         additionalHeaders=headers
-                    )
+                    ).post({"data": data})
+
                     response.update({
-                        technology: api.post({"data": data}) # Same data on each technology.
+                        technology: "created." # Same data on each technology.
                     })
+
+                else:
+                    response.update({
+                        technology: "group already exists: " + data["identity_group_identifier"]
+                    })
+                    Log.log("ApiIdentityGroup: " + technology + ": group already exists: " + data["identity_group_identifier"])
 
             return response
         except Exception as e:
