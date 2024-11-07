@@ -27,11 +27,9 @@ class ApiIdentityGroupsController(CustomController):
 
             user = CustomController.loggedUser(request)
             if [ gr for gr in user["groups"] if gr.lower() == "automation.local" ]: # superadmin's group only.
-                if True:
-                    data["data"]["items"] = ApiIdentityGroup.list(username=user["username"], headers=headers)
-                #serializer = GroupsSerializer(data=ApiIdentityGroup.list(username=user["username"], headers=headers))
-                #if serializer.is_valid():
-                #    data["data"]["items"] = serializer.validated_data
+                serializer = GroupsSerializer(data=ApiIdentityGroup.list(username=user["username"], headers=headers), many=True)
+                if serializer.is_valid():
+                    data["data"]["items"] = serializer.validated_data
                     data["href"] = request.get_full_path()
                     httpStatus = status.HTTP_200_OK
                 else:

@@ -49,7 +49,7 @@ class ApiIdentityGroup:
                         })
                     else:
                         idGroup = next(iter([ idGroup for idGroup in identityGroups if idGroup["identity_group_identifier"].lower() == idg["identity_group_identifier"].lower() ] ), {})
-                        idGroup["technologies"].append({ "tehnology": technology, "id": idg["id"] })
+                        idGroup["technologies"].append({ "technology": technology, "id": idg["id"] })
 
             return identityGroups
         except Exception as e:

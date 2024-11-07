@@ -8,4 +8,3 @@ class ApiIdentityGroupsSerializer(serializers.Serializer):
 
     identity_group_identifier = serializers.CharField(max_length=255, required=True)
     technologies = ApiIdentityGroupsTechnologiesSerializer(many=True)
-
