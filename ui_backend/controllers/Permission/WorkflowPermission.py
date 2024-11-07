@@ -5,6 +5,7 @@ from rest_framework import status
 from ui_backend.models.Permission.WorkflowApiPermission import WorkflowApiPermission
 
 from ui_backend.controllers.CustomController import CustomController
+from ui_backend.serializers.Permission.WorkflowPermission import WorkflowPermissionSerializer as Serializer
 
 from ui_backend.helpers.Log import Log
 
@@ -53,11 +54,9 @@ class WorkflowPermissionController(CustomController):
 
             user = CustomController.loggedUser(request)
             if [gr for gr in user["groups"] if gr.lower() == "automation.local"]:  # superadmin's group only.
-                #serializer = Serializer(data=request.data["data"])
-                #if serializer.is_valid():
-                #    data = serializer.validated_data
-                if True:
-                    data = request.data["data"]
+                serializer = Serializer(data=request.data["data"])
+                if serializer.is_valid():
+                    data = serializer.validated_data
                     Log.actionLog("Workflow permission change", user)
 
                     response = WorkflowApiPermission(
