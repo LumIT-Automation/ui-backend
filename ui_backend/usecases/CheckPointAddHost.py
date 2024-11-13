@@ -88,7 +88,7 @@ class CheckPointAddHost(BaseWorkflow):
                 Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
                 Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
 
-                if status != 200:
+                if status != 200 and status != 304:
                     raise CustomException(status=status, payload={"Infoblox": response})
 
                 if response.get("data", {}).get("status", "") == "USED":
