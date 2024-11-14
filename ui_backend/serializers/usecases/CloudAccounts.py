@@ -7,7 +7,7 @@ class IntegerStringRegexSerializer(serializers.RegexField):
         super().__init__(regex=regex, *args, **kwargs)
 
 
-class FlowCloudAccountSerializer(serializers.Serializer):
+class CloudAccountSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -16,5 +16,10 @@ class FlowCloudAccountSerializer(serializers.Serializer):
         self.fields["Country"] = serializers.CharField(max_length=255, required=True)
         self.fields["Reference"] = serializers.CharField(max_length=255, required=True)
 
+
 class FlowCloudAccountsSerializer(serializers.Serializer):
-    data = FlowCloudAccountSerializer(many=True)
+    class FlowCloudAccountsItemsSerializer(serializers.Serializer):
+        items = CloudAccountSerializer(many=True)
+
+    data = FlowCloudAccountsItemsSerializer()
+

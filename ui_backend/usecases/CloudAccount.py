@@ -190,7 +190,11 @@ class CloudAccount(BaseWorkflow):
 
                         if data.get("data", []):
                             allData.extend([d for d in data.get("data", []) if d not in allData])
-                response = { "data": allData }
+                response = {
+                    "data": {
+                        "items": allData
+                    }
+                }
 
             elif self.workflowAction == "assign":
                 for k in self.calls.keys():
