@@ -1,6 +1,8 @@
 from django.conf import settings
 
+from ui_backend.models.Permission.Workflow import Workflow as PermissionWorkflow
 from ui_backend.helpers.ApiSupplicant import ApiSupplicant
+from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Log import Log
 
 class ApiIdentityGroup:
@@ -68,20 +70,32 @@ class ApiIdentityGroup:
                     "workflowUser": username,
             })
 
-            # For each technology, first check if the groups already existsy.
+            # Check that the api node of each technology used in at least one workflow is oneline.
+            usedTechnologies = PermissionWorkflow.listTechnologies()
+            for technology in usedTechnologies:
+                if str(technology) not in settings.API_BACKEND_BASE_URL.keys():
+                    raise CustomException(status=500, payload={"UI-BACKEND": str(technology) + " API not resolved, try again later."})
+
+            # For each technology, first check if the groups already exists.
             for technology in settings.API_BACKEND_BASE_URL.keys():
+                try:
                     api = ApiSupplicant(
                         endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/identity-groups/",
                         additionalHeaders=headers
                     )
                     apiStatus.update({technology: api.get()})
+                except Exception as e:
+                    raise CustomException(status=500, payload={"UI-BACKEND": "Cannot get groups for technology " + str(technology) + "."})
 
             for technology in apiStatus.keys():
                 if not data["identity_group_identifier"].lower() in [ idg["identity_group_identifier"].lower() for idg in apiStatus[technology].get("data", {}).get("items", []) ]:
-                    ApiSupplicant(
-                        endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/identity-groups/",
-                        additionalHeaders=headers
-                    ).post({"data": data})
+                    try:
+                        ApiSupplicant(
+                            endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/identity-groups/",
+                            additionalHeaders=headers
+                        ).post({"data": data})
+                    except Exception as e:
+                        raise CustomException(status=500, payload={"UI-BACKEND": "Cannot add groups for technology " + str(technology) + "."})
 
                     response.update({
                         technology: "created." # Same data on each technology.
