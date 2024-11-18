@@ -8,7 +8,7 @@ class CloudAccount(BaseWorkflow):
     def __init__(self, username: str, workflowId: str, workflowAction: str, data: dict = None, headers: dict = None, *args, **kwargs):
         super().__init__(username, workflowId, *args, **kwargs)
 
-        self.workflowName = "cloud_account-" + workflowAction
+        self.workflowName = "cloud_account"
         self.username = username
         self.workflowId = workflowId
         self.workflowAction = workflowAction
