@@ -77,7 +77,7 @@ class ApiIdentityGroup:
                     raise CustomException(status=500, payload={"UI-BACKEND": str(technology) + " API not resolved, try again later."})
 
             # For each technology, first check if the groups already exists.
-            for technology in settings.API_BACKEND_BASE_URL.keys():
+            for technology in usedTechnologies:
                 try:
                     api = ApiSupplicant(
                         endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/identity-groups/",
