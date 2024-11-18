@@ -4,7 +4,7 @@ printf "\n* Container prerm...\n"
 printf "\n* Cleanup...\n"
 
 if podman ps | awk '{print $2}' | grep -Eq '\blocalhost/ui-backend(:|$)'; then
-    podman stop -t 5 ui-backend &
+    podman stop -t 15 ui-backend &
     wait $! # Wait for the shutdown process of the container.
 fi
 

@@ -5,7 +5,7 @@ function start() {
 }
 
 function stop() {
-    podman stop ui-backend
+    podman stop -t 15 ui-backend
 }
 
 function restart() {
