@@ -53,24 +53,30 @@ class WorkflowApiPermission:
 
     @staticmethod
     def list(username: str, headers: dict = None) -> list:
+        import threading
+
         data = dict()
         headers = headers or {}
         workflowsPermissions = list()
 
-        try:
-            headers.update({
-                    "workflowUser": username,
-            })
+        def getPermissionTechnology(technology: str, data):
+            data[technology] = ApiSupplicant(
+                endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/permissions-workflow/",
+                additionalHeaders=headers
+            ).get()
 
+        try:
+            workers = list()
             for technology in Workflow.listAllTechnologies():
                 try:
-                    api = ApiSupplicant(
-                        endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/permissions-workflow/",
-                        additionalHeaders=headers
-                    )
-                    data.update({technology: api.get()})
+                    workers.append(threading.Thread(target=getPermissionTechnology, args=(technology, data)))
                 except KeyError:
-                    raise CustomException(status=503, payload={"UI-BACKEND": str(technology)+" API not resolved, try again later."})
+                    raise CustomException(status=503, payload={"UI-BACKEND": str(technology) + " API not resolved, try again later."})
+
+            for w in workers:
+                w.start()
+            for w in workers:
+                w.join()
 
             for technology in data.keys():
                 permissionsTechnologyList = data.get(technology, {}).get("data", {}).get("items", [])
