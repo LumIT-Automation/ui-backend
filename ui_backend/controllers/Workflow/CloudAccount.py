@@ -120,7 +120,7 @@ class WorkflowCloudAccountController(CustomController):
             if "Authorization" in request.headers:
                 headers["Authorization"] = request.headers["Authorization"]
 
-            serializer = RemoveSerializer(data=request.data["data"])
+            serializer = RemoveSerializer(data=request.data.get("data", dict()))
             if serializer.is_valid():
                 data = serializer.validated_data
                 data["Account Name"] = accountName
