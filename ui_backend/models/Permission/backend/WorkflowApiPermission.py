@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.conf import settings
 
 from ui_backend.models.Permission.repository.Workflow import Workflow
@@ -111,14 +113,20 @@ class WorkflowApiPermission:
         response = dict()
         currentPermissions = dict()
 
-        def matchAllDictKeys(smallerDict: dict, largerDict: dict) -> bool:
-            r = True
-
+        def matchAllDictItems(smallerDict: dict, largerDict: dict) -> bool:
             try:
-                for item in smallerDict.items():
-                    if item not in largerDict.items():
-                        r = False
-                return r
+                for k, v in smallerDict.items():
+                    if not k in largerDict.keys():
+                        return False
+                    else:
+                        if isinstance(v, dict):
+                            if not matchAllDictItems(v, largerDict[k]):
+                                return False
+                        else:
+                            if smallerDict[k] != largerDict[k]:
+                                return False
+
+                return True
             except Exception as e:
                 raise e
 
@@ -145,7 +153,7 @@ class WorkflowApiPermission:
                     # If a new permission is the same of an old one, remove these permissions from both the lists (so leave the permission unchanged).
                     for newTechnologyPermission in reversed(data[technology]):
                         for currentTechnologyPermission in reversed(currentPermissions[technology]):
-                            if matchAllDictKeys(newTechnologyPermission, currentTechnologyPermission):
+                            if matchAllDictItems(newTechnologyPermission, currentTechnologyPermission):
                                 Log.log("This permission is ok already: "+str(newTechnologyPermission))
                                 data[technology].remove(newTechnologyPermission)
                                 currentPermissions[technology].remove(currentTechnologyPermission)
