@@ -23,7 +23,7 @@ class InfobloxRemoveCloudNetworkSerializer(serializers.Serializer):
 class CheckpointDatacenterAccountPutSerializer(serializers.Serializer):
     asset = serializers.IntegerField(required=True)
     tags = serializers.ListField(
-        child=serializers.CharField(max_length=64, required=True)
+        child=serializers.CharField(max_length=64, required=False)
     )
 
 class CheckpointDatacenterAccountRemoveSerializer(serializers.Serializer):
