@@ -79,6 +79,7 @@ class FlowCloudAccountNetworkInfoSerializer(serializers.Serializer):
     network = serializers.CharField(max_length=64, required=True)
     network_container = serializers.CharField(max_length=64, required=False)
     extattrs = FlowCloudAccountExtattrsSerializer(required=True)
+    comment = serializers.CharField(max_length=255, allow_blank=True, required=False)
 
 class FlowCloudAccountInfoSerializer(serializers.Serializer):
     data = FlowCloudAccountNetworkInfoSerializer(many=True)
