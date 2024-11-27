@@ -11,10 +11,10 @@ class CloudAccountSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["Account Name"] = serializers.CharField(max_length=255, required=True)
-        self.fields["Account ID"] = IntegerStringRegexSerializer(required=True)
-        self.fields["Country"] = serializers.CharField(max_length=255, required=True)
-        self.fields["Reference"] = serializers.CharField(max_length=255, required=True)
+        self.fields["Account Name"] = serializers.CharField(max_length=255, allow_blank=True, required=False)
+        self.fields["Account ID"] = IntegerStringRegexSerializer(allow_blank=True, required=False)
+        self.fields["Country"] = serializers.CharField(max_length=255, allow_blank=True, required=False)
+        self.fields["Reference"] = serializers.CharField(max_length=255, allow_blank=True, required=False)
 
 
 class FlowCloudAccountsSerializer(serializers.Serializer):
