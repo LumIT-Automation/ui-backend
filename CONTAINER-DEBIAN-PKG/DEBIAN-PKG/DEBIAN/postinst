@@ -13,6 +13,7 @@ if [ "$1" == "configure" ]; then
     a2enmod wsgi
     a2ensite 001-ui-backend
     a2query -s 000-default && a2dissite 000-default # disable default Apache site, if enabled.
+    a2enconf timeout.conf # need a greater timeout.
 
     # Fix the syslog-ng main file. Needed to avoid logging also in /var/log/syslog.
     cd /etc/syslog-ng/
