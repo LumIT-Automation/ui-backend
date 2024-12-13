@@ -231,13 +231,14 @@ function System_systemFilesSetup()
     # Setting up system files.
     cp -R DEBIAN-PKG/etc $workingFolderPath
     cp -R DEBIAN-PKG/usr $workingFolderPath
+    find $workingFolderPath -type f -name placeholder -exec rm -f {} \;
 
     find $workingFolderPath -type d -exec chmod 0755 {} \;
     find $workingFolderPath -type f -exec chmod 0644 {} \;
 
     chmod +x $workingFolderPath/usr/bin/consul.sh
     chmod +x $workingFolderPath/usr/bin/consul-template.sh
-	chmod +x $workingFolderPath/usr/bin/syslogng-target.sh
+    chmod +x $workingFolderPath/usr/bin/syslogng-target.sh
 }
 
 
