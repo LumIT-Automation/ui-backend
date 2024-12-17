@@ -1,5 +1,6 @@
 from ui_backend.models.Workflow.BaseWorkflow import BaseWorkflow
 
+from ui_backend.helpers.Jira import Jira
 from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Log import Log
 
@@ -13,6 +14,7 @@ class CloudAccount(BaseWorkflow):
         self.workflowId = workflowId
         self.workflowAction = workflowAction
         self.data = self.__dataformat(data)
+        self.changeRequestId = ""
         self.headers = headers or ()
 
 
@@ -145,6 +147,7 @@ class CloudAccount(BaseWorkflow):
     def preCheckPermissions(self) -> bool:
         try:
             self.checkAuthorizations()
+            self.__checkIfRequestApproved()
             self.checkWorkflowPrivileges(calls=self.calls)
 
             return True
@@ -343,21 +346,34 @@ class CloudAccount(BaseWorkflow):
                         dataItem["network_data"]["extattrs"]["Account ID"] = { "value": data.get("Account ID", "") }
                         formattedData["infoblox_cloud_network_assign"].append(dataItem)
 
-                    formattedData["checkpoint_datacenter_account_put"] = {"change-request-id": data.get("change-request-id", "")}
+                    self.changeRequestId = data.get("change-request-id", "")
+                    formattedData["checkpoint_datacenter_account_put"] = {"change-request-id": self.changeRequestId}
                     formattedData["checkpoint_datacenter_account_put"]["Account Name"] = data.get("Account Name", "")
                     formattedData["checkpoint_datacenter_account_put"]["Account ID"] = data.get("Account ID", "")
                     formattedData["checkpoint_datacenter_account_put"]["tags"] = data.get("checkpoint_datacenter_account_put", {}).get("tags", [])
                     formattedData["checkpoint_datacenter_account_put"]["regions"] = [] # add each region in checkpoint data after the corresponding network is created in infoblox.
                 elif self.workflowAction == "remove":
+                    self.changeRequestId = data.get("change-request-id", "")
                     formattedData = {
                         "Account Name": data.get("Account Name", ""),
                         "provider": data.get("provider", ""),
                         "infoblox_cloud_network_delete": data.get("infoblox_cloud_network_delete", []),
                         "checkpoint_datacenter_account_delete": {
-                            "change-request-id": data.get("change-request-id", "")
+                            "change-request-id": self.changeRequestId
                         }
                     }
 
             return formattedData
+        except Exception as e:
+            raise e
+
+
+
+    def __checkIfRequestApproved(self) -> bool:
+        try:
+            if not self.changeRequestId:
+                return True
+            else:
+                return Jira().checkIfIssueApproved(self.changeRequestId)
         except Exception as e:
             raise e
