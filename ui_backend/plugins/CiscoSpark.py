@@ -43,7 +43,7 @@ class CiscoSpark:
                 params=None,
                 data=json.dumps({
                     "roomId": settings.CISCO_SPARK_ROOM_ID,
-                    "text": f"[Concerto Orchestration, Infoblox][{concertoEnvironment}]\n"+str(message)
+                    "text": f"[Concerto Orchestration, Workflow][{concertoEnvironment}]\n"+str(message)
                 })
             )
 
@@ -60,36 +60,30 @@ class CiscoSpark:
 
 
 
-def run(
-        messageHeader: str,
-        assetId: int,
-        domain: str,
-        requestId: str = "",
-        operationId: str = "",
-        objectId: str = "",
-        user: str = "",
-        messageData: str = "",
-        timestamp: str = "",
-        historyId: int = 0
-    ):
+    def run(
+            messageHeader: str,
+            workflow: str,
+            workflowId: str = "",
+            user: str = "",
+            requestId: str = "",
+            messageData: str = "",
+            timestamp: str = "",
+        ):
 
-    try:
-        mex = (
-            f"{messageHeader}"
-            f"Asset ID: {assetId}"
-            f"Domain: {domain}"
-            f"Change Request ID: {requestId}"
-            f"Unique operation ID: {operationId}"
-            f"ObjectId: {objectId}"
-            f"User: {user}"
-            f"Message Data: {messageData}"
-            f"Timestap: {timestamp}"
-            f"HistoryId: {historyId}"
-        )
+        try:
+            mex = (
+                f"{messageHeader}"
+                f" Workflow: {workflow}"
+                f" Workflow ID: {workflowId}"
+                f" User: {user}"
+                f" Change Request ID: {requestId}"
+                f" Message Data: {messageData}"
+                f" Timestap: {timestamp}"
+            )
 
-        CiscoSpark.send(user, mex)
-    except Exception:
-        pass
+            CiscoSpark.send(user, mex)
+        except Exception:
+            pass
 
 
 

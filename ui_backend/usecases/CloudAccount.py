@@ -1,3 +1,8 @@
+from importlib import import_module
+from datetime import datetime
+
+from django.conf import settings
+
 from ui_backend.models.Workflow.BaseWorkflow import BaseWorkflow
 
 from ui_backend.helpers.Jira import Jira
@@ -210,6 +215,7 @@ class CloudAccount(BaseWorkflow):
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
 
                         if status != 201:
+                            self.__log(messageHeader="Action \"assign\" stopped on infoblox operations for workflow.", messageData="")
                             raise CustomException(status=status, payload={"Infoblox": response})
                         else:
                             # Add the region in checkpoint data.
@@ -223,8 +229,10 @@ class CloudAccount(BaseWorkflow):
                 Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
 
                 if status != 200:
+                    self.__log(messageHeader="Action \"assign\" stopped on checkpoint operations for workflow.", messageData="")
                     raise CustomException(status=status, payload={"Checkpoint": response})
 
+                self.__log(messageHeader="Action \"assign\" completed for workflow.", messageData="")
             elif self.workflowAction == "remove":
                 # List the regions before the deletion.
                 regionsBefore = list()
@@ -246,7 +254,7 @@ class CloudAccount(BaseWorkflow):
                                     self.data.get("provider", "").lower() + "-"))
 
                 # Remove the infoblox networks.
-                m = max( [ int(k.lstrip('infobloxAccountNetworksGet-')) for k in self.calls.keys() if k.startswith("infobloxAccountNetworksGet") ] )
+                m = max( [ int(k.lstrip('infobloxAccountNetworksGet-')) for k in self.calls.keys() if k.startswith("infobloxAccountNetworksGet") ] ) - 1
                 i = 0
                 while i < m:
                     response, status = self.requestFacade(
@@ -257,6 +265,7 @@ class CloudAccount(BaseWorkflow):
                     Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
 
                     if status != 200:
+                        self.__log(messageHeader="Action \"remove\" stopped on infoblox operations for workflow.", messageData="")
                         raise CustomException(status=status, payload={"Checkpoint": response})
 
                     i += 1
@@ -290,8 +299,10 @@ class CloudAccount(BaseWorkflow):
                 Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
 
                 if status != 200:
+                    self.__log(messageHeader="Action \"remove\" stopped on checkpoint operations for workflow.", messageData="")
                     raise CustomException(status=status, payload={"Checkpoint": response})
 
+                self.__log(messageHeader="Action \"remove\" completed for workflow.", messageData="")
             return response
         except Exception as e:
             raise e
@@ -377,3 +388,35 @@ class CloudAccount(BaseWorkflow):
                 return Jira().checkIfIssueApproved(self.changeRequestId)
         except Exception as e:
             raise e
+
+
+
+    def __log(self,
+            messageHeader: str,
+            messageData: str = "",
+        ) -> None:
+
+        try:
+            logString = f"[WORKFLOW: {self.workflowName}] [WORKFLOW ID: {self.workflowId}] {messageHeader} [Username: {self.username}] [RequestId: {self.changeRequestId}]"
+            if messageData:
+                logString += f" [{messageData}] "
+            Log.log(logString, "_")
+        except Exception as e:
+            raise e
+
+        # Run registered plugins.
+        for plugin in settings.PLUGINS:
+            if plugin == "checkpoint.plugins.CiscoSpark":
+                try:
+                    p = import_module(plugin)
+                    p.run(
+                        messageHeader=messageHeader,
+                        workflow=self.workflowName,
+                        workflowId=self.workflowId,
+                        user=self.username,
+                        requestId=self.changeRequestId,
+                        messageData=messageData,
+                        timestamp=datetime.now()
+                    )
+                except Exception:
+                    pass
