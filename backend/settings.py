@@ -8,8 +8,6 @@ from ui_backend.helpers.Log import Log
 # JWT settings.
 from backend.settings_jwt import *
 
-from backend.settings_workflow import *
-
 
 # Resolver.
 consulResolver = dns.resolver.Resolver()
@@ -280,3 +278,10 @@ except Exception:
 
 API_SUPPLICANT_NETWORK_TIMEOUT = 1800 # seconds.
 API_SUPPLICANT_CACHE_VALIDITY = 60*60*24 # seconds.
+
+
+# Customer/use cases settings.
+try:
+    from backend.settings_custom import *
+except ModuleNotFoundError:
+    pass
