@@ -127,7 +127,7 @@ class BaseWorkflow:
             Log.log("[WORKFLOW] " + self.workflowId + " - " + technology + " response status: " + str(status))
             Log.log("[WORKFLOW] " + self.workflowId + " - " + technology + " response: " + str(response))
 
-            if status != 200:
+            if status != 200 and status != 304:
                 raise CustomException(status=status, payload={technology: response})
 
             return response.get("data", {}).get("items", [])

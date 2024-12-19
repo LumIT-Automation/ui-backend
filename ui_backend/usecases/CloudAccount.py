@@ -31,9 +31,14 @@ class CloudAccount(BaseWorkflow):
                     "method": "DELETE",
                     "urlSegment": "locks/",
                     "data": None
+                },
+                "checkpointUnlock": {
+                    "technology": "checkpoint",
+                    "method": "DELETE",
+                    "urlSegment": "locks/",
+                    "data": None
                 }
             }
-
             infobloxAssetIds  = [ a["id"] for a in self.listAssets(technology="infoblox") ]
             for id in infobloxAssetIds:
                 if id:
@@ -43,6 +48,16 @@ class CloudAccount(BaseWorkflow):
                         "method": "GET",
                         "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + self.data.get("Account Name", "") + "&fby=*Environment&fval=Cloud",
                         "data": self.data
+                    }
+            checkpointAssetIds = [ a["id"] for a in self.listAssets(technology="checkpoint")]
+            for id in checkpointAssetIds:
+                if id:
+                    self.calls["checkpointAccountInfoGet-" + str(id)] = {
+                        "technology": "checkpoint",
+                        "method": "GET",
+                        "urlSegment": str(id) + "/datacenter-account/" + self.data.get("Account Name", ""),
+                        "data": None
+
                     }
 
         elif workflowAction == "list":
@@ -54,7 +69,6 @@ class CloudAccount(BaseWorkflow):
                     "data": None
                 }
             }
-
             infobloxAssetIds  = [ a["id"] for a in self.listAssets(technology="infoblox") ]
             for id in infobloxAssetIds:
                 if id:
@@ -166,7 +180,7 @@ class CloudAccount(BaseWorkflow):
 
         try:
             if self.workflowAction == "info":
-                response = { "data": [] }
+                response = { "data": {"networks": []} }
                 for k in self.calls.keys():
                     if k.startswith("infobloxAccountNetworksGet"):
                         data, status = self.requestFacade(
@@ -180,7 +194,23 @@ class CloudAccount(BaseWorkflow):
                             raise CustomException(status=status, payload={"Infoblox": data})
 
                         if data:
-                            response["data"].extend(data.get("data", []))
+                            response["data"]["networks"].extend(data.get("data", []))
+
+                for k in self.calls.keys():
+                    if k.startswith("checkpointAccountInfoGet"):
+                        data, status = self.requestFacade(
+                            **self.calls[k],
+                            headers=self.headers,
+                        )
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(data))
+
+                        if status != 200 and status != 304:
+                            raise CustomException(status=status, payload={"Checkpoint": data})
+
+                        if data and data.get("data", {}).get("tags", []):
+                            response["data"]["tags"] = data.get("data", {}).get("tags", [])
+
 
             elif self.workflowAction == "list":
                 allData = list()
