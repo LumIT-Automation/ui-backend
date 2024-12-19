@@ -249,7 +249,7 @@ class CloudAccount(BaseWorkflow):
                             raise CustomException(status=status, payload={"Infoblox": response})
                         else:
                             # Add the region in checkpoint data.
-                            self.calls["checkpointDatacenterAccountPut"]["data"]["regions"].append( self.calls[k]["data"]["region"].lstrip(self.calls[k]["data"]["provider"].lower() + '-') )
+                            self.calls["checkpointDatacenterAccountPut"]["data"]["regions"].append( self.calls[k]["data"]["region"].removeprefix(self.calls[k]["data"]["provider"].lower() + '-'))
 
                 response, status = self.requestFacade(
                     **self.calls["checkpointDatacenterAccountPut"],
