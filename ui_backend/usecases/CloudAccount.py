@@ -280,11 +280,11 @@ class CloudAccount(BaseWorkflow):
                             raise CustomException(status=status, payload={"Infoblox": response})
                         else:
                             for net in response.get("data", []):
-                                regionsBefore.append(net.get("extattrs", {}).get("City", {}).get("value", "").lstrip(
+                                regionsBefore.append(net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix(
                                     self.data.get("provider", "").lower() + "-"))
 
                 # Remove the infoblox networks.
-                m = max( [ int(k.lstrip('infobloxAccountNetworksGet-')) for k in self.calls.keys() if k.startswith("infobloxAccountNetworksGet") ] ) - 1
+                m = max( [ int(k.removeprefix('infobloxAccountNetworksGet-')) for k in self.calls.keys() if k.startswith("infobloxAccountNetworksGet") ] ) - 1
                 i = 0
                 while i < m:
                     response, status = self.requestFacade(
@@ -316,7 +316,7 @@ class CloudAccount(BaseWorkflow):
                             raise CustomException(status=status, payload={"Infoblox": response})
                         else:
                             for net in response.get("data", []):
-                                regionsAfter.append( net.get("extattrs", {}).get("City", {}).get("value", "").lstrip( self.data.get("provider", "").lower() + "-") )
+                                regionsAfter.append( net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix( self.data.get("provider", "").lower() + "-") )
 
                 # Delete the checkpoint datacenter servers if the region is not used anymore.
                 self.data["checkpoint_datacenter_account_delete"]["regions"] = [ region for region in regionsBefore if region not in regionsAfter ]
