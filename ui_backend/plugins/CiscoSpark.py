@@ -59,16 +59,15 @@ class CiscoSpark:
             Log.log("[Plugins] Sending Spark notice failed: "+str(e.__str__()))
 
 
-
-    def run(
-            messageHeader: str,
-            workflow: str,
-            workflowId: str = "",
-            user: str = "",
-            requestId: str = "",
-            messageData: str = "",
-            timestamp: str = "",
-        ):
+def run(
+        messageHeader: str,
+        workflow: str,
+        workflowId: str = "",
+        user: str = "",
+        requestId: str = "",
+        messageData: str = "",
+        timestamp: str = "",
+    ):
 
         try:
             mex = (

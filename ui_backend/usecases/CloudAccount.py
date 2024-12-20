@@ -134,17 +134,15 @@ class CloudAccount(BaseWorkflow):
                 }
             }
             # Each deleted infoblox network is a different call.
-            i = 0
             assetIds = []
             for infobloxNetworkData in self.data.get("infoblox_cloud_network_delete", []):
                 assetIds.append(infobloxNetworkData.get("asset", 0))
-                self.calls["infobloxDeleteCloudNetwork-" + str(i)] = {
+                self.calls["infobloxDeleteCloudNetwork-" + str(infobloxNetworkData.get("asset", 0)) ] = {
                     "technology": "infoblox",
                     "method": "DELETE",
                     "urlSegment": str(infobloxNetworkData.get("asset", 0)) + "/delete-cloud-network/" + str(infobloxNetworkData.get("network", "")) + "/",
                     "data": infobloxNetworkData
                 }
-                i += 1
 
             assetIds = list(set(assetIds))
             for id in assetIds:
@@ -284,9 +282,7 @@ class CloudAccount(BaseWorkflow):
                                     self.data.get("provider", "").lower() + "-"))
 
                 # Remove the infoblox networks.
-                m = max( [ int(k.removeprefix('infobloxAccountNetworksGet-')) for k in self.calls.keys() if k.startswith("infobloxAccountNetworksGet") ] ) - 1
-                i = 0
-                while i <= m:
+                for i in [ int(k.removeprefix('infobloxAccountNetworksGet-')) for k in self.calls.keys() if k.startswith("infobloxAccountNetworksGet") ]:
                     response, status = self.requestFacade(
                         **self.calls["infobloxDeleteCloudNetwork-" + str(i)],
                         headers=self.headers,
