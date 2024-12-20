@@ -286,7 +286,7 @@ class CloudAccount(BaseWorkflow):
                 # Remove the infoblox networks.
                 m = max( [ int(k.removeprefix('infobloxAccountNetworksGet-')) for k in self.calls.keys() if k.startswith("infobloxAccountNetworksGet") ] ) - 1
                 i = 0
-                while i < m:
+                while i <= m:
                     response, status = self.requestFacade(
                         **self.calls["infobloxDeleteCloudNetwork-" + str(i)],
                         headers=self.headers,
@@ -436,7 +436,7 @@ class CloudAccount(BaseWorkflow):
 
         # Run registered plugins.
         for plugin in settings.PLUGINS:
-            if plugin == "checkpoint.plugins.CiscoSpark":
+            if plugin == "ui_backend.plugins.CiscoSpark":
                 try:
                     p = import_module(plugin)
                     p.run(
