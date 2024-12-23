@@ -135,14 +135,16 @@ class CloudAccount(BaseWorkflow):
             }
             # Each deleted infoblox network is a different call.
             assetIds = []
+            i = 0
             for infobloxNetworkData in self.data.get("infoblox_cloud_network_delete", []):
                 assetIds.append(infobloxNetworkData.get("asset", 0))
-                self.calls["infobloxDeleteCloudNetwork-" + str(infobloxNetworkData.get("asset", 0)) ] = {
+                self.calls["infobloxDeleteCloudNetwork-" + str(i) ] = {
                     "technology": "infoblox",
                     "method": "DELETE",
                     "urlSegment": str(infobloxNetworkData.get("asset", 0)) + "/delete-cloud-network/" + str(infobloxNetworkData.get("network", "")) + "/",
                     "data": infobloxNetworkData
                 }
+                i += 1
 
             assetIds = list(set(assetIds))
             for id in assetIds:
@@ -282,19 +284,18 @@ class CloudAccount(BaseWorkflow):
                                     self.data.get("provider", "").lower() + "-"))
 
                 # Remove the infoblox networks.
-                for i in [ int(k.removeprefix('infobloxAccountNetworksGet-')) for k in self.calls.keys() if k.startswith("infobloxAccountNetworksGet") ]:
-                    response, status = self.requestFacade(
-                        **self.calls["infobloxDeleteCloudNetwork-" + str(i)],
-                        headers=self.headers,
-                    )
-                    Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
-                    Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
+                for key in self.calls.keys():
+                    if key.startswith("infobloxDeleteCloudNetwork"):
+                        response, status = self.requestFacade(
+                            **self.calls[key],
+                            headers=self.headers,
+                        )
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
 
-                    if status != 200:
-                        self.__log(messageHeader="Action \"remove\" stopped on infoblox operations for workflow.", messageData="")
-                        raise CustomException(status=status, payload={"Checkpoint": response})
-
-                    i += 1
+                        if status != 200:
+                            self.__log(messageHeader="Action \"remove\" stopped on infoblox operations for workflow.", messageData="")
+                            raise CustomException(status=status, payload={"Checkpoint": response})
 
                 # Now list the remaining regions.
                 regionsAfter = list()
