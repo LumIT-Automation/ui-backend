@@ -1,3 +1,4 @@
+import re
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,6 +11,7 @@ from ui_backend.serializers.usecases.CloudAccount import FlowCloudAccountRemoveS
 
 from ui_backend.controllers.CustomController import CustomController
 
+from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Misc import Misc
 from ui_backend.helpers.Log import Log
 
@@ -69,8 +71,10 @@ class WorkflowCloudAccountController(CustomController):
         user = CustomController.loggedUser(request)
         workflowId = 'workflow-cloud_account-' + Misc.getWorkflowCorrelationId()
         workflowAction = "assign"
-
         try:
+            if not re.match(r"^CRIF-.+$", accountName):
+                raise CustomException(status=400, payload={"Checkpoint": "The Account Name must begin with the \"CRIF-\" string."})
+
             if "Authorization" in request.headers:
                 headers["Authorization"] = request.headers["Authorization"]
 
