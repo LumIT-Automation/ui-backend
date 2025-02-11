@@ -71,12 +71,13 @@ class CloudAccount(BaseWorkflow):
             }
             infobloxAssetIds  = [ a["id"] for a in self.listAssets(technology="infoblox") ]
             for id in infobloxAssetIds:
+                # Todo: get "AWS" or from input url parameters.
                 if id:
                     # Get info about the infoblox networks of the account on this asset.
                     self.calls["infobloxAccountsGet-" + str(id)] = {
                         "technology": "infoblox",
                         "method": "GET",
-                        "urlSegment": str(id) + "/list-cloud-extattrs/account+provider/",
+                        "urlSegment": str(id) + "/list-cloud-extattrs/account+provider/?fby=*Country&fval=Cloud-AWS",
                         "data": None
                     }
 
