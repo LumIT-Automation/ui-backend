@@ -237,32 +237,38 @@ class CloudAccount(BaseWorkflow):
             elif self.workflowAction == "assign":
                 for k in self.calls.keys():
                     if k.startswith("infobloxAssignCloudNetwork"):
-                        response, status = self.requestFacade(
-                            **self.calls[k],
-                            headers=self.headers,
-                        )
+                        try:
+                            status = 0
+                            response, status = self.requestFacade(
+                                **self.calls[k],
+                                headers=self.headers,
+                            )
+                        except Exception as e:
+                            Log.log("[WORKFLOW] " + self.workflowId + " - Raised exception from Infoblox: " + str(e))
+
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
 
-                        if status != 201:
-                            self.__log(messageHeader="Action \"assign\" stopped on infoblox operations for workflow.", messageData="")
-                            raise CustomException(status=status, payload={"Infoblox": response})
-                        else:
-                            # Add the region in checkpoint data.
+                        if status == 201:
                             self.calls["checkpointDatacenterAccountPut"]["data"]["regions"].append( self.calls[k]["data"]["region"].removeprefix(self.calls[k]["data"]["provider"].lower() + '-'))
+                        else:
+                            self.__log(messageHeader="Action \"assign\" stopped on infoblox operations for workflow.", messageData="")
 
-                response, status = self.requestFacade(
-                    **self.calls["checkpointDatacenterAccountPut"],
-                    headers=self.headers,
-                )
-                Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
-                Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
+                if self.calls["checkpointDatacenterAccountPut"]["data"]["regions"]:
+                    response, status = self.requestFacade(
+                        **self.calls["checkpointDatacenterAccountPut"],
+                        headers=self.headers,
+                    )
+                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
+                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
 
-                if status != 200:
-                    self.__log(messageHeader="Action \"assign\" stopped on checkpoint operations for workflow.", messageData="")
-                    raise CustomException(status=status, payload={"Checkpoint": response})
+                    if status != 200:
+                        self.__log(messageHeader="Action \"assign\" stopped on checkpoint operations for workflow.", messageData="")
+                        raise CustomException(status=status, payload={"Checkpoint": response})
 
-                self.__log(messageHeader="Action \"assign\" completed for workflow.", messageData="")
+                    self.__log(messageHeader="Action \"assign\" completed for workflow.", messageData="")
+                else:
+                    self.__log(messageHeader="No regions added to checkpoint data. Action \"assign\" completed for workflow.", messageData="")
             elif self.workflowAction == "remove":
                 # List the regions before the deletion.
                 regionsBefore = list()
