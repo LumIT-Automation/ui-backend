@@ -245,7 +245,11 @@ class CloudAccount(BaseWorkflow):
                                 headers=self.headers,
                             )
                         except Exception as e:
-                            Log.log("[WORKFLOW] " + self.workflowId + " - Raised exception from Infoblox: " + str(e))
+                            # If some networks are created in infoblox and some not, be sure that checkpoint is syncronized.
+                            if "The maximum number of regions for this Account ID" in str(e) or "The maximum number of networks for this Account ID" in str(e):
+                                Log.log("[WORKFLOW] " + self.workflowId + " - Raised exception from Infoblox: " + str(e))
+                            else:
+                                raise e
 
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
