@@ -1,5 +1,4 @@
 from importlib import import_module
-from datetime import datetime
 
 from django.conf import settings
 
@@ -18,9 +17,10 @@ class CloudAccount(BaseWorkflow):
         self.username = username
         self.workflowId = workflowId
         self.workflowAction = workflowAction
-        self.data = self.__dataformat(data)
         self.changeRequestId = ""
         self.headers = headers or ()
+        self.report = f"Workflow: {self.workflowName} {self.workflowId}"
+        self.data = self.__dataformat(data)
 
 
 
@@ -245,10 +245,13 @@ class CloudAccount(BaseWorkflow):
                                 headers=self.headers,
                             )
                         except Exception as e:
+                            self.report += "\nGot an exception on Infoblox: " + str(e)
                             # If some networks are created in infoblox and some not, be sure that checkpoint is syncronized.
                             if "The maximum number of regions for this Account ID" in str(e) or "The maximum number of networks for this Account ID" in str(e):
                                 Log.log("[WORKFLOW] " + self.workflowId + " - Raised exception from Infoblox: " + str(e))
                             else:
+                                self.__log(messageHeader="Action \"assign\" stopped on infoblox operations for workflow.", messageData=str(e))
+                                self.report += "\nAction \"assign\" stopped on infoblox operations for workflow."
                                 raise e
 
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
@@ -256,24 +259,27 @@ class CloudAccount(BaseWorkflow):
 
                         if status == 201:
                             self.calls["checkpointDatacenterAccountPut"]["data"]["regions"].append( self.calls[k]["data"]["region"].removeprefix(self.calls[k]["data"]["provider"].lower() + '-'))
-                        else:
-                            self.__log(messageHeader="Action \"assign\" stopped on infoblox operations for workflow.", messageData="")
 
                 if self.calls["checkpointDatacenterAccountPut"]["data"]["regions"]:
-                    response, status = self.requestFacade(
-                        **self.calls["checkpointDatacenterAccountPut"],
-                        headers=self.headers,
-                    )
+                    try:
+                        response, status = self.requestFacade(
+                            **self.calls["checkpointDatacenterAccountPut"],
+                            headers=self.headers,
+                        )
+                    except Exception as e:
+                        self.report += "\nGot an exception on Checkpoint: " + str(e)
+                        self.report += "\nAction \"assign\" stopped on checkpoint operations for workflow."
+                        self.__log(messageHeader="Action \"assign\" stopped on checkpoint operations for workflow.", messageData=str(e))
+                        raise e
+
                     Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
                     Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
 
-                    if status != 200:
-                        self.__log(messageHeader="Action \"assign\" stopped on checkpoint operations for workflow.", messageData="")
-                        raise CustomException(status=status, payload={"Checkpoint": response})
-
                     self.__log(messageHeader="Action \"assign\" completed for workflow.", messageData="")
+                    self.report += "\nAction \"assign\" completed for workflow."
                 else:
                     self.__log(messageHeader="No regions added to checkpoint data. Action \"assign\" completed for workflow.", messageData="")
+                    self.report += "\nNo regions added to checkpoint data. Action \"assign\" completed for workflow."
             elif self.workflowAction == "remove":
                 # List the regions before the deletion.
                 regionsBefore = list()
@@ -297,16 +303,23 @@ class CloudAccount(BaseWorkflow):
                 # Remove the infoblox networks.
                 for key in self.calls.keys():
                     if key.startswith("infobloxDeleteCloudNetwork"):
-                        response, status = self.requestFacade(
-                            **self.calls[key],
-                            headers=self.headers,
-                        )
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
+                        try:
+                            response, status = self.requestFacade(
+                                **self.calls[key],
+                                headers=self.headers,
+                            )
+                            Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
+                            Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
 
-                        if status != 200:
-                            self.__log(messageHeader="Action \"remove\" stopped on infoblox operations for workflow.", messageData="")
-                            raise CustomException(status=status, payload={"Checkpoint": response})
+                        except Exception as e:
+                            self.report += "\nGot an exception on Infoblox: " + str(e)
+                            if isinstance(e, CustomException) and e.status == 404:
+                                self.report += " http status 404"
+                                self.__log(messageHeader="Got an exception on Infoblox.", messageData=str(e))
+                            else:
+                                self.report += "\nAction \"remove\" stopped on infoblox operations for workflow."
+                                self.__log(messageHeader="Action \"remove\" stopped on infoblox operations for workflow.", messageData=str(e))
+                                raise e
 
                 # Now list the remaining regions.
                 regionsAfter = list()
@@ -328,42 +341,55 @@ class CloudAccount(BaseWorkflow):
 
                 # Delete the checkpoint datacenter servers if the region is not used anymore.
                 self.data["checkpoint_datacenter_account_delete"]["regions"] = [ region for region in regionsBefore if region not in regionsAfter ]
+                try:
+                    response, status = self.requestFacade(
+                        **self.calls["checkpointDatacenterAccountDelete"],
+                        headers=self.headers
+                    )
+                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
+                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
 
-                response, status = self.requestFacade(
-                    **self.calls["checkpointDatacenterAccountDelete"],
-                    headers=self.headers
-                )
-                Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
-                Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
-
-                if status != 200:
-                    self.__log(messageHeader="Action \"remove\" stopped on checkpoint operations for workflow.", messageData="")
-                    raise CustomException(status=status, payload={"Checkpoint": response})
+                except Exception as e:
+                    self.report += "\nGot an exception on Checkpoint: " + str(e)
+                    self.report += "\nAction \"remove\" stopped on checkpoint operations for workflow."
+                    self.__log(messageHeader="Action \"remove\" stopped on checkpoint operations for workflow.", messageData=str(e))
+                    raise e
 
                 self.__log(messageHeader="Action \"remove\" completed for workflow.", messageData="")
+                self.report += "\nAction \"remove\" completed for workflow."
+
             return response
         except Exception as e:
             raise e
         finally:
-            # Release locks.
-            r, s = self.requestFacade(
-                **self.calls["infobloxUnlock"],
-                headers=self.headers,
-            )
-            if s == 200:
-                Log.log("Unlocked infoblox entries.")
-            else:
-                Log.log("Unlock failed on infoblox api: " + str(r))
-
-            if "checkpointUnlock" in self.calls:
+            try:
+                # Release locks.
                 r, s = self.requestFacade(
-                    **self.calls["checkpointUnlock"],
+                    **self.calls["infobloxUnlock"],
                     headers=self.headers,
                 )
                 if s == 200:
-                    Log.log("Unlocked checkpoint entries.")
+                    Log.log("Unlocked infoblox entries.")
                 else:
-                    Log.log("Unlock failed on checkpoint api: " + str(r))
+                    Log.log("Unlock failed on infoblox api: " + str(r))
+            except Exception:
+                pass
+
+            try:
+                if "checkpointUnlock" in self.calls:
+                    r, s = self.requestFacade(
+                        **self.calls["checkpointUnlock"],
+                        headers=self.headers,
+                    )
+                    if s == 200:
+                        Log.log("Unlocked checkpoint entries.")
+                    else:
+                        Log.log("Unlock failed on checkpoint api: " + str(r))
+            except Exception:
+                pass
+
+            if self.workflowAction == "assign" or  self.workflowAction == "remove":
+                self.__report()
 
 
 
@@ -396,6 +422,7 @@ class CloudAccount(BaseWorkflow):
                         formattedData["infoblox_cloud_network_assign"].append(dataItem)
 
                     self.changeRequestId = data.get("change-request-id", "")
+                    self.report += f"\nChangeRequestId: {self.changeRequestId}"
                     formattedData["checkpoint_datacenter_account_put"] = {"change-request-id": self.changeRequestId}
                     formattedData["checkpoint_datacenter_account_put"]["Account Name"] = data.get("Account Name", "")
                     formattedData["checkpoint_datacenter_account_put"]["Account ID"] = data.get("Account ID", "")
@@ -403,6 +430,7 @@ class CloudAccount(BaseWorkflow):
                     formattedData["checkpoint_datacenter_account_put"]["regions"] = [] # add each region in checkpoint data after the corresponding network is created in infoblox.
                 elif self.workflowAction == "remove":
                     self.changeRequestId = data.get("change-request-id", "")
+                    self.report += f"\nChangeRequestId: {self.changeRequestId}"
                     formattedData = {
                         "Account Name": data.get("Account Name", ""),
                         "provider": data.get("provider", ""),
@@ -442,19 +470,14 @@ class CloudAccount(BaseWorkflow):
         except Exception as e:
             raise e
 
+
+
+    def __report(self):
         # Run registered plugins.
         for plugin in settings.PLUGINS:
             if plugin == "ui_backend.plugins.CiscoSpark":
                 try:
                     p = import_module(plugin)
-                    p.run(
-                        messageHeader=messageHeader,
-                        workflow=self.workflowName,
-                        workflowId=self.workflowId,
-                        user=self.username,
-                        requestId=self.changeRequestId,
-                        messageData=messageData,
-                        timestamp=datetime.now()
-                    )
+                    p.run(user=self.username, message=self.report)
                 except Exception:
                     pass

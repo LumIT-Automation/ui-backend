@@ -1,4 +1,4 @@
-import re
+from datetime import datetime
 import json
 import requests
 
@@ -43,7 +43,7 @@ class CiscoSpark:
                 params=None,
                 data=json.dumps({
                     "roomId": settings.CISCO_SPARK_ROOM_ID,
-                    "text": f"[Concerto Orchestration, Workflow][{concertoEnvironment}]\n"+str(message)
+                    "text": f"[Concerto Orchestration, Checkpoint][{concertoEnvironment}]\nUsername: {user}\n" + str(message)
                 })
             )
 
@@ -59,30 +59,14 @@ class CiscoSpark:
             Log.log("[Plugins] Sending Spark notice failed: "+str(e.__str__()))
 
 
-def run(
-        messageHeader: str,
-        workflow: str,
-        workflowId: str = "",
-        user: str = "",
-        requestId: str = "",
-        messageData: str = "",
-        timestamp: str = "",
-    ):
 
-        try:
-            mex = (
-                f"{messageHeader}"
-                f" Workflow: {workflow}"
-                f" Workflow ID: {workflowId}"
-                f" User: {user}"
-                f" Change Request ID: {requestId}"
-                f" Message Data: {messageData}"
-                f" Timestap: {timestamp}"
-            )
+def run(user, message):
+    try:
+        mex = message + "\nTimestamp: " + str(datetime.now())
+        CiscoSpark.send(user, mex)
+    except Exception:
+        pass
 
-            CiscoSpark.send(user, mex)
-        except Exception:
-            pass
 
 
 
