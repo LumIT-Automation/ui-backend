@@ -1,4 +1,5 @@
 from importlib import import_module
+import re
 
 from django.conf import settings
 
@@ -236,6 +237,7 @@ class CloudAccount(BaseWorkflow):
                 }
 
             elif self.workflowAction == "assign":
+                assignedNetworks = list()
                 for k in self.calls.keys():
                     if k.startswith("infobloxAssignCloudNetwork"):
                         try:
@@ -259,6 +261,8 @@ class CloudAccount(BaseWorkflow):
 
                         if status == 201:
                             self.calls["checkpointDatacenterAccountPut"]["data"]["regions"].append( self.calls[k]["data"]["region"].removeprefix(self.calls[k]["data"]["provider"].lower() + '-'))
+                            assignedNetworks.append(re.findall(r'network/[A-Za-z0-9]+:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/[0-9][0-9]?)/default$', response.get("data", ""))[0])
+                self.report += "\nAssigned networks: " + str (assignedNetworks)
 
                 if self.calls["checkpointDatacenterAccountPut"]["data"]["regions"]:
                     try:
@@ -266,20 +270,22 @@ class CloudAccount(BaseWorkflow):
                             **self.calls["checkpointDatacenterAccountPut"],
                             headers=self.headers,
                         )
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
+                        self.report += "\nCheckpoint regions: " + str(self.calls["checkpointDatacenterAccountPut"].get("data", {}).get("regions", []))
+
                     except Exception as e:
                         self.report += "\nGot an exception on Checkpoint: " + str(e)
                         self.report += "\nAction \"assign\" stopped on checkpoint operations for workflow."
                         self.__log(messageHeader="Action \"assign\" stopped on checkpoint operations for workflow.", messageData=str(e))
                         raise e
 
-                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
-                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
-
                     self.__log(messageHeader="Action \"assign\" completed for workflow.", messageData="")
                     self.report += "\nAction \"assign\" completed for workflow."
                 else:
                     self.__log(messageHeader="No regions added to checkpoint data. Action \"assign\" completed for workflow.", messageData="")
                     self.report += "\nNo regions added to checkpoint data. Action \"assign\" completed for workflow."
+
             elif self.workflowAction == "remove":
                 # List the regions before the deletion.
                 regionsBefore = list()
@@ -301,6 +307,7 @@ class CloudAccount(BaseWorkflow):
                                     self.data.get("provider", "").lower() + "-"))
 
                 # Remove the infoblox networks.
+                removedNetworks = list()
                 for key in self.calls.keys():
                     if key.startswith("infobloxDeleteCloudNetwork"):
                         try:
@@ -310,6 +317,7 @@ class CloudAccount(BaseWorkflow):
                             )
                             Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
                             Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
+                            removedNetworks.append(self.calls[key].get("data", {}).get("network", ""))
 
                         except Exception as e:
                             self.report += "\nGot an exception on Infoblox: " + str(e)
@@ -320,6 +328,7 @@ class CloudAccount(BaseWorkflow):
                                 self.report += "\nAction \"remove\" stopped on infoblox operations for workflow."
                                 self.__log(messageHeader="Action \"remove\" stopped on infoblox operations for workflow.", messageData=str(e))
                                 raise e
+                self.report += "\nRemoved networks: " + str(removedNetworks)
 
                 # Now list the remaining regions.
                 regionsAfter = list()
@@ -348,6 +357,7 @@ class CloudAccount(BaseWorkflow):
                     )
                     Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
                     Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
+                    self.report += "\nCheckpoint removed regions: " + str(self.calls["checkpointDatacenterAccountDelete"].get("data", {}).get("regions", []))
 
                 except Exception as e:
                     self.report += "\nGot an exception on Checkpoint: " + str(e)
