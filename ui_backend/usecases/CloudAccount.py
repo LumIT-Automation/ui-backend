@@ -113,6 +113,16 @@ class CloudAccount(BaseWorkflow):
                     "data": infobloxNetworkData
                 }
                 n += 1
+            infobloxAssetIds = [a["id"] for a in self.listAssets(technology="infoblox")]
+            for id in infobloxAssetIds:
+                if id:
+                    # Get info about the infoblox networks of the account on this asset.
+                    self.calls["infobloxAccountNetworksGet-" + str(id)] = {
+                        "technology": "infoblox",
+                        "method": "GET",
+                        "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + self.data.get("checkpoint_datacenter_account_put", {}).get("Account Name", "") + "&fby=*Environment&fval=Cloud",
+                        "data": None
+                    }
 
         elif workflowAction == "remove":
             self.calls = {
@@ -260,9 +270,28 @@ class CloudAccount(BaseWorkflow):
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
 
                         if status == 201:
-                            self.calls["checkpointDatacenterAccountPut"]["data"]["regions"].append( self.calls[k]["data"]["region"].removeprefix(self.calls[k]["data"]["provider"].lower() + '-'))
+                            #self.calls["checkpointDatacenterAccountPut"]["data"]["regions"].append( self.calls[k]["data"]["region"].removeprefix(self.calls[k]["data"]["provider"].lower() + '-'))
                             assignedNetworks.append(re.findall(r'network/[A-Za-z0-9]+:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/[0-9][0-9]?)/default$', response.get("data", ""))[0])
                 self.report += "\nAssigned networks: " + str (assignedNetworks)
+
+                regionsAfter = list()
+                for k in self.calls.keys():
+                    if k.startswith("infobloxAccountNetworksGet"):
+                        response, status = self.requestFacade(
+                            **self.calls[k],
+                            headers=self.headers,
+                            escalate=True
+                        )
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
+
+                        if status != 200 and status != 304:
+                            raise CustomException(status=status, payload={"Infoblox": response})
+                        else:
+                            for net in response.get("data", []):
+                                regionsAfter.append(net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix(
+                                    self.data.get("provider", "").lower() + "-"))
+                self.calls["checkpointDatacenterAccountPut"]["data"]["regions"] = regionsAfter
 
                 if self.calls["checkpointDatacenterAccountPut"]["data"]["regions"]:
                     try:
@@ -438,6 +467,7 @@ class CloudAccount(BaseWorkflow):
                     formattedData["checkpoint_datacenter_account_put"]["Account ID"] = data.get("Account ID", "")
                     formattedData["checkpoint_datacenter_account_put"]["tags"] = data.get("checkpoint_datacenter_account_put", {}).get("tags", [])
                     formattedData["checkpoint_datacenter_account_put"]["regions"] = [] # add each region in checkpoint data after the corresponding network is created in infoblox.
+                    formattedData["provider"] = data.get("provider", "")
                 elif self.workflowAction == "remove":
                     self.changeRequestId = data.get("change-request-id", "")
                     self.report += f"\nChangeRequestId: {self.changeRequestId}"
