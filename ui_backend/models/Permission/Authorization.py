@@ -80,8 +80,8 @@ class Authorization:
                     technologiesInApiAuth = [ t for t in workflowApiAuthorizations.keys() if (w["name"] in workflowApiAuthorizations[t])]
                     if all(tech in technologiesInApiAuth for tech in w["technologies"]):
                         if not data["workflow"]["data"]["items"]:
-                            data["workflow"]["data"]["items"].update({"any": [] })
-                        data["workflow"]["data"]["items"]["any"].append({ "workflow_id": w["id"], "workflow_name":  w["name"] })
+                            data["workflow"]["data"]["items"].update({"workflows": [] })
+                        data["workflow"]["data"]["items"]["workflows"].append({ "workflow_id": w["id"], "workflow_name":  w["name"] })
 
             return data
         except Exception as e:
