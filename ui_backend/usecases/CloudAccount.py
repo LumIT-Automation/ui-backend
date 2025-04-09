@@ -486,12 +486,11 @@ class CloudAccount(BaseWorkflow):
 
 
 
-    def __checkIfRequestApproved(self) -> bool:
+    def __checkIfRequestApproved(self) -> None:
         try:
-            if not self.changeRequestId:
-                return True
-            else:
-                return Jira().checkIfIssueApproved(self.changeRequestId)
+            if self.changeRequestId:
+                if not Jira().checkIfIssueApproved(self.changeRequestId):
+                    raise CustomException(status=403, payload={"API": f"The change request id {self.changeRequestId} was not found in Jira."})
         except Exception as e:
             raise e
 
