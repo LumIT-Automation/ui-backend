@@ -490,7 +490,7 @@ class CloudAccount(BaseWorkflow):
         try:
             if self.changeRequestId:
                 if not Jira().checkIfIssueApproved(self.changeRequestId):
-                    raise CustomException(status=403, payload={"API": f"The change request id {self.changeRequestId} was not found in Jira."})
+                    raise CustomException(status=400, payload={"API": {"error": {"reason": f"Request {self.changeRequestId} was not approved or not found."}}})
         except Exception as e:
             raise e
 
