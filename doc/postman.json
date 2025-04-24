@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "ec1cd6c5-f112-40eb-b674-b0549d571078",
+		"_postman_id": "020c3094-0baf-4627-b0a6-67aeda16d315",
 		"name": "BACKEND",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -517,7 +517,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account ID\": \"112745678903\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"us-east-1\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"testone\"\n            ]\n        }\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account ID\": \"112745678903\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"us-east-1\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"robo\"\n            ]\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -525,7 +525,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/CRIF-diplodoco/",
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/CRIF-diplodoco2/",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -537,7 +537,7 @@
 								"backend",
 								"workflow",
 								"cloud-account",
-								"CRIF-diplodoco",
+								"CRIF-diplodoco2",
 								""
 							]
 						}

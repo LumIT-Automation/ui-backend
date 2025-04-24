@@ -40,7 +40,7 @@ class FlowCloudAccountAssignSerializer(serializers.Serializer):
         self.fields["Account ID"] = IntegerStringRegexSerializer(required=True)
         self.fields["provider"] = serializers.CharField(max_length=255, required=True)
         self.fields["Reference"] = serializers.CharField(max_length=255, required=True)
-        self.fields["infoblox_cloud_network_assign"] =  InfobloxAssignCloudNetworkSerializer(many=True, required=True)
+        self.fields["infoblox_cloud_network_assign"] =  InfobloxAssignCloudNetworkSerializer(many=True, required=False)
         self.fields["checkpoint_datacenter_account_put"] = CheckpointDatacenterAccountPutSerializer(required=True)
 
 
