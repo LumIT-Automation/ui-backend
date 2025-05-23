@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "020c3094-0baf-4627-b0a6-67aeda16d315",
+		"_postman_id": "cc253828-91ee-42ef-a7e0-a0875c361c8d",
 		"name": "BACKEND",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -634,6 +634,89 @@
 			]
 		},
 		{
+			"name": "Api doc",
+			"item": [
+				{
+					"name": "postman",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwttoken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{backendBaseUrl}}/ui-backend/doc/postman.json/",
+							"host": [
+								"{{backendBaseUrl}}"
+							],
+							"path": [
+								"ui-backend",
+								"doc",
+								"postman.json",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "swagger",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwttoken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{backendBaseUrl}}/ui-backend/doc/swagger.yaml/",
+							"host": [
+								"{{backendBaseUrl}}"
+							],
+							"path": [
+								"ui-backend",
+								"doc",
+								"swagger.yaml",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "about",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwttoken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{backendBaseUrl}}/ui-backend/doc/about.json/",
+							"host": [
+								"{{backendBaseUrl}}"
+							],
+							"path": [
+								"ui-backend",
+								"doc",
+								"about.json",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "authorizations",
 			"request": {
 				"auth": {
@@ -736,6 +819,30 @@
 					"path": [
 						"backend",
 						"ui-config",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "about concerto",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{jwttoken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{backendBaseUrl}}/about/",
+					"host": [
+						"{{backendBaseUrl}}"
+					],
+					"path": [
+						"about",
 						""
 					]
 				}

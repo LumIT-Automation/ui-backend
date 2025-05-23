@@ -33,7 +33,7 @@ class ApiSupplicant:
     # Public methods
     ####################################################################################################################
 
-    def get(self, data: object = None, escalate: bool = False, logPayload: bool = False) -> dict:
+    def get(self, data: object = None, escalate: bool = False, logPayload: bool = False) -> object:
         # Fetches the resource from the HTTP REST API endpoint specified honoring the caching HTTP headers.
 
         # In the event of a network problem (e.g. DNS failure, refused connection, etc), Requests will raise a ConnectionError exception.

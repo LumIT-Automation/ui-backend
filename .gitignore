@@ -4,3 +4,6 @@
 */__pycache__
 backend/uiconfig.override.json
 ui_backend/sql/uib.data-development.sql
+doc/swagger.yaml
+doc/about.json
+

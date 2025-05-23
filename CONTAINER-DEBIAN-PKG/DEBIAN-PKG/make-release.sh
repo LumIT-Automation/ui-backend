@@ -15,6 +15,7 @@ function System()
 
     # Properties list.
     ACTION="$ACTION"
+    shortName=$shortName
 }
 
 # ##################################################################################################################################################
@@ -39,6 +40,8 @@ function System_run()
             System_codeFilesPermissions
             System_venv
             System_fixDebVersion
+            System_swaggerFile
+            System_about
 
             System_debCreate
             System_cleanup
@@ -253,6 +256,26 @@ function System_debianFilesSetup()
     chmod +x $workingFolderPath/DEBIAN/postinst
     chmod +x $workingFolderPath/DEBIAN/preinst
 }
+
+
+
+function System_swaggerFile() {
+    mkdir -p $workingFolderPath/var/www/ui-backend/doc
+    cp /var/www/ui-backend/doc/postman.json $workingFolderPath/var/www/ui-backend/doc/
+    postman2openapi -f yaml /var/www/ui-backend/doc/postman.json > $workingFolderPath/var/www/ui-backend/doc/swagger.yaml
+}
+
+
+
+function System_about() {
+    mkdir -p $workingFolderPath/var/www/ui-backend/doc
+    echo "{\"Component\": \"$shortName\"," > $workingFolderPath/var/www/ui-backend/doc/about.json
+    echo "\"Version\": \"`cat DEBIAN-PKG/deb.release`\"," >> $workingFolderPath/var/www/ui-backend/doc/about.json
+
+    currentGitCommit=$(git log --pretty=oneline | head -1 | awk '{print $1}')
+    echo "\"Commit\": \"$currentGitCommit\"}" >> $workingFolderPath/var/www/ui-backend/doc/about.json
+}
+
 
 
 function System_debCreate()

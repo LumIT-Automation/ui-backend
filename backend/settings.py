@@ -280,6 +280,7 @@ API_SUPPLICANT_HTTP_PROXY = ""
 API_SUPPLICANT_NETWORK_TIMEOUT = 1800 # seconds.
 API_SUPPLICANT_CACHE_VALIDITY = 60*60*24 # seconds.
 
+DOC_TXT_DIR = "/var/www/ui-backend/doc/"
 
 # Customer/use cases settings.
 try:
