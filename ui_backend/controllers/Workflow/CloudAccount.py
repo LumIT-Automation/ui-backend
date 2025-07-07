@@ -67,21 +67,25 @@ class WorkflowCloudAccountController(CustomController):
 
     @staticmethod
     def put(request: Request, accountName: str) -> Response:
+        def sanitize(data: dict):
+            if data.get("provider", "") == "AZURE":
+                if not data.get("azure_data"):
+                    raise CustomException(status=400, payload={"ui-backend": "Azure data is missing."})
+                if not re.match(r"^CRIF-.+$|^crif-.+$", accountName):
+                    raise CustomException(status=400, payload={"ui-backend": "The Account Name must begin with the \"CRIF-\" or \"crif-\" string."})
+
         headers = dict()
         user = CustomController.loggedUser(request)
         workflowId = 'workflow-cloud_account-' + Misc.getWorkflowCorrelationId()
         workflowAction = "assign"
         try:
-            if not re.match(r"^CRIF-.+$", accountName):
-                raise CustomException(status=400, payload={"Checkpoint": "The Account Name must begin with the \"CRIF-\" string."})
-
             if "Authorization" in request.headers:
                 headers["Authorization"] = request.headers["Authorization"]
 
             serializer = AssignSerializer(data=request.data["data"])
             if serializer.is_valid():
                 data = serializer.validated_data
-                data["Account Name"] = accountName
+                sanitize(data)
 
                 Log.actionLog("Cloud account workflow, action: "+workflowAction, user)
                 Log.actionLog("User data: " + str(request.data), user)
