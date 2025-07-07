@@ -62,6 +62,10 @@ class CloudAccount(BaseWorkflow):
                     }
 
         elif workflowAction == "list":
+            if "providers" in kwargs:
+                providers = kwargs["providers"]
+            else:
+                providers = ["AWS", "AZURE"]
             self.calls = {
                 "infobloxUnlock": {
                     "technology": "infoblox",
@@ -74,15 +78,18 @@ class CloudAccount(BaseWorkflow):
             for id in infobloxAssetIds:
                 # Todo: get "AWS" or from input url parameters.
                 if id:
-                    # Get info about the infoblox networks of the account on this asset.
-                    self.calls["infobloxAccountsGet-" + str(id)] = {
-                        "technology": "infoblox",
-                        "method": "GET",
-                        "urlSegment": str(id) + "/list-cloud-extattrs/account+provider/?fby=*Country&fval=Cloud-AWS",
-                        "data": None
-                    }
+                    for provider in providers:
+                        # Get info about the infoblox networks of the account on this asset.
+                        self.calls["infobloxAccountsGet-" + provider + str(id)] = {
+                            "technology": "infoblox",
+                            "method": "GET",
+                            "urlSegment": str(id) + "/list-cloud-extattrs/account+provider/?fby=*Country&fval=Cloud-" + provider,
+                            "data": None
+                        }
 
         elif workflowAction == "assign":
+            checkpointData = self.data.get("checkpoint_datacenter_account_put", {})
+            checkpointData["provider"] = self.data.get("provider", "")
             self.calls = {
                 "infobloxUnlock": {
                     "technology": "infoblox",

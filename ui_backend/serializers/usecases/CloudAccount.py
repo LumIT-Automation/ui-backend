@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from ui_backend.helpers.Exception import CustomException
 
 
 class IntegerStringRegexSerializer(serializers.RegexField):
@@ -20,12 +19,19 @@ class InfobloxRemoveCloudNetworkSerializer(serializers.Serializer):
     network = serializers.CharField(max_length=255, required=False)
 
 
+class CheckpointDatacenterAccountAzureSerializer(serializers.Serializer):
+    env = serializers.CharField(max_length=64, required=True)
+    scope = serializers.CharField(max_length=64, required=True)
+
+
 class CheckpointDatacenterAccountPutSerializer(serializers.Serializer):
     asset = serializers.IntegerField(required=True)
     tags = serializers.ListField(
         child=serializers.CharField(max_length=64, required=False),
         required=False
     )
+    azure_data = CheckpointDatacenterAccountAzureSerializer(required=False)
+
 
 class CheckpointDatacenterAccountRemoveSerializer(serializers.Serializer):
     asset = serializers.IntegerField(required=True)

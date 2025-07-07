@@ -19,16 +19,23 @@ class WorkflowCloudAccountsController(CustomController):
         user = CustomController.loggedUser(request)
         workflowId = 'workflow-cloud_account-' + Misc.getWorkflowCorrelationId()
         workflowAction = "list"
+        providers = list()
+        kwargs = dict()
 
         try:
             if "Authorization" in request.headers:
                 headers["Authorization"] = request.headers["Authorization"]
 
+            if 'provider' in request.GET:
+                kwargs["providers"] = []
+                for p in dict(request.GET)["provider"]:
+                    kwargs["providers"].append(p)
+
             Log.actionLog("Cloud account workflow, action: "+workflowAction, user)
             Log.actionLog("User data: " + str(request.data), user)
             Log.actionLog("Workflow id: "+workflowId, user)
 
-            c = CloudAccount(username=user['username'], workflowId=workflowId, workflowAction=workflowAction, headers=headers)
+            c = CloudAccount(username=user['username'], workflowId=workflowId, workflowAction=workflowAction, headers=headers, kwargs=kwargs)
             if c.preCheckPermissions():
                 data = c.run()
 
