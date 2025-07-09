@@ -9,7 +9,7 @@ from ui_backend.helpers.Log import Log
 
 class BaseWorkflow:
     def __init__(self, username: str, workflowId: str, data: dict = None, headers: dict = None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         self.username = username
         self.workflowId = workflowId

@@ -215,6 +215,7 @@ class CloudAccount(BaseWorkflow):
                             raise CustomException(status=status, payload={"Infoblox": data})
 
                         if data:
+                            Log.log(data, 'DDDDDDDDDDDDDDDDDDDDDDD')
                             response["data"]["networks"].extend(data.get("data", []))
 
                 for k in self.calls.keys():
@@ -248,7 +249,7 @@ class CloudAccount(BaseWorkflow):
                             raise CustomException(status=status, payload={"Infoblox": data})
 
                         if data.get("data", []):
-                            allData.extend([d for d in data.get("data", []) if d not in allData])
+                            allData.extend([self.__fixAccountNameFromInfobloxData(d) for d in data.get("data", []) if d not in allData])
                 response = {
                     "data": {
                         "items": allData
@@ -508,7 +509,6 @@ class CloudAccount(BaseWorkflow):
                     else:
                         formattedData["infobloxAccountName"] = data.get("Account Name", "")
 
-            Log.log(formattedData, 'FFFFFFFFFFFFFFFFFFFFFFFFFFFF')
             return formattedData
         except Exception as e:
             raise e
@@ -520,6 +520,18 @@ class CloudAccount(BaseWorkflow):
             if self.changeRequestId:
                 if not Jira().checkIfIssueApproved(self.changeRequestId):
                     raise CustomException(status=400, payload={"API": {"error": {"reason": f"Request {self.changeRequestId} was not approved or not found."}}})
+        except Exception as e:
+            raise e
+
+
+
+    def __fixAccountNameFromInfobloxData(self, data: dict) -> dict:
+        try:
+            if data.get("Account Name", ""):
+                if data.get("Country", "") == "Cloud-AZURE":
+                    if data.get("Scope", ""):
+                        data["Account Name"] += "-" + data.get("Scope", "").lower()
+            return data
         except Exception as e:
             raise e
 
