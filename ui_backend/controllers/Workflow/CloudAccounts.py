@@ -19,7 +19,6 @@ class WorkflowCloudAccountsController(CustomController):
         user = CustomController.loggedUser(request)
         workflowId = 'workflow-cloud_account-' + Misc.getWorkflowCorrelationId()
         workflowAction = "list"
-        providers = list()
         kwargs = dict()
 
         try:

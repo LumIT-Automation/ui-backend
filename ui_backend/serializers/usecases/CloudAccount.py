@@ -30,7 +30,6 @@ class CheckpointDatacenterAccountPutSerializer(serializers.Serializer):
         child=serializers.CharField(max_length=64, required=False),
         required=False
     )
-    azure_data = CheckpointDatacenterAccountAzureSerializer(required=False)
 
 
 class CheckpointDatacenterAccountRemoveSerializer(serializers.Serializer):
@@ -46,6 +45,7 @@ class FlowCloudAccountAssignSerializer(serializers.Serializer):
         self.fields["Account ID"] = IntegerStringRegexSerializer(required=True)
         self.fields["provider"] = serializers.CharField(max_length=255, required=True)
         self.fields["Reference"] = serializers.CharField(max_length=255, required=True)
+        self.fields["azure_data"] = CheckpointDatacenterAccountAzureSerializer(required=False)
         self.fields["infoblox_cloud_network_assign"] =  InfobloxAssignCloudNetworkSerializer(many=True, required=False)
         self.fields["checkpoint_datacenter_account_put"] = CheckpointDatacenterAccountPutSerializer(required=True)
 
@@ -81,6 +81,7 @@ class FlowCloudAccountNetworkInfoSerializer(serializers.Serializer):
             self.fields["Account ID"] = FlowCloudAccountExtattrsAccountIdValueSerializer(required=True)
             self.fields["Account Name"] = FlowCloudAccountExtattrsValueSerializer(required=True)
             self.fields["Reference"] =FlowCloudAccountExtattrsValueSerializer(required=True)
+            self.fields["Scope"] = FlowCloudAccountExtattrsValueSerializer(required=False)
 
     asset_id = serializers.IntegerField(required=True)
     network = serializers.CharField(max_length=64, required=True)

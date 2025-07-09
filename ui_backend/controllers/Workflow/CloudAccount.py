@@ -11,7 +11,6 @@ from ui_backend.serializers.usecases.CloudAccount import FlowCloudAccountRemoveS
 
 from ui_backend.controllers.CustomController import CustomController
 
-from ui_backend.helpers.Exception import CustomException
 from ui_backend.helpers.Misc import Misc
 from ui_backend.helpers.Log import Log
 
@@ -67,17 +66,6 @@ class WorkflowCloudAccountController(CustomController):
 
     @staticmethod
     def put(request: Request, accountName: str) -> Response:
-        def sanitize(data: dict):
-            if data.get("provider", "") == "AZURE":
-                if not data.get("azure_data", {}):
-                    raise CustomException(status=400, payload={"ui-backend": "Azure data is missing."})
-                accountNamePrefix = "crif"
-                pattern = 'r"^' + accountNamePrefix + '-.+$"'
-                if not re.match(pattern, accountName):
-                    raise CustomException(status=400, payload={"ui-backend": f"Azure Account Names must begin with the pattern {pattern}."})
-                if not accountName.endswith("-" + data.get("azure_data", {}).get("env", "NO ENV")):
-                    raise CustomException(status=400, payload={"ui-backend": f"Azure Account Names must end with the string: \"-envValue\"."})
-
         headers = dict()
         user = CustomController.loggedUser(request)
         workflowId = 'workflow-cloud_account-' + Misc.getWorkflowCorrelationId()
@@ -89,7 +77,7 @@ class WorkflowCloudAccountController(CustomController):
             serializer = AssignSerializer(data=request.data["data"])
             if serializer.is_valid():
                 data = serializer.validated_data
-                sanitize(data)
+                data["Account Name"] = accountName
 
                 Log.actionLog("Cloud account workflow, action: "+workflowAction, user)
                 Log.actionLog("User data: " + str(request.data), user)
