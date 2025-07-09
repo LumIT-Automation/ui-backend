@@ -476,7 +476,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/CRIF-diplodoco/",
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/crif-plesiosauro3-uat-agw/",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -488,7 +488,7 @@
 								"backend",
 								"workflow",
 								"cloud-account",
-								"CRIF-diplodoco",
+								"crif-plesiosauro3-uat-agw",
 								""
 							]
 						}
@@ -566,7 +566,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account ID\": \"112745678964\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AZURE\",\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"Netherlands\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"robo\"\n            ],\n            \"azure_data\": {\n                \"env\": \"uat\",\n                \"scope\": \"AGW\"\n            }\n        }\n    }\n}",
+							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account ID\": \"112745678964\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AZURE\",\n        \"azure_data\": {\n            \"env\": \"uat\",\n            \"scope\": \"AGW\"\n        },\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"Netherlands\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"robo\"\n            ]\n        }\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -574,7 +574,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/crif-plesiosauro/",
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/crif-plesiosauro3-uat-agw/",
 							"protocol": "http",
 							"host": [
 								"10",
@@ -586,7 +586,7 @@
 								"backend",
 								"workflow",
 								"cloud-account",
-								"crif-plesiosauro",
+								"crif-plesiosauro3-uat-agw",
 								""
 							]
 						}
@@ -594,7 +594,7 @@
 					"response": []
 				},
 				{
-					"name": "cloud account (remove)",
+					"name": "cloud account remove AWS",
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -636,6 +636,55 @@
 								"workflow",
 								"cloud-account",
 								"CRIF-diplodoco",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cloud account remove AZURE",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{jwttoken}}"
+							},
+							{
+								"key": "If-None-Match",
+								"value": "c485212f298abe5f8b867ca42617292a",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"provider\": \"AZURE\",\n        \"infoblox_cloud_network_delete\": [\n            {\n                \"asset\": 1,\n                \"network\": \"173.16.0.0\"\n            }\n        ],\n        \"checkpoint_datacenter_account_delete\": {\n            \"asset\": 1\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://10.0.111.12/backend/workflow/cloud-account/crif-plesiosauro3-uat-agw/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"0",
+								"111",
+								"12"
+							],
+							"path": [
+								"backend",
+								"workflow",
+								"cloud-account",
+								"crif-plesiosauro3-uat-agw",
 								""
 							]
 						}
