@@ -69,10 +69,14 @@ class WorkflowCloudAccountController(CustomController):
     def put(request: Request, accountName: str) -> Response:
         def sanitize(data: dict):
             if data.get("provider", "") == "AZURE":
-                if not data.get("azure_data"):
+                if not data.get("azure_data", {}):
                     raise CustomException(status=400, payload={"ui-backend": "Azure data is missing."})
-                if not re.match(r"^CRIF-.+$|^crif-.+$", accountName):
-                    raise CustomException(status=400, payload={"ui-backend": "The Account Name must begin with the \"CRIF-\" or \"crif-\" string."})
+                accountNamePrefix = "crif"
+                pattern = 'r"^' + accountNamePrefix + '-.+$"'
+                if not re.match(pattern, accountName):
+                    raise CustomException(status=400, payload={"ui-backend": f"Azure Account Names must begin with the pattern {pattern}."})
+                if not accountName.endswith("-" + data.get("azure_data", {}).get("env", "NO ENV")):
+                    raise CustomException(status=400, payload={"ui-backend": f"Azure Account Names must end with the string: \"-envValue\"."})
 
         headers = dict()
         user = CustomController.loggedUser(request)
