@@ -215,7 +215,6 @@ class CloudAccount(BaseWorkflow):
                             raise CustomException(status=status, payload={"Infoblox": data})
 
                         if data:
-                            Log.log(data, 'DDDDDDDDDDDDDDDDDDDDDDD')
                             response["data"]["networks"].extend(data.get("data", []))
 
                 for k in self.calls.keys():
@@ -539,29 +538,23 @@ class CloudAccount(BaseWorkflow):
 
     def __azureGetInfobloxAccountName(self, accountName: str) -> str:
         try:
-            reSuffix = "-(?i:WORKLOAD|AGW)$"
+            azureConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AZURE").get("value", {})
+            dqRules = azureConfig.get("datacenter-query", {}).get("query-rules", [])
+            scopes = next(iter([rule.get("values", []) for rule in dqRules if rule.get("key", "") == "crif:scope"]), [])
+
+            reSuffix = "-(?i:" + ("|").join(scopes) + ")$"
             return re.sub(reSuffix, "", accountName)
         except Exception as e:
             raise e
 
 
 
-    # Todo: get namePrefix and dqRules from api-checkpoint.
     def __azureAccountNameCheck(self, accountName: str) -> bool:
         try:
-            #namePrefix = Configuration(configType="datacenter-account-AZURE").repr().get("value", {}).get("common", {}).get("account-name-prefix", "")
-            #dqRules = Configuration(configType="datacenter-account-AZURE").repr().get("value", {}).get("datacenter-query", {}).get("query-rules", [])
-            namePrefix = "crif-"
-            dqRules = [
-                {
-                    "key": "crif:scope",
-                    "values": ["WORKLOAD", "AGW"]
-                },
-                {
-                    "key": "crif:env",
-                    "values": ["PRD", "UAT", "INT", "QA"]
-                }
-            ]
+            azureConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AZURE").get("value", {})
+            namePrefix = azureConfig.get("common", {}).get("account-name-prefix", "")
+            dqRules = azureConfig.get("datacenter-query", {}).get("query-rules", [])
+
             envs = next(iter([rule.get("values", []) for rule in dqRules if rule.get("key", "") == "crif:env"]), [])
             scopes = next(iter([rule.get("values", []) for rule in dqRules if rule.get("key", "") == "crif:scope"]), [])
             suffix = "(?i:(?:" + ("|").join(envs) + ")-(?:" + ("|").join(scopes) + "))"

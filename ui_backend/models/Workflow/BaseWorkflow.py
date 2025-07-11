@@ -135,6 +135,41 @@ class BaseWorkflow:
             raise e
 
 
+
+    def getConfig(self, technogy: str, configType: str = "") -> dict:
+        config = dict()
+
+        try:
+            call = {
+                "technology": technogy,
+                "method": "GET",
+                "urlSegment": "configurations/",
+                "data": None
+            }
+            if configType:
+                call["urlSegment"] += f"?configType={configType}"
+
+                data, status = self.requestFacade(
+                    **call,
+                    headers=self.headers,
+                )
+                Log.log(f"[WORKFLOW] {self.workflowId} - {technogy} response status: " + str(status))
+                Log.log(f"[WORKFLOW] {self.workflowId} - {technogy} response: " + str(data))
+
+                if status != 200 and status != 304:
+                    raise CustomException(status=status, payload={technogy: data})
+
+                if configType: # the get returns a list of configs.
+                    config = next(iter(data.get("data", {}).get("items", [])), {})
+                else:
+                    config = data.get("data", {})
+
+            return config
+        except Exception as e:
+            raise e
+
+
+
     ####################################################################################################################
     # Public static methods
     ####################################################################################################################
