@@ -489,8 +489,9 @@ class CloudAccount(BaseWorkflow):
                     formattedData["checkpoint_datacenter_account_put"]["Account ID"] = data.get("Account ID", "")
                     formattedData["checkpoint_datacenter_account_put"]["tags"] = data.get("checkpoint_datacenter_account_put", {}).get("tags", [])
                     formattedData["checkpoint_datacenter_account_put"]["regions"] = [] # add each region in checkpoint data after the corresponding network is created in infoblox.
-                    formattedData["checkpoint_datacenter_account_put"]["azure_data"] = data.get("azure_data", {})
                     formattedData["provider"] = data.get("provider", "")
+                    if data.get("azure_data", {}):
+                        formattedData["checkpoint_datacenter_account_put"]["azure_data"] = data.get("azure_data", {})
                 elif self.workflowAction == "remove":
                     self.changeRequestId = data.get("change-request-id", "")
                     self.report += f"\nChangeRequestId: {self.changeRequestId}"
