@@ -327,6 +327,7 @@ class CloudAccount(BaseWorkflow):
             elif self.workflowAction == "remove":
                 # List the regions before the deletion.
                 regionsBefore = list()
+                networksBefore = list()
                 for k in self.calls.keys():
                     if k.startswith("infobloxAccountNetworksGet"):
                         response, status = self.requestFacade(
@@ -343,19 +344,25 @@ class CloudAccount(BaseWorkflow):
                             for net in response.get("data", []):
                                 regionsBefore.append(net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix(
                                     self.data.get("provider", "").lower() + "-"))
+                                networksBefore.append(next(iter(net.get("network", "").split("/")), ""))
 
                 # Remove the infoblox networks.
                 removedNetworks = list()
                 for key in self.calls.keys():
                     if key.startswith("infobloxDeleteCloudNetwork"):
                         try:
-                            response, status = self.requestFacade(
-                                **self.calls[key],
-                                headers=self.headers,
-                            )
-                            Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
-                            Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
-                            removedNetworks.append(self.calls[key].get("data", {}).get("network", ""))
+                            network = self.calls[key].get("data", {}).get("network", "")
+                            if network in networksBefore:
+                                response, status = self.requestFacade(
+                                    **self.calls[key],
+                                    headers=self.headers,
+                                )
+                                Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
+                                Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
+                                removedNetworks.append(self.calls[key].get("data", {}).get("network", ""))
+                            else:
+                                self.report += f"\nNot removed network: {network}. This network do not belong to the account " + self.data.get("Account Name", "") + "."
+                                self.__log(messageHeader=f"\nNot removed network: {network}. This network do not belong to the account " + self.data.get("Account Name", "") + ".")
 
                         except Exception as e:
                             self.report += "\nGot an exception on Infoblox: " + str(e)
