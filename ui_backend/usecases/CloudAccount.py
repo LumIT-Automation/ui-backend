@@ -24,7 +24,6 @@ class CloudAccount(BaseWorkflow):
         self.data = self.__dataformat(data)
 
 
-
         if workflowAction == "info":
             self.calls = {
                 "infobloxUnlock": {
@@ -47,7 +46,7 @@ class CloudAccount(BaseWorkflow):
                     self.calls["infobloxAccountNetworksGet-" + str(id)] = {
                         "technology": "infoblox",
                         "method": "GET",
-                        "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + self.data.get("InfobloxAccountName", "") + "&fby=*Environment&fval=Cloud",
+                        "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + self.data.get("infobloxAccountName", "") + "&fby=*Environment&fval=Cloud",
                         "data": self.data
                     }
             checkpointAssetIds = [ a["id"] for a in self.listAssets(technology="checkpoint")]
@@ -234,7 +233,7 @@ class CloudAccount(BaseWorkflow):
 
 
             elif self.workflowAction == "list":
-                allData = list()
+                fixedData = list()
                 for k in self.calls.keys():
                     if k.startswith("infobloxAccountsGet"):
                         data, status = self.requestFacade(
@@ -248,10 +247,10 @@ class CloudAccount(BaseWorkflow):
                             raise CustomException(status=status, payload={"Infoblox": data})
 
                         if data.get("data", []):
-                            allData.extend([self.__fixAccountNameFromInfobloxData(d) for d in data.get("data", []) if d not in allData])
+                            fixedData = [ self.__fixAccountNamesFromInfobloxData(d) for d in data.get("data", []) ]
                 response = {
                     "data": {
-                        "items": allData
+                        "items": fixedData
                     }
                 }
 
@@ -459,12 +458,11 @@ class CloudAccount(BaseWorkflow):
             if data:
                 if self.workflowAction == "list":
                     formattedData = None
+
                 elif self.workflowAction == "info":
                     formattedData = data
-                    if self.__azureAccountNameCheck(data.get("Account Name", "")): # Azure account name in infoblox doesn't have the last suffix.
-                        formattedData["InfobloxAccountName"] = self.__azureGetInfobloxAccountName(data.get("Account Name", ""))
-                    else:
-                        formattedData["InfobloxAccountName"] = data.get("Account Name", "")
+                    formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountName(data.get("Account Name", ""))
+
                 elif self.workflowAction == "assign":
                     formattedData = {"infoblox_cloud_network_assign": [], "checkpoint_datacenter_account_put": {}}
                     for network in data.get("infoblox_cloud_network_assign", []):
@@ -477,7 +475,7 @@ class CloudAccount(BaseWorkflow):
                         dataItem["network_data"]["extattrs"]["Account ID"] = {"value": data.get("Account ID", "")}
 
                         if dataItem["provider"] == "AZURE":
-                            infobloxAccountName = self.__azureGetInfobloxAccountName(data.get("Account Name", ""))
+                            infobloxAccountName = self.__azureGetInfobloxAccountNameFromData(data.get("Account Name", ""), data["azure_data"])
                             dataItem["network_data"]["extattrs"]["Account Name"] = { "value": infobloxAccountName}
                             if data.get("azure_data", {}).get("scope", ""):
                                 dataItem["network_data"]["extattrs"]["Scope"] = { "value":  data["azure_data"]["scope"]}
@@ -492,13 +490,17 @@ class CloudAccount(BaseWorkflow):
                     self.changeRequestId = data.get("change-request-id", "")
                     self.report += f"\nChangeRequestId: {self.changeRequestId}"
                     formattedData["checkpoint_datacenter_account_put"] = {"change-request-id": self.changeRequestId}
-                    formattedData["checkpoint_datacenter_account_put"]["Account Name"] = data.get("Account Name", "")
+                    if dataItem["provider"] == "AZURE":
+                        formattedData["checkpoint_datacenter_account_put"]["Account Name"] = self.__azureGetCheckpointAccountNameFromData(data.get("Account Name", ""), data["azure_data"])
+                    else:
+                        formattedData["checkpoint_datacenter_account_put"]["Account Name"] = data.get("Account Name", "")
                     formattedData["checkpoint_datacenter_account_put"]["Account ID"] = data.get("Account ID", "")
                     formattedData["checkpoint_datacenter_account_put"]["tags"] = data.get("checkpoint_datacenter_account_put", {}).get("tags", [])
                     formattedData["checkpoint_datacenter_account_put"]["regions"] = [] # add each region in checkpoint data after the corresponding network is created in infoblox.
                     formattedData["provider"] = data.get("provider", "")
                     if data.get("azure_data", {}):
                         formattedData["checkpoint_datacenter_account_put"]["azure_data"] = data.get("azure_data", {})
+
                 elif self.workflowAction == "remove":
                     self.changeRequestId = data.get("change-request-id", "")
                     self.report += f"\nChangeRequestId: {self.changeRequestId}"
@@ -512,7 +514,7 @@ class CloudAccount(BaseWorkflow):
                         }
                     }
                     if data.get("provider", "") == "AZURE":
-                        formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountName(data.get("Account Name", ""))
+                        formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountNameFromData(data.get("Account Name", ""))
                     else:
                         formattedData["infobloxAccountName"] = data.get("Account Name", "")
 
@@ -532,7 +534,7 @@ class CloudAccount(BaseWorkflow):
 
 
 
-    def __fixAccountNameFromInfobloxData(self, data: dict) -> dict:
+    def __fixAccountNamesFromInfobloxData(self, data: dict) -> dict:
         try:
             if data.get("Account Name", ""):
                 if data.get("Country", "") == "Cloud-AZURE":
@@ -544,20 +546,19 @@ class CloudAccount(BaseWorkflow):
 
 
 
-    def __azureGetInfobloxAccountName(self, accountName: str) -> str:
+    def __azureGetInfobloxAccountNameFromData(self, accountName: str, axureData: dict) -> str:
         try:
-            azureConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AZURE").get("value", {})
-            dqRules = azureConfig.get("datacenter-query", {}).get("query-rules", [])
-            scopes = next(iter([rule.get("values", []) for rule in dqRules if rule.get("key", "") == "crif:scope"]), [])
+            infobloxAccountName = accountName.lower().removesuffix("-" + axureData.get("scope", "").lower())
+            if not infobloxAccountName.endswith("-" + axureData.get("env", "").lower()):
+                infobloxAccountName += "-" + axureData.get("env", "").lower()
 
-            reSuffix = "-(?i:" + ("|").join(scopes) + ")$"
-            return re.sub(reSuffix, "", accountName)
+            return infobloxAccountName
         except Exception as e:
             raise e
 
 
 
-    def __azureAccountNameCheck(self, accountName: str) -> bool:
+    def __azureGetInfobloxAccountName(self, accountName: str) -> str:
         try:
             azureConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AZURE").get("value", {})
             namePrefix = azureConfig.get("common", {}).get("account-name-prefix", "")
@@ -565,13 +566,39 @@ class CloudAccount(BaseWorkflow):
 
             envs = next(iter([rule.get("values", []) for rule in dqRules if rule.get("key", "") == "crif:env"]), [])
             scopes = next(iter([rule.get("values", []) for rule in dqRules if rule.get("key", "") == "crif:scope"]), [])
-            suffix = "(?i:(?:" + ("|").join(envs) + ")-(?:" + ("|").join(scopes) + "))"
+            reSuffix = "(?i:(?:" + ("|").join(envs) + ")-(?:" + ("|").join(scopes) + "))"
+            r = re.compile(namePrefix + ".*" + "-" + reSuffix)
 
-            r = re.compile(namePrefix + ".*" + "-" + suffix)
+            # Check if this is am AZURE account name.
             if re.match(r, accountName):
-                return True
+                reSuffix = "-(?i:" + ("|").join(scopes) + ")$"
+                infobloxAccountName = re.sub(reSuffix, "", accountName)
+            else:
+                infobloxAccountName = accountName
 
-            return False
+            return infobloxAccountName
+        except Exception as e:
+            raise e
+
+
+
+    def __azureGetCheckpointAccountNameFromData(self, accountName: str, azureData: dict) -> str:
+        try:
+            accountName = accountName.lower()
+            scope = azureData.get("scope", "").lower()
+            env = azureData.get("env", "").lower()
+            if not accountName.endswith(f"-{scope}"):
+                if not accountName.endswith(f"-{env}"):
+                    checkpointAccountName = accountName + f"-{env}-{scope}"
+                else:
+                    checkpointAccountName = accountName  + f"-{scope}"
+            else:
+                if not accountName.removesuffix(f"-{scope}").endswith(f"-{env}"):
+                    checkpointAccountName = accountName.removesuffix(f"-{scope}") + f"-{env}-{scope}"
+                else:
+                    checkpointAccountName = accountName
+
+            return checkpointAccountName
         except Exception as e:
             raise e
 
