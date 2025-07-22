@@ -376,6 +376,7 @@ class CloudAccount(BaseWorkflow):
 
                 # Now list the remaining regions.
                 regionsAfter = list()
+                azureNets = list()
                 for k in self.calls.keys():
                     if k.startswith("infobloxAccountNetworksGet"):
                         response, status = self.requestFacade(
@@ -388,29 +389,33 @@ class CloudAccount(BaseWorkflow):
 
                         if status != 200 and status != 304:
                             raise CustomException(status=status, payload={"Infoblox": response})
-                        else:
-                            for net in response.get("data", []):
-                                regionsAfter.append( net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix( self.data.get("provider", "").lower() + "-") )
 
-                # Delete the checkpoint datacenter servers if the region is not used anymore.
+                        for net in response.get("data", []):
+                            regionsAfter.append( net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix( self.data.get("provider", "").lower() + "-") )
+
                 self.data["checkpoint_datacenter_account_delete"]["regions"] = [ region for region in regionsBefore if region not in regionsAfter ]
-                try:
-                    response, status = self.requestFacade(
-                        **self.calls["checkpointDatacenterAccountDelete"],
-                        headers=self.headers
-                    )
-                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
-                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
-                    self.report += "\nCheckpoint removed regions: " + str(self.calls["checkpointDatacenterAccountDelete"].get("data", {}).get("regions", []))
 
-                except Exception as e:
-                    self.report += "\nGot an exception on Checkpoint: " + str(e)
-                    self.report += "\nAction \"remove\" stopped on checkpoint operations for workflow."
-                    self.__log(messageHeader="Action \"remove\" stopped on checkpoint operations for workflow.", messageData=str(e))
-                    raise e
+                # With AWS delete the checkpoint datacenter servers if the region is not used anymore.
+                # With azure, delete the checkpoint datacenter query if there are no more networks.
+                if self.data.get("provider", "") == "AWS" and self.data.get("checkpoint_datacenter_account_delete", {}).get("regions", []) \
+                    or self.data.get("provider", "") == "AZURE" and not regionsAfter:
+                    try:
+                        response, status = self.requestFacade(
+                            **self.calls["checkpointDatacenterAccountDelete"],
+                            headers=self.headers
+                        )
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
+                        self.report += "\nCheckpoint removed regions: " + str(self.calls["checkpointDatacenterAccountDelete"].get("data", {}).get("regions", []))
 
-                self.__log(messageHeader="Action \"remove\" completed for workflow.", messageData="")
-                self.report += "\nAction \"remove\" completed for workflow."
+                    except Exception as e:
+                        self.report += "\nGot an exception on Checkpoint: " + str(e)
+                        self.report += "\nAction \"remove\" stopped on checkpoint operations for workflow."
+                        self.__log(messageHeader="Action \"remove\" stopped on checkpoint operations for workflow.", messageData=str(e))
+                        raise e
+
+                    self.__log(messageHeader="Action \"remove\" completed for workflow.", messageData="")
+                    self.report += "\nAction \"remove\" completed for workflow."
 
             return response
         except Exception as e:
