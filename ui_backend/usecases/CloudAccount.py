@@ -514,7 +514,7 @@ class CloudAccount(BaseWorkflow):
                         }
                     }
                     if data.get("provider", "") == "AZURE":
-                        formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountNameFromData(data.get("Account Name", ""))
+                        formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountName(data.get("Account Name", ""))
                     else:
                         formattedData["infobloxAccountName"] = data.get("Account Name", "")
 
@@ -546,11 +546,11 @@ class CloudAccount(BaseWorkflow):
 
 
 
-    def __azureGetInfobloxAccountNameFromData(self, accountName: str, axureData: dict) -> str:
+    def __azureGetInfobloxAccountNameFromData(self, accountName: str, azureData: dict) -> str:
         try:
-            infobloxAccountName = accountName.lower().removesuffix("-" + axureData.get("scope", "").lower())
-            if not infobloxAccountName.endswith("-" + axureData.get("env", "").lower()):
-                infobloxAccountName += "-" + axureData.get("env", "").lower()
+            infobloxAccountName = accountName.lower().removesuffix("-" + azureData.get("scope", "").lower())
+            if not infobloxAccountName.endswith("-" + azureData.get("env", "").lower()):
+                infobloxAccountName += "-" + azureData.get("env", "").lower()
 
             return infobloxAccountName
         except Exception as e:
