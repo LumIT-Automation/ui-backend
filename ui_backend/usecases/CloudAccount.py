@@ -484,7 +484,8 @@ class CloudAccount(BaseWorkflow):
                             dataItem["network_data"]["extattrs"]["Account Name"] = { "value": infobloxAccountName}
                             if data.get("azure_data", {}).get("scope", ""):
                                 dataItem["network_data"]["extattrs"]["Scope"] = { "value":  data["azure_data"]["scope"]}
-                        else:
+                        elif dataItem["provider"] == "AWS":
+                            self.__checkAWSAccountName(data.get("Account Name", ""))
                             dataItem["network_data"]["extattrs"]["Account Name"] = { "value": data.get("Account Name", "") }
 
                         dataItem["network_data"]["subnetMaskCidr"] = network.get("subnetMaskCidr", 24)
