@@ -466,7 +466,7 @@ class CloudAccount(BaseWorkflow):
 
                 elif self.workflowAction == "info":
                     formattedData = data
-                    formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountName(data.get("Account Name", ""))
+                    formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountNameFromName(data.get("Account Name", ""))
 
                 elif self.workflowAction == "assign":
                     formattedData = {"infoblox_cloud_network_assign": [], "checkpoint_datacenter_account_put": {}}
@@ -519,7 +519,7 @@ class CloudAccount(BaseWorkflow):
                         }
                     }
                     if data.get("provider", "") == "AZURE":
-                        formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountName(data.get("Account Name", ""))
+                        formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountNameFromName(data.get("Account Name", ""))
                     else:
                         formattedData["infobloxAccountName"] = data.get("Account Name", "")
 
@@ -553,6 +553,11 @@ class CloudAccount(BaseWorkflow):
 
     def __azureGetInfobloxAccountNameFromData(self, accountName: str, azureData: dict) -> str:
         try:
+            azureConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AZURE").get("value", {})
+            namePrefix = azureConfig.get("common", {}).get("account-name-prefix", "")
+            if not accountName.startswith(namePrefix):
+                raise CustomException(status=400, payload={"Checkpoint": f"The AZURE account name doesn't start with the prefix \"{namePrefix}\" (case sensitive)."})
+
             infobloxAccountName = accountName.lower().removesuffix("-" + azureData.get("scope", "").lower())
             if not infobloxAccountName.endswith("-" + azureData.get("env", "").lower()):
                 infobloxAccountName += "-" + azureData.get("env", "").lower()
@@ -563,7 +568,19 @@ class CloudAccount(BaseWorkflow):
 
 
 
-    def __azureGetInfobloxAccountName(self, accountName: str) -> str:
+    def __checkAWSAccountName(self, accountName) -> None:
+        try:
+            awsConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AWS").get("value", {})
+            namePrefix = awsConfig.get("common", {}).get("account-name-prefix", "")
+            if not accountName.startswith(namePrefix):
+                raise CustomException(status=400, payload={"Checkpoint": f"The AWS account name doesn't start with the prefix \"{namePrefix}\" (case sensitive)."})
+
+        except Exception as e:
+            raise e
+
+
+
+    def __azureGetInfobloxAccountNameFromName(self, accountName: str) -> str:
         try:
             azureConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AZURE").get("value", {})
             namePrefix = azureConfig.get("common", {}).get("account-name-prefix", "")
@@ -578,6 +595,7 @@ class CloudAccount(BaseWorkflow):
             if re.match(r, accountName):
                 reSuffix = "-(?i:" + ("|").join(scopes) + ")$"
                 infobloxAccountName = re.sub(reSuffix, "", accountName)
+                infobloxAccountName = infobloxAccountName.lower()
             else:
                 infobloxAccountName = accountName
 
@@ -589,21 +607,14 @@ class CloudAccount(BaseWorkflow):
 
     def __azureGetCheckpointAccountNameFromData(self, accountName: str, azureData: dict) -> str:
         try:
-            accountName = accountName.lower()
+            checkpointAccountName = accountName.lower()
             scope = azureData.get("scope", "").lower()
             env = azureData.get("env", "").lower()
-            if not accountName.endswith(f"-{scope}"):
-                if not accountName.endswith(f"-{env}"):
-                    checkpointAccountName = accountName + f"-{env}-{scope}"
-                else:
-                    checkpointAccountName = accountName  + f"-{scope}"
-            else:
-                if not accountName.removesuffix(f"-{scope}").endswith(f"-{env}"):
-                    checkpointAccountName = accountName.removesuffix(f"-{scope}") + f"-{env}-{scope}"
-                else:
-                    checkpointAccountName = accountName
 
-            return checkpointAccountName
+            # Force the lower case suffix.
+            checkpointAccountName = checkpointAccountName.removesuffix(f"-{scope}")
+            checkpointAccountName = checkpointAccountName.removesuffix(f"-{env}")
+            return checkpointAccountName + f"-{env}-{scope}"
         except Exception as e:
             raise e
 
