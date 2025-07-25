@@ -119,18 +119,20 @@ class CloudAccount(BaseWorkflow):
                     "data": infobloxNetworkData
                 }
                 n += 1
-            infobloxAssetIds = [a["id"] for a in self.listAssets(technology="infoblox")]
-            for id in infobloxAssetIds:
-                if id:
-                    # Get info about the infoblox networks of the account on this asset.
-                    self.calls["infobloxAccountNetworksGet-" + str(id)] = {
-                        "technology": "infoblox",
-                        "method": "GET",
-                        "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + \
-                            self.data.get("infoblox_cloud_network_assign", [{}])[0].get("network_data", {}).get("extattrs", {}).get("Account Name", {}).get("value", "") + \
-                                "&fby=*Environment&fval=Cloud", # there can be multiple networks, but the Account Name is always the same.
-                        "data": None
-                    }
+            # This workflow can also be called without requesting a new network (to fix checkpoint tags).
+            if self.data.get("infoblox_cloud_network_assign", []):
+                infobloxAssetIds = [a["id"] for a in self.listAssets(technology="infoblox")]
+                for id in infobloxAssetIds:
+                    if id:
+                        # Get info about the infoblox networks of the account on this asset.
+                        self.calls["infobloxAccountNetworksGet-" + str(id)] = {
+                            "technology": "infoblox",
+                            "method": "GET",
+                            "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + \
+                                self.data.get("infoblox_cloud_network_assign", [{}])[0].get("network_data", {}).get("extattrs", {}).get("Account Name", {}).get("value", "") + \
+                                    "&fby=*Environment&fval=Cloud", # there can be multiple networks, but the Account Name is always the same.
+                            "data": None
+                        }
 
         elif workflowAction == "remove":
             self.calls = {
@@ -470,6 +472,8 @@ class CloudAccount(BaseWorkflow):
 
                 elif self.workflowAction == "assign":
                     formattedData = {"infoblox_cloud_network_assign": [], "checkpoint_datacenter_account_put": {}}
+                    data["Account Name"] = self.__fixAccountNameFromInput(data)
+
                     for network in data.get("infoblox_cloud_network_assign", []):
                         dataItem = {"network_data": {}}
                         dataItem["asset"] = network.get("asset", 0)
@@ -485,7 +489,6 @@ class CloudAccount(BaseWorkflow):
                             if data.get("azure_data", {}).get("scope", ""):
                                 dataItem["network_data"]["extattrs"]["Scope"] = { "value":  data["azure_data"]["scope"]}
                         elif dataItem["provider"] == "AWS":
-                            self.__checkAWSAccountName(data.get("Account Name", ""))
                             dataItem["network_data"]["extattrs"]["Account Name"] = { "value": data.get("Account Name", "") }
 
                         dataItem["network_data"]["subnetMaskCidr"] = network.get("subnetMaskCidr", 24)
@@ -496,7 +499,7 @@ class CloudAccount(BaseWorkflow):
                     self.changeRequestId = data.get("change-request-id", "")
                     self.report += f"\nChangeRequestId: {self.changeRequestId}"
                     formattedData["checkpoint_datacenter_account_put"] = {"change-request-id": self.changeRequestId}
-                    if dataItem["provider"] == "AZURE":
+                    if data.get("provider", "") == "AZURE":
                         formattedData["checkpoint_datacenter_account_put"]["Account Name"] = self.__azureGetCheckpointAccountNameFromData(data.get("Account Name", ""), data["azure_data"])
                     else:
                         formattedData["checkpoint_datacenter_account_put"]["Account Name"] = data.get("Account Name", "")
@@ -540,6 +543,7 @@ class CloudAccount(BaseWorkflow):
 
 
 
+    # Fix the account names listed from infoblox.
     def __fixAccountNamesFromInfobloxData(self, data: dict) -> dict:
         try:
             if data.get("Account Name", ""):
@@ -552,13 +556,9 @@ class CloudAccount(BaseWorkflow):
 
 
 
+    # Used from the PUT when creating a new account: azure account names in infoblox have a different suffix.
     def __azureGetInfobloxAccountNameFromData(self, accountName: str, azureData: dict) -> str:
         try:
-            azureConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AZURE").get("value", {})
-            namePrefix = azureConfig.get("common", {}).get("account-name-prefix", "")
-            if not accountName.startswith(namePrefix):
-                raise CustomException(status=400, payload={"Checkpoint": f"The AZURE account name doesn't start with the prefix \"{namePrefix}\" (case sensitive)."})
-
             infobloxAccountName = accountName.lower().removesuffix("-" + azureData.get("scope", "").lower())
             if not infobloxAccountName.endswith("-" + azureData.get("env", "").lower()):
                 infobloxAccountName += "-" + azureData.get("env", "").lower()
@@ -569,18 +569,42 @@ class CloudAccount(BaseWorkflow):
 
 
 
-    def __checkAWSAccountName(self, accountName) -> None:
+    # Used from the PUT when creating a new account: account names should match the required pattern.
+    def __fixAccountNameFromInput(self, data: dict) -> str:
         try:
-            awsConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AWS").get("value", {})
-            namePrefix = awsConfig.get("common", {}).get("account-name-prefix", "")
-            if not accountName.startswith(namePrefix):
-                raise CustomException(status=400, payload={"Checkpoint": f"The AWS account name doesn't start with the prefix \"{namePrefix}\" (case sensitive)."})
+            accountName = data.get("Account Name")
+            provider = data.get("provider")
 
+            config = self.getConfig(technogy="checkpoint", configType=f"datacenter-account-{provider}").get("value", {})
+            namePrefix = config.get("common", {}).get("account-name-prefix", "")
+            if not accountName.startswith(namePrefix):
+                accountName = namePrefix + accountName
+
+            if provider == "AZURE":
+                accountName = self.__azureGetCheckpointAccountNameFromData(accountName=accountName, azureData=data.get("azure_data", {}))
+            return accountName
         except Exception as e:
             raise e
 
 
 
+    # Used from the PUT when creating a new account: azure account names in checkpoint.
+    def __azureGetCheckpointAccountNameFromData(self, accountName: str, azureData: dict) -> str:
+        try:
+            checkpointAccountName = accountName.lower()
+            scope = azureData.get("scope", "").lower()
+            env = azureData.get("env", "").lower()
+
+            # Force the lower case suffix.
+            checkpointAccountName = checkpointAccountName.removesuffix(f"-{scope}")
+            checkpointAccountName = checkpointAccountName.removesuffix(f"-{env}")
+            return checkpointAccountName + f"-{env}-{scope}"
+        except Exception as e:
+            raise e
+
+
+
+    # Used for GET and DELETE: azure account names in infoblox have a different suffix.
     def __azureGetInfobloxAccountNameFromName(self, accountName: str) -> str:
         try:
             azureConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AZURE").get("value", {})
@@ -604,20 +628,6 @@ class CloudAccount(BaseWorkflow):
         except Exception as e:
             raise e
 
-
-
-    def __azureGetCheckpointAccountNameFromData(self, accountName: str, azureData: dict) -> str:
-        try:
-            checkpointAccountName = accountName.lower()
-            scope = azureData.get("scope", "").lower()
-            env = azureData.get("env", "").lower()
-
-            # Force the lower case suffix.
-            checkpointAccountName = checkpointAccountName.removesuffix(f"-{scope}")
-            checkpointAccountName = checkpointAccountName.removesuffix(f"-{env}")
-            return checkpointAccountName + f"-{env}-{scope}"
-        except Exception as e:
-            raise e
 
 
 
