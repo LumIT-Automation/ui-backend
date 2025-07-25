@@ -120,19 +120,16 @@ class CloudAccount(BaseWorkflow):
                 }
                 n += 1
             # This workflow can also be called without requesting a new network (to fix checkpoint tags).
-            if self.data.get("infoblox_cloud_network_assign", []):
-                infobloxAssetIds = [a["id"] for a in self.listAssets(technology="infoblox")]
-                for id in infobloxAssetIds:
-                    if id:
-                        # Get info about the infoblox networks of the account on this asset.
-                        self.calls["infobloxAccountNetworksGet-" + str(id)] = {
-                            "technology": "infoblox",
-                            "method": "GET",
-                            "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + \
-                                self.data.get("infoblox_cloud_network_assign", [{}])[0].get("network_data", {}).get("extattrs", {}).get("Account Name", {}).get("value", "") + \
-                                    "&fby=*Environment&fval=Cloud", # there can be multiple networks, but the Account Name is always the same.
-                            "data": None
-                        }
+            infobloxAssetIds = [a["id"] for a in self.listAssets(technology="infoblox")]
+            for id in infobloxAssetIds:
+                if id:
+                    # Get info about the infoblox networks of the account on this asset.
+                    self.calls["infobloxAccountNetworksGet-" + str(id)] = {
+                        "technology": "infoblox",
+                        "method": "GET",
+                        "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + self.data.get("infobloxAccountName", "") + "&fby=*Environment&fval=Cloud", # there can be multiple networks, but the Account Name is always the same.
+                        "data": None
+                    }
 
         elif workflowAction == "remove":
             self.calls = {
@@ -474,6 +471,11 @@ class CloudAccount(BaseWorkflow):
                     formattedData = {"infoblox_cloud_network_assign": [], "checkpoint_datacenter_account_put": {}}
                     data["Account Name"] = self.__fixAccountNameFromInput(data)
 
+                    if data.get("provider", "") == "AZURE":
+                        formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountNameFromData(data.get("Account Name", ""), data["azure_data"])
+                    elif data.get("provider", "") == "AWS":
+                        formattedData["infobloxAccountName"] = data.get("Account Name", "")
+
                     for network in data.get("infoblox_cloud_network_assign", []):
                         dataItem = {"network_data": {}}
                         dataItem["asset"] = network.get("asset", 0)
@@ -482,18 +484,12 @@ class CloudAccount(BaseWorkflow):
                         dataItem["network_data"] = {"network": "next-available"}
                         dataItem["network_data"]["extattrs"] = {"Reference": {"value": data.get("Reference", "")}}
                         dataItem["network_data"]["extattrs"]["Account ID"] = {"value": data.get("Account ID", "")}
-
-                        if dataItem["provider"] == "AZURE":
-                            infobloxAccountName = self.__azureGetInfobloxAccountNameFromData(data.get("Account Name", ""), data["azure_data"])
-                            dataItem["network_data"]["extattrs"]["Account Name"] = { "value": infobloxAccountName}
-                            if data.get("azure_data", {}).get("scope", ""):
-                                dataItem["network_data"]["extattrs"]["Scope"] = { "value":  data["azure_data"]["scope"]}
-                        elif dataItem["provider"] == "AWS":
-                            dataItem["network_data"]["extattrs"]["Account Name"] = { "value": data.get("Account Name", "") }
-
+                        dataItem["network_data"]["extattrs"]["Account Name"] = { "value": formattedData["infobloxAccountName"]}
                         dataItem["network_data"]["subnetMaskCidr"] = network.get("subnetMaskCidr", 24)
                         dataItem["network_data"]["comment"] = network.get("comment", "")
-
+                        if dataItem["provider"] == "AZURE":
+                            if data.get("azure_data", {}).get("scope", ""):
+                                dataItem["network_data"]["extattrs"]["Scope"] = { "value":  data["azure_data"]["scope"]}
                         formattedData["infoblox_cloud_network_assign"].append(dataItem)
 
                     self.changeRequestId = data.get("change-request-id", "")
@@ -577,8 +573,8 @@ class CloudAccount(BaseWorkflow):
 
             config = self.getConfig(technogy="checkpoint", configType=f"datacenter-account-{provider}").get("value", {})
             namePrefix = config.get("common", {}).get("account-name-prefix", "")
-            if not accountName.startswith(namePrefix):
-                accountName = namePrefix + accountName
+            # Remove and re-add the prefix (so fix the case if needed).
+            accountName = namePrefix +  re.sub(pattern=namePrefix, repl="", string=accountName, flags=re.IGNORECASE)
 
             if provider == "AZURE":
                 accountName = self.__azureGetCheckpointAccountNameFromData(accountName=accountName, azureData=data.get("azure_data", {}))
