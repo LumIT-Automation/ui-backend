@@ -246,7 +246,7 @@ class CloudAccount(BaseWorkflow):
                             raise CustomException(status=status, payload={"Infoblox": data})
 
                         if data.get("data", []):
-                            fixedData = [ self.__fixAccountNamesFromInfobloxData(d) for d in data.get("data", []) ]
+                            fixedData.extend([ self.__fixAccountNamesFromInfobloxData(d) for d in data.get("data", []) ])
                 response = {
                     "data": {
                         "items": fixedData
