@@ -15,7 +15,10 @@ class CloudAccountSerializer(serializers.Serializer):
         self.fields["Account ID"] = IntegerStringRegexSerializer(allow_blank=True, required=False)
         self.fields["Country"] = serializers.CharField(max_length=255, allow_blank=True, required=False)
         self.fields["Reference"] = serializers.CharField(max_length=255, allow_blank=True, required=False)
-        self.fields["Scope"] = serializers.CharField(max_length=255, allow_blank=True, required=False)
+        self.fields["Scope"] = serializers.ListField(
+            child=serializers.CharField(max_length=64, allow_blank=True, required=False),
+            required=False
+        )
 
 
 class FlowCloudAccountsSerializer(serializers.Serializer):

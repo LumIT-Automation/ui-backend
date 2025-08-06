@@ -12,6 +12,8 @@ class InfobloxAssignCloudNetworkSerializer(serializers.Serializer):
     comment = serializers.CharField(max_length=255, required=False)
     subnetMaskCidr = serializers.IntegerField(required=True)
     region = serializers.CharField(max_length=32, required=True)
+    scope = serializers.CharField(max_length=64, required=False)
+
 
 
 class InfobloxRemoveCloudNetworkSerializer(serializers.Serializer):
@@ -21,7 +23,6 @@ class InfobloxRemoveCloudNetworkSerializer(serializers.Serializer):
 
 class CheckpointDatacenterAccountAzureSerializer(serializers.Serializer):
     env = serializers.CharField(max_length=64, required=True)
-    scope = serializers.CharField(max_length=64, required=True)
 
 
 class CheckpointDatacenterAccountPutSerializer(serializers.Serializer):

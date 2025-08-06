@@ -1,4 +1,5 @@
 from importlib import import_module
+from typing import List, Dict
 import re
 
 from django.conf import settings
@@ -199,54 +200,70 @@ class CloudAccount(BaseWorkflow):
 
         try:
             if self.workflowAction == "info":
-                response = { "data": {"networks": []} }
+                response = { "data": {"networks": [], "tags": []} }
+                infobloxData = dict()
                 for k in self.calls.keys():
                     if k.startswith("infobloxAccountNetworksGet"):
-                        data, status = self.requestFacade(
+                        infobloxData, status = self.requestFacade(
                             **self.calls[k],
                             headers=self.headers,
                         )
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(data))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(infobloxData))
 
                         if status != 200 and status != 304:
-                            raise CustomException(status=status, payload={"Infoblox": data})
+                            raise CustomException(status=status, payload={"Infoblox": infobloxData})
 
-                        if data:
-                            response["data"]["networks"].extend(data.get("data", []))
+                        if infobloxData:
+                            response["data"]["networks"].extend(infobloxData.get("data", []))
 
+                tags = list()
+                checkpointCalls = list()
                 for k in self.calls.keys():
                     if k.startswith("checkpointAccountInfoGet"):
-                        data, status = self.requestFacade(
-                            **self.calls[k],
-                            headers=self.headers,
-                        )
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(data))
+                        for net in infobloxData.get("data", {}):
+                            call = self.calls[k].copy()
+                            netScope = net.get("extattrs", {}).get("Scope", {}).get("value", "")
+                            netScope = "-" + netScope if netScope else ""
+                            call["urlSegment"] += netScope + "/"
+                            if call not in checkpointCalls:
+                                checkpointCalls.append(call)
+                for call in checkpointCalls:
+                    checkpointData, status = self.requestFacade(
+                        **call,
+                        headers=self.headers,
+                    )
+                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
+                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(checkpointData))
 
-                        if status != 200 and status != 304:
-                            raise CustomException(status=status, payload={"Checkpoint": data})
+                    if status != 200 and status != 304:
+                        raise CustomException(status=status, payload={"Checkpoint": checkpointData})
 
-                        if data and data.get("data", {}).get("tags", []):
-                            response["data"]["tags"] = data.get("data", {}).get("tags", [])
+                    if checkpointData and checkpointData.get("data", {}).get("tags", []):
+                        tags.append(checkpointData.get("data", {}).get("tags", [])) # tags is a list of lists.
 
+                # Append a tag in the response only if present in all the checkpoint accounts of this cloud account (1 checkpoint accout for every Scope).
+                if tags:
+                    for tag in tags[0]:
+                        if len([l for l in tags if tag in l]) == len(tags):
+                            response["data"]["tags"].append(tag)
 
             elif self.workflowAction == "list":
                 fixedData = list()
                 for k in self.calls.keys():
                     if k.startswith("infobloxAccountsGet"):
-                        data, status = self.requestFacade(
+                        infobloxData, status = self.requestFacade(
                             **self.calls[k],
                             headers=self.headers,
                         )
                         Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(data))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(infobloxData))
 
                         if status != 200 and status != 304:
-                            raise CustomException(status=status, payload={"Infoblox": data})
+                            raise CustomException(status=status, payload={"Infoblox": infobloxData})
 
-                        if data.get("data", []):
-                            fixedData.extend([ self.__fixAccountNamesFromInfobloxData(d) for d in data.get("data", []) ])
+                        if infobloxData.get("data", []):
+                            fixedData.extend(self.__fixAccountsFromInfobloxData(infobloxData.get("data", [])))
                 response = {
                     "data": {
                         "items": fixedData
@@ -487,9 +504,9 @@ class CloudAccount(BaseWorkflow):
                         dataItem["network_data"]["extattrs"]["Account Name"] = { "value": formattedData["infobloxAccountName"]}
                         dataItem["network_data"]["subnetMaskCidr"] = network.get("subnetMaskCidr", 24)
                         dataItem["network_data"]["comment"] = network.get("comment", "")
-                        if dataItem["provider"] == "AZURE":
-                            if data.get("azure_data", {}).get("scope", ""):
-                                dataItem["network_data"]["extattrs"]["Scope"] = { "value":  data["azure_data"]["scope"]}
+                        if network.get("scope", ""):
+                            dataItem["network_data"]["extattrs"]["Scope"] = { "value": network["scope"]}
+
                         formattedData["infoblox_cloud_network_assign"].append(dataItem)
 
                     self.changeRequestId = data.get("change-request-id", "")
@@ -539,14 +556,30 @@ class CloudAccount(BaseWorkflow):
 
 
 
-    # Fix the account names listed from infoblox.
-    def __fixAccountNamesFromInfobloxData(self, data: dict) -> dict:
+    # Fix the account data retrieved from infoblox.
+    def __fixAccountsFromInfobloxData(self, data: List[Dict]) -> List[Dict]:
+        fixedData = list()
+
         try:
-            if data.get("Account Name", ""):
-                if data.get("Country", "") == "Cloud-AZURE":
-                    if data.get("Scope", ""):
-                        data["Account Name"] += "-" + data.get("Scope", "").lower()
-            return data
+            for item in data:
+                if item.get("Account Name", ""):
+                    if item.get("Scope", ""):
+                        fixedItem = next(iter([fItem for fItem in fixedData if fItem.get("Account Name", "") == item["Account Name"]]), {})
+                        if fixedItem:
+                            if item["Scope"] not in fixedItem["Scope"]:
+                                fixedItem["Scope"].append(item["Scope"])
+                        else:
+                            fixedItem = item
+                            fixedItem["Scope"] = [ item["Scope"] ]
+                            fixedData.append(fixedItem)
+                    else:
+                        fixedItem = next(iter([fItem for fItem in fixedData if fItem.get("Account Name", "") == item["Account Name"]]), {})
+                        if not fixedItem:
+                            fixedItem = item
+                            fixedItem["Scope"] = []
+                        fixedData.append(fixedItem)
+
+            return fixedData
         except Exception as e:
             raise e
 
