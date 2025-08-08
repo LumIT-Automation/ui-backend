@@ -56,7 +56,7 @@ class CloudAccount(BaseWorkflow):
                     self.calls["checkpointAccountInfoGet-" + str(id)] = {
                         "technology": "checkpoint",
                         "method": "GET",
-                        "urlSegment": str(id) + "/datacenter-account/" + self.data.get("Account Name", ""),
+                        "urlSegment": str(id) + "/datacenter-account/ACCOUNT_NAME/", # Add ths account name later, with the right format. A temporary name is needed to check permissions.
                         "data": None
 
                     }
@@ -218,17 +218,23 @@ class CloudAccount(BaseWorkflow):
                             response["data"]["networks"].extend(infobloxData.get("data", []))
 
                 tags = list()
-                checkpointCalls = list()
+                checkpointInfoCalls = list()
                 for k in self.calls.keys():
                     if k.startswith("checkpointAccountInfoGet"):
+                        # AWS account: 1 infoblox account (many networks) -> 1 checkpoint account
+                        # AZURE account: 1 infoblox account (many networks, to each his own Scope) -> 1 checkpoint account for every Scope.
                         for net in infobloxData.get("data", {}):
                             call = self.calls[k].copy()
-                            netScope = net.get("extattrs", {}).get("Scope", {}).get("value", "")
-                            netScope = "-" + netScope if netScope else ""
-                            call["urlSegment"] += netScope + "/"
-                            if call not in checkpointCalls:
-                                checkpointCalls.append(call)
-                for call in checkpointCalls:
+                            extattrs = net.get("extattrs", {})
+                            call["urlSegment"] = call["urlSegment"].removesuffix("ACCOUNT_NAME/") + self.__getCheckpointAccountNameFromInfobloxData(
+                                    infobloxAccountName=extattrs.get("Account Name", {}).get("value", ""),
+                                    provider=extattrs.get("Country", {}).get("value", ""),
+                                    scope=extattrs.get("Scope", {}).get("value", "")
+                            ) + "/"
+                            if call not in checkpointInfoCalls: # always the same call for AWS.
+                                checkpointInfoCalls.append(call)
+
+                for call in checkpointInfoCalls:
                     checkpointData, status = self.requestFacade(
                         **call,
                         headers=self.headers,
@@ -614,6 +620,22 @@ class CloudAccount(BaseWorkflow):
             return accountName
         except Exception as e:
             raise e
+
+
+
+    # Used from the GET when retrieving info on an account: format the checkpoint account name for azure, leave as is for AWS.
+    def __getCheckpointAccountNameFromInfobloxData(self, infobloxAccountName: str, provider: str, scope: str = "") -> str:
+        try:
+            if provider == "Cloud-AZURE":
+                # Force the lower case suffix. The env suffix is in the infoblox name string already.
+                checkpointAccountName = infobloxAccountName.lower()
+                scope = scope.lower()
+                return checkpointAccountName.removesuffix(f"-{scope}") + f"-{scope}"
+            else:
+                return infobloxAccountName
+        except Exception as e:
+            raise e
+
 
 
 
