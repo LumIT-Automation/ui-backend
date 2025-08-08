@@ -23,6 +23,8 @@ class CloudAccount(BaseWorkflow):
         self.headers = headers or ()
         self.report = f"Workflow: {self.workflowName} {self.workflowId}"
         self.data = self.__dataformat(data)
+        self.calls = dict()
+        self.delayedCheckCalls = dict() # some permission checks can be done only after some calls.
 
 
         if workflowAction == "info":
@@ -53,7 +55,8 @@ class CloudAccount(BaseWorkflow):
             checkpointAssetIds = [ a["id"] for a in self.listAssets(technology="checkpoint")]
             for id in checkpointAssetIds:
                 if id:
-                    self.calls["checkpointAccountInfoGet-" + str(id)] = {
+                    # Check permissions after some info calls.
+                    self.delayedCheckCalls["checkpointAccountInfoGet-" + str(id)] = {
                         "technology": "checkpoint",
                         "method": "GET",
                         "urlSegment": str(id) + "/datacenter-account/ACCOUNT_NAME/", # Add ths account name later, with the right format. A temporary name is needed to check permissions.
@@ -218,41 +221,47 @@ class CloudAccount(BaseWorkflow):
                             response["data"]["networks"].extend(infobloxData.get("data", []))
 
                 tags = list()
-                checkpointInfoCalls = list()
-                for k in self.calls.keys():
+                checkpointInfoCalls = dict()
+                for k in self.delayedCheckCalls.keys():
                     if k.startswith("checkpointAccountInfoGet"):
                         # AWS account: 1 infoblox account (many networks) -> 1 checkpoint account
                         # AZURE account: 1 infoblox account (many networks, to each his own Scope) -> 1 checkpoint account for every Scope.
                         for net in infobloxData.get("data", {}):
-                            call = self.calls[k].copy()
+                            call = self.delayedCheckCalls[k].copy()
                             extattrs = net.get("extattrs", {})
-                            call["urlSegment"] = call["urlSegment"].removesuffix("ACCOUNT_NAME/") + self.__getCheckpointAccountNameFromInfobloxData(
+                            accountName = self.__getCheckpointAccountNameFromInfobloxData(
                                     infobloxAccountName=extattrs.get("Account Name", {}).get("value", ""),
                                     provider=extattrs.get("Country", {}).get("value", ""),
                                     scope=extattrs.get("Scope", {}).get("value", "")
-                            ) + "/"
-                            if call not in checkpointInfoCalls: # always the same call for AWS.
-                                checkpointInfoCalls.append(call)
+                            )
+                            call["urlSegment"] = call["urlSegment"].removesuffix("ACCOUNT_NAME/") + accountName + "/"
+                            if f"checkpointAccountInfoGet-{accountName}" not in checkpointInfoCalls.keys(): # always the same call for AWS.
+                                checkpointInfoCalls[f"checkpointAccountInfoGet-{accountName}"] = call
 
-                for call in checkpointInfoCalls:
-                    checkpointData, status = self.requestFacade(
-                        **call,
-                        headers=self.headers,
-                    )
-                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
-                    Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(checkpointData))
+                self.checkWorkflowPrivileges(calls=checkpointInfoCalls)
+                errorMessage =""
+                for k in checkpointInfoCalls.keys():
+                    if k.startswith("checkpointAccountInfoGet"):
+                        checkpointData, status = self.requestFacade(
+                            **checkpointInfoCalls[k],
+                            headers=self.headers,
+                        )
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
+                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(checkpointData))
 
-                    if status != 200 and status != 304:
-                        raise CustomException(status=status, payload={"Checkpoint": checkpointData})
-
-                    if checkpointData and checkpointData.get("data", {}).get("tags", []):
-                        tags.append(checkpointData.get("data", {}).get("tags", [])) # tags is a list of lists.
-
+                        if status != 200 and status != 304:
+                            raise CustomException(status=status, payload={"Checkpoint": checkpointData})
+                        if not checkpointData.get("data", {}):
+                            errorMessage += "The account " + k.removeprefix("checkpointAccountInfoGet-") + " was not found on checkpoint."
+                        if checkpointData and checkpointData.get("data", {}).get("tags", []):
+                            tags.append(checkpointData.get("data", {}).get("tags", [])) # tags is a list of lists.
                 # Append a tag in the response only if present in all the checkpoint accounts of this cloud account (1 checkpoint accout for every Scope).
                 if tags:
                     for tag in tags[0]:
                         if len([l for l in tags if tag in l]) == len(tags):
                             response["data"]["tags"].append(tag)
+                if errorMessage:
+                    response["data"]["message"] = errorMessage
 
             elif self.workflowAction == "list":
                 fixedData = list()

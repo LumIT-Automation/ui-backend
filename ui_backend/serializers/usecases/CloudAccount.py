@@ -97,5 +97,6 @@ class FlowCloudAccountInfoSerializer(serializers.Serializer):
             child=serializers.CharField(max_length=255, required=True),
             required=False
         )
+        message = serializers.CharField(max_length=255, allow_blank=True, required=False)
 
     data = FlowCloudAccountInfoInnerSerializer(required=True)
