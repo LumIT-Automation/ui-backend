@@ -660,22 +660,18 @@ class CloudAccount(BaseWorkflow):
         try:
             azureConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AZURE").get("value", {})
             namePrefix = azureConfig.get("common", {}).get("account-name-prefix", "")
-            dqRules = azureConfig.get("datacenter-query", {}).get("query-rules", [])
 
+            dqRules = azureConfig.get("datacenter-query", {}).get("query-rules", [])
             envs = next(iter([rule.get("values", []) for rule in dqRules if rule.get("key", "") == "crif:env"]), [])
-            scopes = next(iter([rule.get("values", []) for rule in dqRules if rule.get("key", "") == "crif:scope"]), [])
-            reSuffix = "(?i:(?:" + ("|").join(envs) + ")-(?:" + ("|").join(scopes) + "))"
+            reSuffix = "(?i:(?:" + ("|").join(envs) + "))"
+
             r = re.compile(namePrefix + ".*" + "-" + reSuffix)
 
-            # Check if this is am AZURE account name.
+            # For AZURE account names, force lowercase.
             if re.match(r, accountName):
-                reSuffix = "-(?i:" + ("|").join(scopes) + ")$"
-                infobloxAccountName = re.sub(reSuffix, "", accountName)
-                infobloxAccountName = infobloxAccountName.lower()
+                return accountName.lower()
             else:
-                infobloxAccountName = accountName
-
-            return infobloxAccountName
+                return accountName
         except Exception as e:
             raise e
 
