@@ -1,5 +1,6 @@
 from importlib import import_module
 from typing import List, Dict
+from copy import deepcopy
 import re
 
 from django.conf import settings
@@ -195,9 +196,6 @@ class CloudAccount(BaseWorkflow):
         try:
             self.checkAuthorizations()
             self.__checkIfRequestApproved()
-
-            Log.log(self.calls, 'CCCCCCCCCCCCCC')
-            raise Exception
             self.checkWorkflowPrivileges(calls=self.calls)
 
             return True
@@ -294,6 +292,7 @@ class CloudAccount(BaseWorkflow):
                 }
 
             elif self.workflowAction == "assign":
+                # Get an Infoblox info before the writing operations.
                 networksBefore = list()
                 for k in self.calls.keys():
                     if k.startswith("infobloxAccountNetworksGet"):
@@ -311,9 +310,19 @@ class CloudAccount(BaseWorkflow):
                             networksBefore = response.get("data", [])
 
                 Log.log(networksBefore, 'NNNNNNNNNNNNNN')
+                if self.data.get("provider", "") == "AZURE": # add the calls to ehe existent checkpoint accounts of this cloud account.
+                    newScopes = [self.calls[k].get("data", {}).get("azure_data", {}).get("scope", "").upper() for k in self.calls.keys() if k.startswith("checkpointDatacenterAccountPut")]
+                    n = len(newScopes)
+                    for net in networksBefore:
+                        scope = net.get("extattrs", {}).get("Scope", {}).get("value", "").upper()
+                        if scope and scope not in newScopes:
+                            self.calls["checkpointDatacenterAccountPut-" + str(n)] = deepcopy(self.calls["checkpointDatacenterAccountPut-0"])
+                            self.calls["checkpointDatacenterAccountPut-" + str(n)]["data"]["azure_data"]["scope"] = scope
+                            self.calls["checkpointDatacenterAccountPut-" + str(n)]["data"]["Account Name"] = self.data.get("Account Name", "") + f"-{scope}"
+                            n += 1
+
+                Log.log(self.calls, 'CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC')
                 raise Exception
-                if self.data.get("provider", "") == "AZURE":
-                    scopes = networksBefore
 
                 assignedNetworks = list()
                 for k in self.calls.keys():
