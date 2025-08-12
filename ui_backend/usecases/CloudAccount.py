@@ -269,6 +269,7 @@ class CloudAccount(BaseWorkflow):
                 if errorMessage:
                     response["data"]["message"] = errorMessage
 
+            ####################################
             elif self.workflowAction == "list":
                 fixedData = list()
                 for k in self.calls.keys():
@@ -291,6 +292,7 @@ class CloudAccount(BaseWorkflow):
                     }
                 }
 
+            ####################################
             elif self.workflowAction == "assign":
                 # Get an Infoblox info before the writing operations.
                 networksBefore = list()
@@ -309,8 +311,8 @@ class CloudAccount(BaseWorkflow):
                         else:
                             networksBefore = response.get("data", [])
 
-                Log.log(networksBefore, 'NNNNNNNNNNNNNN')
                 if self.data.get("provider", "") == "AZURE": # add the calls to ehe existent checkpoint accounts of this cloud account.
+                    notCheckedCalls = dict() # Be sure that also these calls are permitted.
                     newScopes = [self.calls[k].get("data", {}).get("azure_data", {}).get("scope", "").upper() for k in self.calls.keys() if k.startswith("checkpointDatacenterAccountPut")]
                     n = len(newScopes)
                     for net in networksBefore:
@@ -319,10 +321,10 @@ class CloudAccount(BaseWorkflow):
                             self.calls["checkpointDatacenterAccountPut-" + str(n)] = deepcopy(self.calls["checkpointDatacenterAccountPut-0"])
                             self.calls["checkpointDatacenterAccountPut-" + str(n)]["data"]["azure_data"]["scope"] = scope
                             self.calls["checkpointDatacenterAccountPut-" + str(n)]["data"]["Account Name"] = self.data.get("Account Name", "") + f"-{scope}"
+                            notCheckedCalls["checkpointDatacenterAccountPut-" + str(n)] = self.calls["checkpointDatacenterAccountPut-" + str(n)]
                             n += 1
 
-                Log.log(self.calls, 'CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC')
-                raise Exception
+                    self.checkWorkflowPrivileges(calls=notCheckedCalls)
 
                 assignedNetworks = list()
                 for k in self.calls.keys():
@@ -351,47 +353,52 @@ class CloudAccount(BaseWorkflow):
                             assignedNetworks.append(re.findall(r'network/[A-Za-z0-9]+:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/[0-9][0-9]?)/default$', response.get("data", ""))[0])
                 self.report += "\nAssigned networks: " + str (assignedNetworks)
 
+                # AWS checkpoint structure: 1 account with many regions.
+                # AZURE checkpoint structure: 1 or more accounts, but the regions param doesn't matters.
                 regionsAfter = list()
+                if self.data.get("provider", "") == "AWS":
+                    for k in self.calls.keys():
+                        if k.startswith("infobloxAccountNetworksGet"):
+                            response, status = self.requestFacade(
+                                **self.calls[k],
+                                headers=self.headers,
+                                escalate=True
+                            )
+                            Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
+                            Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
+
+                            if status != 200 and status != 304:
+                                raise CustomException(status=status, payload={"Infoblox": response})
+                            else:
+                                for net in response.get("data", []):
+                                    regionsAfter.append(net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix(
+                                        self.data.get("provider", "").lower() + "-"))
+
                 for k in self.calls.keys():
-                    if k.startswith("infobloxAccountNetworksGet"):
-                        response, status = self.requestFacade(
-                            **self.calls[k],
-                            headers=self.headers,
-                            escalate=True
-                        )
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
+                    if k.startswith("checkpointDatacenterAccountPut"):
+                        self.calls[k]["data"]["regions"] = ["westeurope"]
 
-                        if status != 200 and status != 304:
-                            raise CustomException(status=status, payload={"Infoblox": response})
-                        else:
-                            for net in response.get("data", []):
-                                regionsAfter.append(net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix(
-                                    self.data.get("provider", "").lower() + "-"))
-                self.calls["checkpointDatacenterAccountPut"]["data"]["regions"] = regionsAfter
+                for k in self.calls.keys():
+                    if k.startswith("checkpointDatacenterAccountPut"):
+                        try:
+                            response, status = self.requestFacade(
+                                **self.calls[k],
+                                headers=self.headers,
+                            )
+                            Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
+                            Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
+                            self.report += "\nCheckpoint regions: " + str(self.calls[k].get("data", {}).get("regions", []))
 
-                if self.calls["checkpointDatacenterAccountPut"]["data"]["regions"]:
-                    try:
-                        response, status = self.requestFacade(
-                            **self.calls["checkpointDatacenterAccountPut"],
-                            headers=self.headers,
-                        )
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
-                        self.report += "\nCheckpoint regions: " + str(self.calls["checkpointDatacenterAccountPut"].get("data", {}).get("regions", []))
+                        except Exception as e:
+                            self.report += "\nGot an exception on Checkpoint: " + str(e)
+                            self.report += "\nAction \"assign\" stopped on checkpoint operations for workflow."
+                            self.__log(messageHeader="Action \"assign\" stopped on checkpoint operations for workflow.", messageData=str(e))
+                            raise e
 
-                    except Exception as e:
-                        self.report += "\nGot an exception on Checkpoint: " + str(e)
-                        self.report += "\nAction \"assign\" stopped on checkpoint operations for workflow."
-                        self.__log(messageHeader="Action \"assign\" stopped on checkpoint operations for workflow.", messageData=str(e))
-                        raise e
+                        self.__log(messageHeader="Action \"assign\" completed for workflow.", messageData="")
+                        self.report += "\nAction \"assign\" completed for workflow."
 
-                    self.__log(messageHeader="Action \"assign\" completed for workflow.", messageData="")
-                    self.report += "\nAction \"assign\" completed for workflow."
-                else:
-                    self.__log(messageHeader="No regions added to checkpoint data. Action \"assign\" completed for workflow.", messageData="")
-                    self.report += "\nNo regions added to checkpoint data. Action \"assign\" completed for workflow."
-
+            ####################################
             elif self.workflowAction == "remove":
                 # List the regions before the deletion.
                 regionsBefore = list()
@@ -606,7 +613,6 @@ class CloudAccount(BaseWorkflow):
                     else:
                         formattedData["infobloxAccountName"] = data.get("Account Name", "")
 
-            Log.log(formattedData, 'FFFFFFFFFFFFFFFFFFF')
             return formattedData
         except Exception as e:
             raise e
