@@ -374,6 +374,7 @@ class CloudAccount(BaseWorkflow):
                                     regionsAfter.append(net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix(
                                         self.data.get("provider", "").lower() + "-"))
 
+                regionsAfter = regionsAfter or [""]
                 for k in self.calls.keys():
                     if k.startswith("checkpointDatacenterAccountPut"):
                         self.calls[k]["data"]["regions"] = regionsAfter
