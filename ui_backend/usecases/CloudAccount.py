@@ -376,7 +376,7 @@ class CloudAccount(BaseWorkflow):
 
                 for k in self.calls.keys():
                     if k.startswith("checkpointDatacenterAccountPut"):
-                        self.calls[k]["data"]["regions"] = ["westeurope"]
+                        self.calls[k]["data"]["regions"] = regionsAfter
 
                 for k in self.calls.keys():
                     if k.startswith("checkpointDatacenterAccountPut"):
