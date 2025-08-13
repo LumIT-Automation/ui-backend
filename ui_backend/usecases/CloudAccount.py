@@ -408,9 +408,9 @@ class CloudAccount(BaseWorkflow):
 
                 # Find which network will not be deleted, if there are. Then find the remaining regions and scopes.
                 toBeDeletedNetworks = list()
-                for key in self.calls.keys():
-                    if key.startswith("infobloxDeleteCloudNetwork"):
-                        toBeDeletedNetworks.append(self.calls[key].get("data", {}).get("network", ""))
+                for k in self.calls.keys():
+                    if k.startswith("infobloxDeleteCloudNetwork"):
+                        toBeDeletedNetworks.append(self.calls[k].get("data", {}).get("network", ""))
 
                 # List the networks, regions and scopes before the deletion.
                 networksBefore = list()
@@ -469,18 +469,18 @@ class CloudAccount(BaseWorkflow):
 
                 # Remove the infoblox networks.
                 removedNetworks = list()
-                for key in self.calls.keys():
-                    if key.startswith("infobloxDeleteCloudNetwork"):
+                for k in self.calls.keys():
+                    if k.startswith("infobloxDeleteCloudNetwork"):
                         try:
-                            network = self.calls[key].get("data", {}).get("network", "")
+                            network = self.calls[k].get("data", {}).get("network", "")
                             if network in [ net.get("network", "") for net in networksBefore ]:
                                 response, status = self.requestFacade(
-                                    **self.calls[key],
+                                    **self.calls[k],
                                     headers=self.headers,
                                 )
                                 Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
                                 Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
-                                removedNetworks.append(self.calls[key].get("data", {}).get("network", ""))
+                                removedNetworks.append(self.calls[k].get("data", {}).get("network", ""))
                             else:
                                 self.report += f"\nNot removed network: {network}. This network do not belong to the account " + self.data.get("Account Name", "") + "."
                                 self.__log(messageHeader=f"\nNot removed network: {network}. This network do not belong to the account " + self.data.get("Account Name", "") + ".")
@@ -496,16 +496,16 @@ class CloudAccount(BaseWorkflow):
                                 raise e
                 self.report += "\nRemoved networks: " + str(removedNetworks)
 
-                for key in self.calls.keys():
-                    if key.startswith("checkpointDatacenterAccountDelete"):
+                for k in self.calls.keys():
+                    if k.startswith("checkpointDatacenterAccountDelete"):
                         try:
                             response, status = self.requestFacade(
-                                **self.calls[key],
+                                **self.calls[k],
                                 headers=self.headers
                             )
                             Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
                             Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
-                            self.report += "\nCheckpoint removed regions: " + str(self.calls[key].get("data", {}).get("regions", []))
+                            self.report += "\nCheckpoint removed regions: " + str(self.calls[k].get("data", {}).get("regions", []))
 
                         except Exception as e:
                             self.report += "\nGot an exception on Checkpoint: " + str(e)
