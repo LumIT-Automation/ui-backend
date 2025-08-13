@@ -53,7 +53,11 @@ class CloudAccount(BaseWorkflow):
                         "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + self.data.get("infobloxAccountName", "") + "&fby=*Environment&fval=Cloud",
                         "data": self.data
                     }
-            checkpointAssetIds = [ a["id"] for a in self.listAssets(technology="checkpoint")]
+            if "checkpointAssetId" in self.data:
+                checkpointAssetIds = self.data.get("checkpointAssetId", 0)
+            else:
+                checkpointAssetIds = [ a["id"] for a in self.listAssets(technology="checkpoint")]
+
             for id in checkpointAssetIds:
                 if id:
                     # Check permissions after some info calls.

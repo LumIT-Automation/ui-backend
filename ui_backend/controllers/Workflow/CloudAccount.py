@@ -26,9 +26,12 @@ class WorkflowCloudAccountController(CustomController):
         try:
             if "Authorization" in request.headers:
                 headers["Authorization"] = request.headers["Authorization"]
+
             data = {
                 "Account Name": accountName
             }
+            if "checkpointAssetId" in request.GET:
+                data["checkpointAssetId"] = request.GET.get('checkpointAssetId', default=0)
 
             Log.actionLog("Cloud account workflow, action: "+workflowAction, user)
             Log.actionLog("User data: " + str(request.data), user)
