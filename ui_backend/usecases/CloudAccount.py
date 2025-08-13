@@ -156,7 +156,7 @@ class CloudAccount(BaseWorkflow):
                 "checkpointDatacenterAccountDelete": {
                     "technology": "checkpoint",
                     "method": "DELETE",
-                    "urlSegment": str(data.get("checkpoint_datacenter_account_delete", {}).get("asset", 0)) + "/datacenter-account/" + str(data.get("Account Name", "")) + "/",
+                    "urlSegment": str(data.get("checkpoint_datacenter_account_delete", {}).get("asset", 0)) + "/datacenter-account/ACCOUNT_NAME/", # Add ths account name later, with the right format. A temporary name is needed to check permissions."
                     "data": self.data.get("checkpoint_datacenter_account_delete", {}),
                 },
                 "checkpointUnlock": {
@@ -186,7 +186,7 @@ class CloudAccount(BaseWorkflow):
                     self.calls["infobloxAccountNetworksGet-" + str(id)] = {
                         "technology": "infoblox",
                         "method": "GET",
-                        "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + self.data.get("infobloxAccountName", "") + "&fby=*Environment&fval=Cloud",
+                        "urlSegment": str(id) + "/networks/?fby=*Account Name&fval=" + self.data.get("Account Name", "") + "&fby=*Environment&fval=Cloud",
                         "data": None
                     }
 
@@ -208,7 +208,7 @@ class CloudAccount(BaseWorkflow):
 
 
 
-    def run(self) -> dict:
+    def run(self):
         response = None
 
         try:
@@ -405,8 +405,14 @@ class CloudAccount(BaseWorkflow):
 
             ####################################
             elif self.workflowAction == "remove":
-                # List the regions before the deletion.
-                regionsBefore = list()
+
+                # Find which network will not be deleted, if there are. Then find the remaining regions and scopes.
+                toBeDeletedNetworks = list()
+                for key in self.calls.keys():
+                    if key.startswith("infobloxDeleteCloudNetwork"):
+                        toBeDeletedNetworks.append(self.calls[key].get("data", {}).get("network", ""))
+
+                # List the networks, regions and scopes before the deletion.
                 networksBefore = list()
                 for k in self.calls.keys():
                     if k.startswith("infobloxAccountNetworksGet"):
@@ -422,9 +428,44 @@ class CloudAccount(BaseWorkflow):
                             raise CustomException(status=status, payload={"Infoblox": response})
                         else:
                             for net in response.get("data", []):
-                                regionsBefore.append(net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix(
-                                    self.data.get("provider", "").lower() + "-"))
-                                networksBefore.append(next(iter(net.get("network", "").split("/")), ""))
+                                network = next(iter(net.get("network", "").split("/")), "")
+                                if network:
+                                    region = net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix(self.data.get("provider", "").lower() + "-")
+                                    scope = net.get("extattrs", {}).get("Scope", {}).get("value", "")
+                                    networksBefore.append({
+                                        "network": network,
+                                        "region": region,
+                                        "scope": scope
+                                    })
+                # Now find which regions or scopes will be deleted.
+                maybeDeleted = [ net.get("scope", "") for net in networksBefore if net.get("scope", "") and net.get("network", "") in toBeDeletedNetworks ]
+                remaining = [ net.get("scope", "") for net in networksBefore if net.get("scope", "") and net.get("network", "") not in toBeDeletedNetworks ]
+                toBeDeletedScopes = [ scope for scope in maybeDeleted if scope not in remaining]
+
+                maybeDeleted = [ net.get("region", "") for net in networksBefore if net.get("region", "") and net.get("network", "") in toBeDeletedNetworks ]
+                remaining = [ net.get("region", "") for net in networksBefore if net.get("region", "") and net.get("network", "") not in toBeDeletedNetworks ]
+                toBeDeletedRegions = [ region for region in maybeDeleted if region not in remaining]
+
+                # With AWS delete the related checkpoint datacenter servers if the region is not used anymore.
+                # With azure, delete the checkpoint datacenter query if there are no more networks with that scope.
+                notCheckedCalls = dict()
+                if self.data.get("provider", "") == "AWS":
+                    self.calls["checkpointDatacenterAccountDelete"]["urlSegment"] = self.calls["checkpointDatacenterAccountDelete"]["urlSegment"].removesuffix("ACCOUNT_NAME/") + self.data["Account Name"] + "/"
+                    self.calls["checkpointDatacenterAccountDelete"]["data"]["regions"] = toBeDeletedRegions
+                    notCheckedCalls["checkpointDatacenterAccountDelete"] = self.calls["checkpointDatacenterAccountDelete"]
+
+                elif self.data.get("provider", "") == "AZURE":
+                    n = 0
+                    for scope in toBeDeletedScopes:
+                        accountName = self.data["Account Name"] + "-" + scope.lower()
+                        self.calls["checkpointDatacenterAccountDelete-"+ str(n)] = deepcopy(self.calls["checkpointDatacenterAccountDelete"])
+                        self.calls["checkpointDatacenterAccountDelete-"+ str(n)]["urlSegment"] = self.calls["checkpointDatacenterAccountDelete"]["urlSegment"].removesuffix("ACCOUNT_NAME/") + accountName + "/"
+                        self.calls["checkpointDatacenterAccountDelete-"+ str(n)]["data"]["regions"] = []
+                        notCheckedCalls["checkpointDatacenterAccountDelete-"+ str(n)] = self.calls["checkpointDatacenterAccountDelete-"+ str(n)]
+                        n += 1
+                    del self.calls["checkpointDatacenterAccountDelete"] # fake call.
+
+                self.checkWorkflowPrivileges(calls=notCheckedCalls)
 
                 # Remove the infoblox networks.
                 removedNetworks = list()
@@ -432,7 +473,7 @@ class CloudAccount(BaseWorkflow):
                     if key.startswith("infobloxDeleteCloudNetwork"):
                         try:
                             network = self.calls[key].get("data", {}).get("network", "")
-                            if network in networksBefore:
+                            if network in [ net.get("network", "") for net in networksBefore ]:
                                 response, status = self.requestFacade(
                                     **self.calls[key],
                                     headers=self.headers,
@@ -455,48 +496,25 @@ class CloudAccount(BaseWorkflow):
                                 raise e
                 self.report += "\nRemoved networks: " + str(removedNetworks)
 
-                # Now list the remaining regions.
-                regionsAfter = list()
-                azureNets = list()
                 for k in self.calls.keys():
-                    if k.startswith("infobloxAccountNetworksGet"):
-                        response, status = self.requestFacade(
-                            **self.calls[k],
-                            headers=self.headers,
-                            escalate=True
-                        )
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response status: " + str(status))
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Infoblox response: " + str(response))
+                    if k.startswith("checkpointDatacenterAccountDelete"):
+                        try:
+                            response, status = self.requestFacade(
+                                **self.calls[key],
+                                headers=self.headers
+                            )
+                            Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
+                            Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
+                            self.report += "\nCheckpoint removed regions: " + str(self.calls[k].get("data", {}).get("regions", []))
 
-                        if status != 200 and status != 304:
-                            raise CustomException(status=status, payload={"Infoblox": response})
+                        except Exception as e:
+                            self.report += "\nGot an exception on Checkpoint: " + str(e)
+                            self.report += "\nAction \"remove\" stopped on checkpoint operations for workflow."
+                            self.__log(messageHeader="Action \"remove\" stopped on checkpoint operations for workflow.", messageData=str(e))
+                            raise e
 
-                        for net in response.get("data", []):
-                            regionsAfter.append( net.get("extattrs", {}).get("City", {}).get("value", "").removeprefix( self.data.get("provider", "").lower() + "-") )
-
-                self.data["checkpoint_datacenter_account_delete"]["regions"] = [ region for region in regionsBefore if region not in regionsAfter ]
-
-                # With AWS delete the checkpoint datacenter servers if the region is not used anymore.
-                # With azure, delete the checkpoint datacenter query if there are no more networks.
-                if self.data.get("provider", "") == "AWS" and self.data.get("checkpoint_datacenter_account_delete", {}).get("regions", []) \
-                    or self.data.get("provider", "") == "AZURE" and not regionsAfter:
-                    try:
-                        response, status = self.requestFacade(
-                            **self.calls["checkpointDatacenterAccountDelete"],
-                            headers=self.headers
-                        )
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
-                        Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
-                        self.report += "\nCheckpoint removed regions: " + str(self.calls["checkpointDatacenterAccountDelete"].get("data", {}).get("regions", []))
-
-                    except Exception as e:
-                        self.report += "\nGot an exception on Checkpoint: " + str(e)
-                        self.report += "\nAction \"remove\" stopped on checkpoint operations for workflow."
-                        self.__log(messageHeader="Action \"remove\" stopped on checkpoint operations for workflow.", messageData=str(e))
-                        raise e
-
-                    self.__log(messageHeader="Action \"remove\" completed for workflow.", messageData="")
-                    self.report += "\nAction \"remove\" completed for workflow."
+                        self.__log(messageHeader="Action \"remove\" completed for workflow.", messageData="")
+                        self.report += "\nAction \"remove\" completed for workflow."
 
             return response
         except Exception as e:
@@ -547,7 +565,7 @@ class CloudAccount(BaseWorkflow):
 
                 elif self.workflowAction == "info":
                     formattedData = data
-                    formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountNameFromName(data.get("Account Name", ""))
+                    formattedData["infobloxAccountName"] = self.__getInfobloxAccountNameFromName(data.get("Account Name", ""))
 
                 elif self.workflowAction == "assign":
                     self.changeRequestId = data.get("change-request-id", "")
@@ -606,17 +624,14 @@ class CloudAccount(BaseWorkflow):
                     self.report += f"\nChangeRequestId: {self.changeRequestId}"
 
                     formattedData = {
-                        "Account Name": data.get("Account Name", ""),
                         "provider": data.get("provider", ""),
                         "infoblox_cloud_network_delete": data.get("infoblox_cloud_network_delete", []),
-                        "checkpoint_datacenter_account_delete": {
-                            "change-request-id": self.changeRequestId
-                        }
+                        "checkpoint_datacenter_account_delete": data.get("checkpoint_datacenter_account_delete", {})
                     }
-                    if data.get("provider", "") == "AZURE":
-                        formattedData["infobloxAccountName"] = self.__azureGetInfobloxAccountNameFromName(data.get("Account Name", ""))
-                    else:
-                        formattedData["infobloxAccountName"] = data.get("Account Name", "")
+                    # For AZURE the account name in checkpoint must be adjusted after getting some info from infoblox.
+                    # For AWS the regions in checkpoint are obtained after getting some info from infoblox.
+                    formattedData["Account Name"] = self.__fixAccountNameFromInput(data)
+                    formattedData["checkpoint_datacenter_account_delete"]["change-request-id"] = self.changeRequestId
 
             return formattedData
         except Exception as e:
@@ -699,8 +714,9 @@ class CloudAccount(BaseWorkflow):
                 accountName = re.sub(pattern=reSuffix, repl="", string=accountName, flags=re.IGNORECASE)
 
                 # Remove and re-add the env suffix (so fix the case if needed).
-                env = data.get("azure_data", {}).get("env", "").lower()
-                accountName.removesuffix(f"-{env}") + f"-{env}"
+                if data.get("azure_data", {}):
+                    env = data.get("azure_data", {}).get("env", "").lower()
+                    accountName.removesuffix(f"-{env}") + f"-{env}"
 
             return accountName
         except Exception as e:
@@ -739,25 +755,28 @@ class CloudAccount(BaseWorkflow):
 
 
     # Used for GET and DELETE: azure account names in infoblox have a different suffix.
-    def __azureGetInfobloxAccountNameFromName(self, accountName: str) -> str:
+    def __getInfobloxAccountNameFromName(self, accountName: str) -> str:
         try:
+            awsConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AWS").get("value", {})
+            namePrefix = awsConfig.get("common", {}).get("account-name-prefix", "")
+            r = re.compile(namePrefix + ".*")
+            if re.match(r, accountName):
+                return accountName
+
             azureConfig = self.getConfig(technogy="checkpoint", configType="datacenter-account-AZURE").get("value", {})
             namePrefix = azureConfig.get("common", {}).get("account-name-prefix", "")
-
             dqRules = azureConfig.get("datacenter-query", {}).get("query-rules", [])
             envs = next(iter([rule.get("values", []) for rule in dqRules if rule.get("key", "") == "crif:env"]), [])
             reSuffix = "(?i:(?:" + ("|").join(envs) + "))"
-
             r = re.compile(namePrefix + ".*" + "-" + reSuffix)
 
             # For AZURE account names, force lowercase.
             if re.match(r, accountName):
                 return accountName.lower()
-            else:
-                return accountName
+
+            raise CustomException(status=400, payload={"ui-backend": "This account name has a wrong format."})
         except Exception as e:
             raise e
-
 
 
 
