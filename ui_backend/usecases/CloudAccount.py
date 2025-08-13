@@ -496,8 +496,8 @@ class CloudAccount(BaseWorkflow):
                                 raise e
                 self.report += "\nRemoved networks: " + str(removedNetworks)
 
-                for k in self.calls.keys():
-                    if k.startswith("checkpointDatacenterAccountDelete"):
+                for key in self.calls.keys():
+                    if key.startswith("checkpointDatacenterAccountDelete"):
                         try:
                             response, status = self.requestFacade(
                                 **self.calls[key],
@@ -505,7 +505,7 @@ class CloudAccount(BaseWorkflow):
                             )
                             Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response status: " + str(status))
                             Log.log("[WORKFLOW] " + self.workflowId + " - Checkpoint response: " + str(response))
-                            self.report += "\nCheckpoint removed regions: " + str(self.calls[k].get("data", {}).get("regions", []))
+                            self.report += "\nCheckpoint removed regions: " + str(self.calls[key].get("data", {}).get("regions", []))
 
                         except Exception as e:
                             self.report += "\nGot an exception on Checkpoint: " + str(e)
