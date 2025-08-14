@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 
 from .controllers import Root, Controller, History, UiConfiguration, Authorizations
-from .controllers.Workflow import Workflows, FlowTest1, CheckPointAddHost, CheckPointRemoveHost, CloudAccount, CloudAccounts
+from .controllers.Workflow import Workflows, FlowTest1, CheckPointAddHost, CheckPointRemoveHost, CloudAccount, CloudAccounts, CloudAccountAssets
 from .controllers.Permission import WorkflowPermissions, WorkflowPermission, ApiIdentityGroups
 from .controllers import RawTxtController, About
 
@@ -24,6 +24,7 @@ urlpatterns = [
     path('backend/workflow/checkpoint-remove-host/', CheckPointRemoveHost.WorkflowCheckPointRemoveHostController.as_view()),
     path('backend/workflow/cloud-account/<str:accountName>/', CloudAccount.WorkflowCloudAccountController.as_view()),
     path('backend/workflow/cloud-accounts/', CloudAccounts.WorkflowCloudAccountsController.as_view()),
+    path('backend/workflow/cloud-accounts/assets/<str:technology>/', CloudAccountAssets.WorkflowCloudAccountAssetsController.as_view()),
 
     path('backend/ui-backend/doc/<str:fileName>/', RawTxtController.RawTxtController.as_view(), name='txt'),
 

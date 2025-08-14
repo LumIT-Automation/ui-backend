@@ -28,7 +28,7 @@ class CloudAccount(BaseWorkflow):
         self.delayedCheckCalls = dict() # some permission checks can be done only after some calls.
 
 
-        if workflowAction == "info":
+        if self.workflowAction == "info":
             self.calls = {
                 "infobloxUnlock": {
                     "technology": "infoblox",
@@ -70,7 +70,7 @@ class CloudAccount(BaseWorkflow):
                     }
 
 
-        elif workflowAction == "list":
+        elif self.workflowAction == "list":
             if "providers" in kwargs:
                 providers = kwargs["providers"]
             else:
@@ -97,7 +97,7 @@ class CloudAccount(BaseWorkflow):
                         }
 
 
-        elif workflowAction == "assign":
+        elif self.workflowAction == "assign":
             self.calls = {
                 "infobloxUnlock": {
                     "technology": "infoblox",
@@ -145,7 +145,7 @@ class CloudAccount(BaseWorkflow):
                     }
 
 
-        elif workflowAction == "remove":
+        elif self.workflowAction == "remove":
             self.calls = {
                 "infobloxUnlock": {
                     "technology": "infoblox",
@@ -212,7 +212,11 @@ class CloudAccount(BaseWorkflow):
         response = None
 
         try:
-            if self.workflowAction == "info":
+            if self.workflowAction == "assets-infoblox":
+                    return {"items": self.listAssets(technology="infoblox")}
+            elif self.workflowAction == "assets-checkpoint":
+                    return {"items": self.listAssets(technology="checkpoint")}
+            elif self.workflowAction == "info":
                 response = { "data": {"networks": [], "tags": []} }
                 infobloxData = dict()
                 for k in self.calls.keys():

@@ -31,7 +31,7 @@ class WorkflowCloudAccountController(CustomController):
                 "Account Name": accountName
             }
             if "checkpointAssetId" in request.GET:
-                data["checkpointAssetId"] = request.GET.get('checkpointAssetId', default=0)
+                data["checkpointAssetId"] = int(request.GET.get('checkpointAssetId', default=0))
 
             Log.actionLog("Cloud account workflow, action: "+workflowAction, user)
             Log.actionLog("User data: " + str(request.data), user)
