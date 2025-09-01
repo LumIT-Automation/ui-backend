@@ -54,7 +54,7 @@ class CloudAccount(BaseWorkflow):
                         "data": self.data
                     }
             if "checkpointAssetId" in self.data:
-                checkpointAssetIds = self.data.get("checkpointAssetId", 0)
+                checkpointAssetIds = [ self.data.get("checkpointAssetId", 0) ]
             else:
                 checkpointAssetIds = [ a["id"] for a in self.listAssets(technology="checkpoint")]
 
