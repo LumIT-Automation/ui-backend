@@ -36,6 +36,7 @@ class WorkflowCloudAccountAssetsController(CustomController):
                 serializer = WorkflowAssetsSerializer(data=data)
                 if serializer.is_valid():
                     response = { "data": serializer.validated_data}
+                    httpStatus = status.HTTP_200_OK
                 else:
                     httpStatus = status.HTTP_500_INTERNAL_SERVER_ERROR
                     response = {
