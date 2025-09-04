@@ -18,7 +18,6 @@ class WorkflowCloudAccountAssetsController(CustomController):
         headers = dict()
         user = CustomController.loggedUser(request)
         workflowId = 'workflow-cloud_account-' + Misc.getWorkflowCorrelationId()
-        workflowAction = "list"
         data = dict()
 
         try:
@@ -36,8 +35,7 @@ class WorkflowCloudAccountAssetsController(CustomController):
 
                 serializer = WorkflowAssetsSerializer(data=data)
                 if serializer.is_valid():
-                    response = serializer.validated_data
-                    httpStatus = status.HTTP_200_OK
+                    response = { "data": serializer.validated_data}
                 else:
                     httpStatus = status.HTTP_500_INTERNAL_SERVER_ERROR
                     response = {
