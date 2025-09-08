@@ -2,9 +2,9 @@ asgiref==3.9.1
 async-timeout==5.0.1
 certifi==2025.8.3
 cffi==1.17.1
-charset-normalizer==3.4.3
+charset-normalizer==3.4.2
 cryptography==41.0.7
-Django==4.2.24
+Django==4.2.23
 django-redis==5.3.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
