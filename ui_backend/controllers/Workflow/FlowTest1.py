@@ -2,9 +2,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from ui_backend.usecases.FlowTest1 import FlowTest1
+from ui_backend.models.Workflow.FlowTest1 import FlowTest1
 
-from ui_backend.serializers.usecases.FlowTest1 import FlowTest1Serializer as Serializer
+from ui_backend.serializers.Workflow.FlowTest1 import FlowTest1Serializer as Serializer
 
 from ui_backend.controllers.CustomController import CustomController
 

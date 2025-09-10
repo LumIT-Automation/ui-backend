@@ -164,6 +164,22 @@ function System_debianFilesSetup()
 }
 
 
+
+function System_usecases() {
+    oldDir=`pwd`
+    cd /var/www/usecases
+    for dir in $(find . -maxdepth 1 -type d -name "*-$shortName"); do
+        if [ -d "$dir/$shortName" ]; then
+            echo "Building usecases in $dir..."
+            cd "$dir/$shortName" && bash CONTAINER-DEBIAN-PKG/make-release.sh --action deb
+            cd /var/www/usecases
+        fi
+    done
+    cd $oldDir
+}
+
+
+
 function System_debCreate()
 {
     cd $workingFolder
@@ -175,6 +191,13 @@ function System_debCreate()
 # ##################################################################################################################################################
 
 ACTION=""
+usecases=""
+
+usage()
+{
+  echo "Usage: make-release.sh  [ -a | --action deb ] [ -A | --all ]"
+  exit 0
+}
 
 # Must be run as root.
 ID=$(id -u)
@@ -188,23 +211,33 @@ while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
-        --action)
+        -a | --action)
             ACTION="$2"
-            shift
+            shift 2
+            ;;
+        -A | --all)
+            usecases="y"
             shift
             ;;
-
         *)
-            shift
+            echo "Unexpected option: $1."
+            usage
             ;;
     esac
 done
 
+
 if [ -z "$ACTION" ]; then
-    echo "Missing parameters. Use --action deb."
+    echo "Missing parameters."
+    usage
 else
     System "system"
     $system_run
 fi
 
+if [ "$usecases" == "y" ]; then
+    System_usecases
+fi
+
 exit 0
+

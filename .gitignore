@@ -6,4 +6,9 @@ backend/uiconfig.override.json
 ui_backend/sql/uib.data-development.sql
 doc/swagger.yaml
 doc/about.json
+ui_backend/controllers/Workflow/Usecases/*
+ui_backend/models/Workflow/Usecases/*
+ui_backend/serializers/Workflow/Usecases/*
+ui_backend/sql/Usecases/*
+ui_backend/urlsUsecases/*
 

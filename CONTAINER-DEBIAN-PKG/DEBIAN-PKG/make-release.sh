@@ -121,6 +121,20 @@ function System_codeCollect()
     cp -R ../backend $workingFolderPath/var/www/ui-backend
     cp ../license.txt $workingFolderPath/var/www/ui-backend
 
+    # Remove unwanted symlinks.
+    #find $workingFolderPath/var/www/ui-backend/ui_backend/Usecases -type l -exec rm -f {} \; || true
+    find $workingFolderPath/var/www/ui-backend/ui_backend/controllers/Workflow/Usecases -type l -exec rm -f {} \; || true
+    find $workingFolderPath/var/www/ui-backend/ui_backend/models/Workflow/Usecases -type l -exec rm -f {} \; || true
+    find $workingFolderPath/var/www/ui-backend/ui_backend/serializers/Workflow/Usecases -type l -exec rm -f {} \; || true
+    #find $workingFolderPath/var/www/ui-backend/ui_backend/controllers/Asset/Usecases -type l -exec rm -f {} \; || true
+    #find $workingFolderPath/var/www/ui-backend/ui_backend/models/Asset/Usecases -type l -exec rm -f {} \; || true
+    #find $workingFolderPath/var/www/ui-backend/ui_backend/serializers/Asset/Usecases -type l -exec rm -f {} \; || true
+    #find $workingFolderPath/var/www/ui-backend/ui_backend/helpers/Usecases -type l -exec rm -f {} \; || true
+    #find $workingFolderPath/var/www/ui-backend/ui_backend/helpers/decorators/Usecases -type l -exec rm -f {} \; || true
+    find $workingFolderPath/var/www/ui-backend/ui_backend/sql/Usecases -type l -exec rm -f {} \; || true
+    find $workingFolderPath/var/www/ui-backend/ui_backend/urlsUsecases -type l -exec rm -f {} \; || true
+
+
     # Remove __pycache__ folders and not-required ones.
     rm -fR $(find $workingFolderPath/var/www/ui-backend -name __pycache__)
 }
