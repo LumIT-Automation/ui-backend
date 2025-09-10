@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "acc23889-9e7f-400e-b94f-99bdc8100cfe",
+		"_postman_id": "7b675e4b-540e-46b2-9864-551b5e98e929",
 		"name": "BACKEND",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -302,16 +302,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/flow-test1/",
-							"protocol": "http",
+							"raw": "{{backendBaseUrl}}/workflow/flow-test1/",
 							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
+								"{{backendBaseUrl}}"
 							],
 							"path": [
-								"backend",
 								"workflow",
 								"flow-test1",
 								""
@@ -350,16 +345,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/checkpoint-add-host/",
-							"protocol": "http",
+							"raw": "{{backendBaseUrl}}/workflow/checkpoint-add-host/",
 							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
+								"{{backendBaseUrl}}"
 							],
 							"path": [
-								"backend",
 								"workflow",
 								"checkpoint-add-host",
 								""
@@ -398,16 +388,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/checkpoint-remove-host/",
-							"protocol": "http",
+							"raw": "{{backendBaseUrl}}/workflow/checkpoint-remove-host/",
 							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
+								"{{backendBaseUrl}}"
 							],
 							"path": [
-								"backend",
 								"workflow",
 								"checkpoint-remove-host",
 								""
@@ -437,16 +422,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-accounts/",
-							"protocol": "http",
+							"raw": "{{backendBaseUrl}}/workflow/cloud-accounts/",
 							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
+								"{{backendBaseUrl}}"
 							],
 							"path": [
-								"backend",
 								"workflow",
 								"cloud-accounts",
 								""
@@ -476,16 +456,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-accounts/assets/infoblox/",
-							"protocol": "http",
+							"raw": "{{backendBaseUrl}}/workflow/cloud-accounts/assets/infoblox/",
 							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
+								"{{backendBaseUrl}}"
 							],
 							"path": [
-								"backend",
 								"workflow",
 								"cloud-accounts",
 								"assets",
@@ -517,16 +492,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/crif-parolaioo-uat/?checkpointAssetId=1",
-							"protocol": "http",
+							"raw": "{{backendBaseUrl}}/workflow/cloud-account/crif-parolaioo-uat/?checkpointAssetId=1",
 							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
+								"{{backendBaseUrl}}"
 							],
 							"path": [
-								"backend",
 								"workflow",
 								"cloud-account",
 								"crif-parolaioo-uat",
@@ -572,16 +542,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/CRIF-diplodoco2/",
-							"protocol": "http",
+							"raw": "{{backendBaseUrl}}/workflow/cloud-account/CRIF-diplodoco2/",
 							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
+								"{{backendBaseUrl}}"
 							],
 							"path": [
-								"backend",
 								"workflow",
 								"cloud-account",
 								"CRIF-diplodoco2",
@@ -621,16 +586,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/crif-parolaioo-uat/",
-							"protocol": "http",
+							"raw": "{{backendBaseUrl}}/workflow/cloud-account/crif-parolaioo-uat/",
 							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
+								"{{backendBaseUrl}}"
 							],
 							"path": [
-								"backend",
 								"workflow",
 								"cloud-account",
 								"crif-parolaioo-uat",
@@ -670,16 +630,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/CRIF-diplodoco2/",
-							"protocol": "http",
+							"raw": "{{backendBaseUrl}}/workflow/cloud-account/CRIF-diplodoco2/",
 							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
+								"{{backendBaseUrl}}"
 							],
 							"path": [
-								"backend",
 								"workflow",
 								"cloud-account",
 								"CRIF-diplodoco2",
@@ -719,16 +674,11 @@
 							}
 						},
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflow/cloud-account/crif-parolaioo-uat/",
-							"protocol": "http",
+							"raw": "{{backendBaseUrl}}/workflow/cloud-account/crif-parolaioo-uat/",
 							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
+								"{{backendBaseUrl}}"
 							],
 							"path": [
-								"backend",
 								"workflow",
 								"cloud-account",
 								"crif-parolaioo-uat",
@@ -759,16 +709,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://10.0.111.12/backend/workflows/",
-							"protocol": "http",
+							"raw": "{{backendBaseUrl}}/workflows/",
 							"host": [
-								"10",
-								"0",
-								"111",
-								"12"
+								"{{backendBaseUrl}}"
 							],
 							"path": [
-								"backend",
 								"workflows",
 								""
 							]
@@ -882,16 +827,11 @@
 					}
 				],
 				"url": {
-					"raw": "http://10.0.111.12/backend/authorizations/",
-					"protocol": "http",
+					"raw": "{{backendBaseUrl}}/authorizations/",
 					"host": [
-						"10",
-						"0",
-						"111",
-						"12"
+						"{{backendBaseUrl}}"
 					],
 					"path": [
-						"backend",
 						"authorizations",
 						""
 					]
@@ -920,16 +860,11 @@
 					}
 				],
 				"url": {
-					"raw": "http://10.0.111.12/backend/history/",
-					"protocol": "http",
+					"raw": "{{backendBaseUrl}}/history/",
 					"host": [
-						"10",
-						"0",
-						"111",
-						"12"
+						"{{backendBaseUrl}}"
 					],
 					"path": [
-						"backend",
 						"history",
 						""
 					]
@@ -953,16 +888,11 @@
 					}
 				],
 				"url": {
-					"raw": "http://10.0.111.12/backend/ui-config/",
-					"protocol": "http",
+					"raw": "{{backendBaseUrl}}/ui-config/",
 					"host": [
-						"10",
-						"0",
-						"111",
-						"12"
+						"{{backendBaseUrl}}"
 					],
 					"path": [
-						"backend",
 						"ui-config",
 						""
 					]
