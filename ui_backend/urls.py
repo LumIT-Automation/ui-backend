@@ -59,5 +59,4 @@ for fileModule in modules:
         pass
 
 urlpatterns.append(re_path(r'^backend/.*/.*', Controller.Controller.as_view()))
-from. helpers.Log import Log
-Log.log(urlpatterns, 'UUUUUUUUUUUUUUUUUUUUUU')
+
