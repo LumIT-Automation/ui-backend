@@ -11,4 +11,5 @@ ui_backend/models/Workflow/Usecases/*
 ui_backend/serializers/Workflow/Usecases/*
 ui_backend/sql/Usecases/*
 ui_backend/urlsUsecases/*
-
+ui_backend/helpers/Usecases/*
+backend/Usecases/*

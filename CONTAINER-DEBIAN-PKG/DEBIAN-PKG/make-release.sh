@@ -129,7 +129,7 @@ function System_codeCollect()
     #find $workingFolderPath/var/www/ui-backend/ui_backend/controllers/Asset/Usecases -type l -exec rm -f {} \; || true
     #find $workingFolderPath/var/www/ui-backend/ui_backend/models/Asset/Usecases -type l -exec rm -f {} \; || true
     #find $workingFolderPath/var/www/ui-backend/ui_backend/serializers/Asset/Usecases -type l -exec rm -f {} \; || true
-    #find $workingFolderPath/var/www/ui-backend/ui_backend/helpers/Usecases -type l -exec rm -f {} \; || true
+    find $workingFolderPath/var/www/ui-backend/ui_backend/helpers/Usecases -type l -exec rm -f {} \; || true
     #find $workingFolderPath/var/www/ui-backend/ui_backend/helpers/decorators/Usecases -type l -exec rm -f {} \; || true
     find $workingFolderPath/var/www/ui-backend/ui_backend/sql/Usecases -type l -exec rm -f {} \; || true
     find $workingFolderPath/var/www/ui-backend/ui_backend/urlsUsecases -type l -exec rm -f {} \; || true

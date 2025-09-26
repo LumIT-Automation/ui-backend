@@ -283,7 +283,14 @@ API_SUPPLICANT_CACHE_VALIDITY = 60*60*24 # seconds.
 DOC_TXT_DIR = "/var/www/ui-backend/doc/"
 
 # Customer/use cases settings.
-try:
-    from backend.settings_custom import *
-except ModuleNotFoundError:
-    pass
+import importlib
+
+folder_path = "/var/www/ui-backend/backend/Usecases"
+files = os.listdir(folder_path)
+
+for file in files:
+    if file.endswith(".py"):
+        module_name = file[:-3]
+        path = f"api.Usecases.{module_name}"
+        customVars = vars(importlib.import_module(path))
+        globals().update(customVars)
