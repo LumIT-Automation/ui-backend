@@ -6,6 +6,7 @@ from .controllers import Root, Controller, History, UiConfiguration, Authorizati
 from .controllers.Workflow import Workflows, FlowTest1
 from .controllers.Permission import WorkflowPermissions, WorkflowPermission, ApiIdentityGroups
 from .controllers import RawTxtController, About
+from .helpers.Log import Log
 
 urlpatterns = [
     path('backend/', Root.RootController.as_view()),
@@ -36,7 +37,12 @@ for fileModule in modules:
     try:
         if fileModule == '__init__.py' or fileModule[-3:] != '.py':
             continue
-        module = importlib.import_module("ui_backend.urlsUsecases." + fileModule[:-3], package=None)
+
+        try:
+            module = importlib.import_module("ui_backend.urlsUsecases." + fileModule[:-3], package=None)
+        except Exception as e:
+            Log.log("Error when importing module from file " + fileModule + " e")
+            raise e
 
         # Replace.
         try:
@@ -59,4 +65,3 @@ for fileModule in modules:
         pass
 
 urlpatterns.append(re_path(r'^backend/.*/.*', Controller.Controller.as_view()))
-

@@ -291,6 +291,6 @@ files = os.listdir(folder_path)
 for file in files:
     if file.endswith(".py"):
         module_name = file[:-3]
-        path = f"api.Usecases.{module_name}"
+        path = f"backend.Usecases.{module_name}"
         customVars = vars(importlib.import_module(path))
         globals().update(customVars)

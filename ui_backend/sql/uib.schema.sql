@@ -59,7 +59,7 @@ CREATE TABLE `migrations` (
 CREATE TABLE `workflow` (
   `id` int(11) NOT NULL,
   `name` varchar(64) NOT NULL,
-  `technologies` SET('f5', 'infoblox', 'vmware', 'checkpoint'),
+  `technologies` SET('f5', 'f5xc', 'infoblox', 'vmware', 'checkpoint'),
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
