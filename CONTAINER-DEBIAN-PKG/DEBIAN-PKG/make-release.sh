@@ -122,7 +122,7 @@ function System_codeCollect()
     cp ../license.txt $workingFolderPath/var/www/ui-backend
 
     # Remove unwanted symlinks.
-    #find $workingFolderPath/var/www/ui-backend/ui_backend/Usecases -type l -exec rm -f {} \; || true
+    find $workingFolderPath/var/www/ui-backend/backend/Usecases -type l -exec rm -f {} \; || true
     find $workingFolderPath/var/www/ui-backend/ui_backend/controllers/Workflow/Usecases -type l -exec rm -f {} \; || true
     find $workingFolderPath/var/www/ui-backend/ui_backend/models/Workflow/Usecases -type l -exec rm -f {} \; || true
     find $workingFolderPath/var/www/ui-backend/ui_backend/serializers/Workflow/Usecases -type l -exec rm -f {} \; || true
