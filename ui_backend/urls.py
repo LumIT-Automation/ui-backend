@@ -41,7 +41,7 @@ for fileModule in modules:
         try:
             module = importlib.import_module("ui_backend.urlsUsecases." + fileModule[:-3], package=None)
         except Exception as e:
-            Log.log("Error when importing module from file " + fileModule + " e")
+            Log.log("Error when importing module from file " + fileModule + str(e))
             raise e
 
         # Replace.
