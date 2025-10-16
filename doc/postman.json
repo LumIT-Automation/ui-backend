@@ -478,6 +478,52 @@
 							"response": []
 						},
 						{
+							"name": "cloud account modify",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{jwttoken}}"
+									},
+									{
+										"key": "If-None-Match",
+										"value": "c485212f298abe5f8b867ca42617292a",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"data\": {\n        \"Reference\": \"pippo\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{backendBaseUrl}}/workflow/crif/cloud-account/crif-parolaioo-uat/modify/",
+									"host": [
+										"{{backendBaseUrl}}"
+									],
+									"path": [
+										"workflow",
+										"crif",
+										"cloud-account",
+										"crif-parolaioo-uat",
+										"modify",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "cloud account assign AWS",
 							"request": {
 								"auth": {
@@ -499,7 +545,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account ID\": \"112745678903\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"eu-south-1\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"coso\"\n            ]\n        }\n    }\n}",
+									"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-131559\",\n        \"Account ID\": \"112745678903\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AWS\",\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"eu-south-1\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"coso\"\n            ]\n        }\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -507,7 +553,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{backendBaseUrl}}/workflow/crif/cloud-account/CRIF-diplodoco2/",
+									"raw": "{{backendBaseUrl}}/workflow/crif/cloud-account/CRIF-diplodoco-INT/",
 									"host": [
 										"{{backendBaseUrl}}"
 									],
@@ -515,7 +561,7 @@
 										"workflow",
 										"crif",
 										"cloud-account",
-										"CRIF-diplodoco2",
+										"CRIF-diplodoco-INT",
 										""
 									]
 								}
@@ -544,7 +590,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"data\": {\n        \"change-request-id\": \"ITIO-777777779\",\n        \"Account ID\": \"112745678020\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AZURE\",\n        \"azure_data\": {\n            \"env\": \"uat\"\n        },\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"westeurope\",\n                \"scope\": \"AGW\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"coso\"\n            ]\n        }\n    }\n}",
+									"raw": "{\n    \"data\": {\n        \"change-request-id\":  \"ITIO-131559\",\n        \"Account ID\": \"112745678041\",\n        \"Reference\": \"quello la\",\n        \"provider\": \"AZURE\",\n        \"azure_data\": {\n            \"env\": \"uat\"\n        },\n        \"infoblox_cloud_network_assign\": [\n            {\n                \"asset\": 1,\n                \"comment\": \"Nella vecchia fattoria ia ia oh\",\n                \"subnetMaskCidr\": 24,\n                \"region\": \"westeurope\",\n                \"scope\": \"WORKLOAD\"\n            }\n        ],\n        \"checkpoint_datacenter_account_put\": {\n            \"asset\": 1,\n            \"tags\": [\n                \"coso\"\n            ]\n        }\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -552,7 +598,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{backendBaseUrl}}/workflow/crif/cloud-account/crif-parolaioo-uat/",
+									"raw": "{{backendBaseUrl}}/workflow/crif/cloud-account/crif-mosasauro-Uat/",
 									"host": [
 										"{{backendBaseUrl}}"
 									],
@@ -560,7 +606,7 @@
 										"workflow",
 										"crif",
 										"cloud-account",
-										"crif-parolaioo-uat",
+										"crif-mosasauro-Uat",
 										""
 									]
 								}
