@@ -1,5 +1,6 @@
 import os
 import dns.resolver
+import importlib
 from datetime import timedelta
 
 from ui_backend.helpers.Process import Process
@@ -283,14 +284,13 @@ API_SUPPLICANT_CACHE_VALIDITY = 60*60*24 # seconds.
 DOC_TXT_DIR = "/var/www/ui-backend/doc/"
 
 # Customer/use cases settings.
-import importlib
+usecasesFolder = "/var/www/ui-backend/backend/Usecases"
+if os.path.isdir(usecasesFolder):
+    files = os.listdir(usecasesFolder)
 
-folder_path = "/var/www/ui-backend/backend/Usecases"
-files = os.listdir(folder_path)
-
-for file in files:
-    if file.endswith(".py"):
-        module_name = file[:-3]
-        path = f"backend.Usecases.{module_name}"
-        customVars = vars(importlib.import_module(path))
-        globals().update(customVars)
+    for file in files:
+        if file.endswith(".py"):
+            module_name = file[:-3]
+            path = f"backend.Usecases.{module_name}"
+            customVars = vars(importlib.import_module(path))
+            globals().update(customVars)
