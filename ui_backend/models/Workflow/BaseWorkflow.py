@@ -110,6 +110,40 @@ class BaseWorkflow:
 
 
 
+    def parallelizeCalls(self, calls: dict, outputData: dict):
+
+        def startCall(call: dict, key: str, outputData: dict):
+            data, status = self.requestFacade(
+                **call,
+                headers=self.headers,
+            )
+            Log.log("[WORKFLOW] " + self.workflowId + f" - {call['technology']} response status: " + str(status))
+            Log.log("[WORKFLOW] " + self.workflowId + f" - {call['technology']} response: " + str(data)[:1024])
+
+            if status != 200 and status != 304:
+                raise CustomException(status=status, payload={call['technology']: str(data)[:1024]})
+
+            outputData[key] = data
+
+        try:
+            import threading
+            workers = list()
+            for key, call in calls.items():
+                try:
+                    workers.append(threading.Thread(target=startCall, args=(call, key, outputData)))
+                except KeyError:
+                    raise CustomException(status=503, payload={call["technology"]: str(call)})
+
+            for w in workers:
+                w.start()
+            for w in workers:
+                w.join()
+
+        except Exception as e:
+            raise e
+
+
+
     # Still need the privilege "assets_get" for each needed technology.
     def listAssets(self, technology) -> list:
         try:
