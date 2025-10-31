@@ -1,3 +1,5 @@
+import threading
+
 from django.conf import settings
 
 from ui_backend.models.Permission.Workflow import Workflow as WorkflowPermission
@@ -110,7 +112,7 @@ class BaseWorkflow:
 
 
 
-    def parallelizeCalls(self, calls: dict, outputData: dict):
+    def parallelizeCalls(self, calls: dict, outputData: dict, maxThreadsNum: int = 0):
 
         def startCall(call: dict, key: str, outputData: dict):
             data, status = self.requestFacade(
@@ -126,18 +128,27 @@ class BaseWorkflow:
             outputData[key] = data
 
         try:
-            import threading
-            workers = list()
-            for key, call in calls.items():
-                try:
-                    workers.append(threading.Thread(target=startCall, args=(call, key, outputData)))
-                except KeyError:
-                    raise CustomException(status=503, payload={call["technology"]: str(call)})
+            # make groups (lists) of parallelized calls, each with maxThreadsNum as max length.
+            # maxThreadsNum = 0 means do all calls at one time.
+            callsKeys = list(calls.keys())
+            if maxThreadsNum:
+                keyGroups = [ callsKeys[i:i + maxThreadsNum] for i in range(0, len(callsKeys), maxThreadsNum)]
+            else:
+                keyGroups = [ callsKeys ]
 
-            for w in workers:
-                w.start()
-            for w in workers:
-                w.join()
+            for keyGroup in keyGroups:
+                workers = list()
+                for key, call in calls.items():
+                    if key in keyGroup:
+                        try:
+                            workers.append(threading.Thread(target=startCall, args=(call, key, outputData)))
+                        except KeyError:
+                            raise CustomException(status=503, payload={call["technology"]: str(call)})
+
+                for w in workers:
+                    w.start()
+                for w in workers:
+                    w.join()
 
         except Exception as e:
             raise e
