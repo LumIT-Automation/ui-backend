@@ -76,8 +76,9 @@ class BaseWorkflow:
 
 
 
-    def requestFacade(self, method: str, technology: str, headers: dict, urlSegment: str, data: dict = None, escalate: bool = False, logPayload: bool = False ) -> list:
+    def requestFacade(self, method: str, technology: str, headers: dict, urlSegment: str, data: dict = None, params: dict = None, escalate: bool = False, logPayload: bool = False ) -> list:
         data = data or {}
+        params = params or {}
         r = dict() # response.
         s = 0 # http status.
 
@@ -89,7 +90,8 @@ class BaseWorkflow:
 
             api = ApiSupplicant(
                 endpoint=settings.API_BACKEND_BASE_URL[technology] + technology + "/" + urlSegment,
-                additionalHeaders=headers
+                additionalHeaders=headers,
+                params=params
             )
 
             if method == "GET":
@@ -156,13 +158,16 @@ class BaseWorkflow:
 
 
     # Still need the privilege "assets_get" for each needed technology.
-    def listAssets(self, technology) -> list:
+    def listAssets(self, technology, filter: dict = None) -> list:
+        filter = filter or {}
+
         try:
             call = {
                 "technology": technology,
                 "method": "GET",
                 "urlSegment": "assets/",
-                "data": None
+                "data": None,
+                "params": filter
             }
 
             response, status = self.requestFacade(
