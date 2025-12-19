@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "8557e696-5559-4cb0-91c1-03423e3ae671",
+		"_postman_id": "35317486-5258-4836-8573-3e2122a6edd0",
 		"name": "BACKEND",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -708,6 +708,42 @@
 				{
 					"name": "cedacri",
 					"item": [
+						{
+							"name": "network info",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"type": "text",
+										"value": "Bearer {{jwttoken}}"
+									},
+									{
+										"key": "If-None-Match",
+										"value": "c485212f298abe5f8b867ca42617292a",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{backendBaseUrl}}/workflow/cedacri/network-info//",
+									"host": [
+										"{{backendBaseUrl}}"
+									],
+									"path": [
+										"workflow",
+										"cedacri",
+										"network-info",
+										"",
+										""
+									]
+								}
+							},
+							"response": []
+						},
 						{
 							"name": "resolve domains",
 							"request": {
