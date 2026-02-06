@@ -1,6 +1,6 @@
 from django.core.mail import send_mail
 
-from checkpoint.helpers.Log import Log
+from ui_backend.helpers.Log import Log
 
 
 class Mail:
