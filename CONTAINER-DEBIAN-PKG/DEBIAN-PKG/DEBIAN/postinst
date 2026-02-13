@@ -44,6 +44,7 @@ if [ "$1" == "configure" ]; then
     fi
 
     printf "\n* Enabling local services...\n"
+    systemctl enable mta-host
     systemctl enable syslog-ng
     systemctl enable consul
     systemctl enable consul_template

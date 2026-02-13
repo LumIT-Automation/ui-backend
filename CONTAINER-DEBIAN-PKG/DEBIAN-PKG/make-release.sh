@@ -256,6 +256,7 @@ function System_systemFilesSetup()
     chmod +x $workingFolderPath/usr/bin/consul.sh
     chmod +x $workingFolderPath/usr/bin/consul-template.sh
     chmod +x $workingFolderPath/usr/bin/syslogng-target.sh
+    chmod +x $workingFolderPath/usr/bin/mta-target.sh
 }
 
 
