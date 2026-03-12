@@ -2,9 +2,9 @@ asgiref==3.11.1
 async-timeout==5.0.1
 certifi==2026.2.25
 cffi==2.0.0
-charset-normalizer==3.4.4
+charset-normalizer==3.4.5
 cryptography==41.0.7
-Django==4.2.28
+Django==4.2.29
 django-redis==5.3.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
@@ -13,7 +13,7 @@ idna==3.11
 mysqlclient==2.1.1
 pycparser==3.0
 PyJWT==2.8.0
-pytz==2025.2
+pytz==2026.1.post1
 redis==5.0.8
 requests==2.31.0
 sqlparse==0.5.5
