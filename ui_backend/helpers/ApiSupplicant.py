@@ -58,7 +58,7 @@ class ApiSupplicant:
                 headers.update({"escalatedByWorkflow": "escalate"})
 
             # Fetch the remote resource from the API backend.
-            Log.actionLog("Fetching remote: GET " + str(self.endpoint)+" with query params: " + str(self.params)+" with headers: " + str(headers))
+            #Log.actionLog("Fetching remote: GET " + str(self.endpoint)+" with query params: " + str(self.params)+" with headers: " + str(headers))
             if logPayload:
                 Log.actionLog("Payload: " + str(data))
 

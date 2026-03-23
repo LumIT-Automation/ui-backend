@@ -121,8 +121,8 @@ class BaseWorkflow:
                 **call,
                 headers=self.headers,
             )
-            Log.log("[WORKFLOW] " + self.workflowId + f" - {call['technology']} response status: " + str(status))
-            Log.log("[WORKFLOW] " + self.workflowId + f" - {call['technology']} response: " + str(data)[:1024])
+            #Log.log("[WORKFLOW] " + self.workflowId + f" - {call['technology']} response status: " + str(status))
+            #Log.log("[WORKFLOW] " + self.workflowId + f" - {call['technology']} response: " + str(data)[:1024])
 
             if status != 200 and status != 304:
                 raise CustomException(status=status, payload={call['technology']: str(data)[:1024]})
